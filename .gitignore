@@ -1,0 +1,65 @@
+## --- 1. Build Artifacts & Intermediate Files ---
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Ll]ogs/
+Generated\ Files/
+dist/
+out/
+Publish/
+PublishOutput/
+*.Publish.xml
+*.pubxml
+
+## --- 2. Visual Studio & Rider Cache ---
+.vs/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.userprefs
+*.dbmdl
+.idea/
+*.sln.iml
+
+## --- 3. Visual Studio Code ---
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+## --- 4. Sensitive Data & Secrets (Bảo mật) ---
+appsettings*.local.json
+appsettings.Production.json
+secrets.json
+*.pfx
+*.publishsettings
+.env
+.env.*
+!.env.example
+
+## --- 5. NuGet Packages ---
+*.nupkg
+*.snupkg
+packages/
+!**/packages/build/
+project.lock.json
+project.assets.json
+
+## --- 6. Test Results & Code Coverage ---
+TestResults/
+*.trx
+coverage/
+*.coverage
+*.coveragexml
+
+## --- 7. OS Junk Files ---
+.DS_Store
+Thumbs.db
+desktop.ini
+
+
+## --- 8. Custom Exclude ---
+API_GateWay/
+API_GateWay/*

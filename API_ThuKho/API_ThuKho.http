@@ -1,0 +1,6 @@
+@API_ThuKho_HostAddress = http://localhost:5057
+
+GET {{API_ThuKho_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
