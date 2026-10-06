@@ -129,43 +129,46 @@ namespace DAL
             }
         }
 
-        public List<TaiKhoan> Login(string username, string password)
+        public TaiKhoan? Login(string username)
         {
             try
             {
-                var list = new List<TaiKhoan>();
-                // Dùng RTRIM để triệt tiêu các khoảng trắng do kiểu dữ liệu CHAR(20) gây ra
                 string sql = @"SELECT TOP 1 RTRIM(MATAIKHOAN) AS MATAIKHOAN,
                                             RTRIM(USERNAME) AS USERNAME,
                                             RTRIM(PASS) AS PASS,
                                             QUYEN
                                FROM dbo.TAIKHOAN
-                               WHERE RTRIM(USERNAME) = @USERNAME AND RTRIM(PASS) = @PASS";
+                               WHERE RTRIM(USERNAME) = @USERNAME";
 
-                SqlParameter[] p =
-                {
-                    new SqlParameter("@USERNAME", username.Trim()),
-                    new SqlParameter("@PASS", password.Trim())
-                };
+                SqlParameter[] p = { new SqlParameter("@USERNAME", username.Trim()) };
 
                 DataTable dt = Connect.ExecuteQuery(sql, p);
-                foreach (DataRow r in dt.Rows)
+                if (dt.Rows.Count == 0) return null;
+                DataRow r = dt.Rows[0];
+                return new TaiKhoan
                 {
-                    list.Add(new TaiKhoan
-                    {
-                        MATAIKHOAN = r["MATAIKHOAN"].ToString(),
-                        USERNAME = r["USERNAME"].ToString(),
-                        PASS = r["PASS"].ToString(),
-                        QUYEN = r["QUYEN"] == DBNull.Value ? 0 : Convert.ToInt32(r["QUYEN"])
-                    });
-                }
-
-                return list;
+                    MATAIKHOAN = r["MATAIKHOAN"].ToString() ?? "",
+                    USERNAME = r["USERNAME"].ToString() ?? "",
+                    PASS = r["PASS"].ToString() ?? "",
+                    QUYEN = r["QUYEN"] == DBNull.Value ? 0 : Convert.ToInt32(r["QUYEN"])
+                };
             }
             catch (Exception ex)
             {
                 throw new Exception("Lỗi khi đăng nhập: " + ex.Message);
             }
+        }
+
+        public void CapNhatMatKhau(string maTK, string passwordText)
+        {
+            const string sql = "UPDATE dbo.TAIKHOAN SET PASS = @PASS WHERE RTRIM(MATAIKHOAN) = @MATAIKHOAN";
+            SqlParameter[] parameters =
+            {
+                new SqlParameter("@PASS", SqlDbType.NVarChar, 256) { Value = passwordText },
+                new SqlParameter("@MATAIKHOAN", SqlDbType.Char, 15) { Value = maTK.Trim() }
+            };
+            if (Connect.ExecuteNonQuery(sql, parameters) == 0)
+                throw new InvalidOperationException("Không thể cập nhật hash mật khẩu.");
         }
 
         public int GetRoleByUsername(string username)

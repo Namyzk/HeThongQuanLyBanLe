@@ -1,4 +1,4 @@
-﻿using DAL;
+using DAL;
 using Models;
 using System;
 using System.Collections.Generic;
@@ -10,9 +10,9 @@ namespace BLL
     {
         private readonly NhanVien_DAL nv_dal;
 
-        public NhanVien_BLL()
+        public NhanVien_BLL(NhanVien_DAL nv_dal)
         {
-            nv_dal = new NhanVien_DAL();
+            this.nv_dal = nv_dal;
         }
 
         public List<NhanVien> LayTatCa()

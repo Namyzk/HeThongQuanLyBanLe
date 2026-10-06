@@ -1,0 +1,120 @@
+{
+  "Routes": [
+    {
+      "Key": "login-anonymous",
+      "DownstreamPathTemplate": "/api/Login/login",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [ { "Host": "127.0.0.1", "Port": 5141 } ],
+      "UpstreamPathTemplate": "/api/Login/login",
+      "UpstreamHttpMethod": [ "POST" ],
+      "Priority": 10,
+      "AuthenticationOptions": { "AllowAnonymous": true }
+    },
+    {
+      "Key": "login-refresh-anonymous",
+      "DownstreamPathTemplate": "/api/Login/refresh",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [ { "Host": "127.0.0.1", "Port": 5141 } ],
+      "UpstreamPathTemplate": "/api/Login/refresh",
+      "UpstreamHttpMethod": [ "POST" ],
+      "Priority": 10,
+      "AuthenticationOptions": { "AllowAnonymous": true }
+    },
+    {
+      "Key": "login-logout-anonymous",
+      "DownstreamPathTemplate": "/api/Login/logout",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [ { "Host": "127.0.0.1", "Port": 5141 } ],
+      "UpstreamPathTemplate": "/api/Login/logout",
+      "UpstreamHttpMethod": [ "POST" ],
+      "Priority": 10,
+      "AuthenticationOptions": { "AllowAnonymous": true }
+    },
+    {
+      "Key": "login-protected",
+      "DownstreamPathTemplate": "/api/Login/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [ { "Host": "127.0.0.1", "Port": 5141 } ],
+      "UpstreamPathTemplate": "/api/Login/{everything}",
+      "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE", "PATCH" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKeys": [ "Bearer" ],
+        "AllowedScopes": [ "authenticated" ]
+      }
+    },
+    {
+      "Key": "admin-api",
+      "DownstreamPathTemplate": "/api/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [ { "Host": "127.0.0.1", "Port": 5087 } ],
+      "UpstreamPathTemplate": "/api/admin/{everything}",
+      "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE", "PATCH" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKeys": [ "Bearer" ],
+        "AllowedScopes": [ "admin" ]
+      }
+    },
+    {
+      "Key": "accounting-api",
+      "DownstreamPathTemplate": "/api/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [ { "Host": "127.0.0.1", "Port": 5063 } ],
+      "UpstreamPathTemplate": "/api/ketoan/{everything}",
+      "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE", "PATCH" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKeys": [ "Bearer" ],
+        "AllowedScopes": [ "accountant" ]
+      }
+    },
+    {
+      "Key": "warehouse-inventory-read",
+      "DownstreamPathTemplate": "/api/QuanLyTonKho/get-all-sanpham-tonkho",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [ { "Host": "127.0.0.1", "Port": 5057 } ],
+      "UpstreamPathTemplate": "/api/thukho/QuanLyTonKho/get-all-sanpham-tonkho",
+      "UpstreamHttpMethod": [ "GET" ],
+      "Priority": 10,
+      "AuthenticationOptions": {
+        "AuthenticationProviderKeys": [ "Bearer" ],
+        "AllowedScopes": [ "warehouse.read" ]
+      }
+    },
+    {
+      "Key": "warehouse-api",
+      "DownstreamPathTemplate": "/api/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [ { "Host": "127.0.0.1", "Port": 5057 } ],
+      "UpstreamPathTemplate": "/api/thukho/{everything}",
+      "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE", "PATCH" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKeys": [ "Bearer" ],
+        "AllowedScopes": [ "warehouse" ]
+      }
+    },
+    {
+      "Key": "sales-payos-webhook-anonymous",
+      "DownstreamPathTemplate": "/api/QuanLyBanHang/payos/webhook",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [ { "Host": "127.0.0.1", "Port": 5163 } ],
+      "UpstreamPathTemplate": "/api/thungan/QuanLyBanHang/payos/webhook",
+      "UpstreamHttpMethod": [ "POST" ],
+      "Priority": 100,
+      "AuthenticationOptions": { "AllowAnonymous": true }
+    },
+    {
+      "Key": "sales-api",
+      "DownstreamPathTemplate": "/api/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [ { "Host": "127.0.0.1", "Port": 5163 } ],
+      "UpstreamPathTemplate": "/api/thungan/{everything}",
+      "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE", "PATCH" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKeys": [ "Bearer" ],
+        "AllowedScopes": [ "sales" ]
+      }
+    }
+  ],
+  "GlobalConfiguration": {
+    "BaseUrl": "https://localhost:7144"
+  }
+}

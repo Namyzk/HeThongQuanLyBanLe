@@ -1,287 +1,228 @@
-﻿using BLL;
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Linq;
+using BLL;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Models;
-using System.Data;
 
 namespace API_ThuKho.Controllers
 {
-    [Authorize]
-   
+    [Authorize(Roles = "Admin,ThuKho")]
     [Route("api/QuanLyNhapKho")]
     [ApiController]
     public class QuanLyNhapKho_Controller : ControllerBase
     {
-        private readonly PhieuNhapKho_BLL _bll;
-        private readonly ChiTietNhap_BLL ctn_bll;
-        private readonly NhaCungCap_BLL NCC_BLL;
-        public QuanLyNhapKho_Controller(IConfiguration configuration)
+        private readonly PhieuNhapKho_BLL _pnkBll;
+        private readonly ChiTietNhap_BLL _ctnBll;
+        private readonly NhaCungCap_BLL _nccBll;
+
+        public QuanLyNhapKho_Controller(PhieuNhapKho_BLL _pnkBll, ChiTietNhap_BLL _ctnBll, NhaCungCap_BLL _nccBll)
         {
-            _bll = new PhieuNhapKho_BLL();
-            ctn_bll = new ChiTietNhap_BLL();
-            NCC_BLL = new NhaCungCap_BLL();
+            this._pnkBll = _pnkBll;
+            this._ctnBll = _ctnBll;
+            this._nccBll = _nccBll;
         }
 
-        //PhieuNhapKho
+       
+        private IActionResult HandleBllError(string bllError)
+        {
+            if (bllError.StartsWith("Lỗi hệ thống", StringComparison.OrdinalIgnoreCase))
+                return StatusCode(500, new { success = false, message = "Lỗi hệ thống nội bộ." });
+
+            if (bllError.Contains("đã tồn tại", StringComparison.OrdinalIgnoreCase))
+                return Conflict(new { success = false, message = bllError });
+
+            if (bllError.Contains("Không tìm thấy", StringComparison.OrdinalIgnoreCase) ||
+                bllError.Contains("không tồn tại", StringComparison.OrdinalIgnoreCase))
+                return NotFound(new { success = false, message = bllError });
+
+            return BadRequest(new { success = false, message = bllError });
+        }
+
+      
+        private IActionResult? ValidateMa(string? ma, string tenTruong, int maxLen, out string cleanMa)
+        {
+            cleanMa = string.Empty;
+            if (string.IsNullOrWhiteSpace(ma))
+                return BadRequest(new { success = false, message = $"{tenTruong} không được để trống." });
+
+            cleanMa = ma.Trim();
+            if (cleanMa.Length > maxLen)
+                return BadRequest(new { success = false, message = $"{tenTruong} không được vượt quá {maxLen} ký tự." });
+
+            return null;
+        }
+
+       
+        private static object MapNhaCungCap(DataRow row) => new
+        {
+            MANCC = row["MANCC"]?.ToString()?.Trim(),
+            TENNCC = row["TENNCC"]?.ToString()?.Trim(),
+            DIACHI = row["DIACHI"]?.ToString()?.Trim(),
+            SDT = row["SDT"]?.ToString()?.Trim(),
+            EMAIL = row["EMAIL"]?.ToString()?.Trim()
+        };
+
+       
         [HttpGet("get-all-phieunhapkho")]
         public IActionResult GetAllPhieuNhapKho()
         {
             try
             {
-                var data = _bll.LayTatCa();
-                return Ok(new { success = true, message = "Lấy danh sách phiếu nhập kho thành công", data });
+                var data = _pnkBll.LayTatCa();
+                return Ok(new { success = true, count = data?.Count ?? 0, message = "Lấy danh sách phiếu nhập kho thành công.", data });
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { success = false, message = "Lỗi: " + ex.Message });
+                return StatusCode(500, new { success = false, message = "Lỗi hệ thống nội bộ." });
             }
         }
 
         [HttpGet("get-byid-phieunhapkho")]
         public IActionResult GetByIdPhieuNhapKho([FromQuery] string? maphieunhap)
         {
+            if (ValidateMa(maphieunhap, "Mã phiếu nhập", 15, out string cleanMa) is IActionResult valErr)
+                return valErr;
+
             try
             {
-                if (string.IsNullOrWhiteSpace(maphieunhap))
-                {
-                    return BadRequest(new
-                    {
-                        success = false,
-                        message = "Mã phiếu nhập không được để trống."
-                    });
-                }
-
-                maphieunhap = maphieunhap.Trim();
-
-                if (maphieunhap.Length > 15)
-                {
-                    return BadRequest(new
-                    {
-                        success = false,
-                        message = "Mã phiếu nhập không được vượt quá 15 ký tự."
-                    });
-                }
-
-                var list = _bll.LayTheoID(maphieunhap);
-
+                var list = _pnkBll.LayTheoID(cleanMa);
                 if (list == null || list.Count == 0)
-                {
-                    return NotFound(new
-                    {
-                        success = false,
-                        message = $"Không tìm thấy phiếu nhập có mã '{maphieunhap}'."
-                    });
-                }
+                    return NotFound(new { success = false, message = $"Không tìm thấy phiếu nhập có mã '{cleanMa}'." });
 
-                return Ok(new
-                {
-                    success = true,
-                    message = "Lấy thông tin phiếu nhập kho thành công",
-                    data = list
-                });
+                return Ok(new { success = true, message = "Lấy thông tin phiếu nhập kho thành công.", data = list[0] });
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new
-                {
-                    success = false,
-                    message = "Lỗi hệ thống: " + ex.Message
-                });
+                return StatusCode(500, new { success = false, message = "Lỗi hệ thống nội bộ." });
             }
         }
 
         [HttpPost("create-phieunhapkho")]
-        public IActionResult CreatePhieuNhapKho( [FromBody] PhieuNhapKho pnk)
+        public IActionResult CreatePhieuNhapKho([FromBody] PhieuNhapKho pnk)
         {
+            if (pnk == null)
+                return BadRequest(new { success = false, message = "Dữ liệu phiếu nhập không được để trống." });
+
             try
             {
-                string error = _bll.ThemMoi(pnk);
+                string? bllErr = _pnkBll.ThemMoi(pnk);
+                if (bllErr != null) return HandleBllError(bllErr);
 
-                if (error != null)
-                {
-                    if (error.Contains("đã tồn tại"))
-                    {
-                        return Conflict(new
-                        {
-                            success = false,
-                            message = error
-                        });
-                    }
-
-                    return BadRequest(new
-                    {
-                        success = false,
-                        message = error
-                    });
-                }
-
-                return StatusCode(201, new
-                {
-                    success = true,
-                    message = "Thêm phiếu nhập kho thành công"
-                });
+                return StatusCode(201, new { success = true, message = "Thêm phiếu nhập kho thành công." });
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new
-                {
-                    success = false,
-                    message = "Lỗi hệ thống: " + ex.Message
-                });
+                return StatusCode(500, new { success = false, message = "Lỗi hệ thống nội bộ." });
             }
         }
 
         [HttpPost("update-phieunhapkho")]
         public IActionResult UpdatePhieuNhapKho([FromBody] PhieuNhapKho pnk)
         {
+            if (pnk == null)
+                return BadRequest(new { success = false, message = "Dữ liệu phiếu nhập không được để trống." });
+
             try
             {
-                string error = _bll.CapNhat(pnk);
+                string? bllErr = _pnkBll.CapNhat(pnk);
+                if (bllErr != null) return HandleBllError(bllErr);
 
-                if (error != null)
-                {
-                    if (error.Contains("Không tìm thấy"))
-                    {
-                        return NotFound(new
-                        {
-                            success = false,
-                            message = error
-                        });
-                    }
-
-                    return BadRequest(new
-                    {
-                        success = false,
-                        message = error
-                    });
-                }
-
-                return Ok(new
-                {
-                    success = true,
-                    message = "Cập nhật phiếu nhập kho thành công"
-                });
+                return Ok(new { success = true, message = "Cập nhật phiếu nhập kho thành công." });
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new
-                {
-                    success = false,
-                    message = "Lỗi hệ thống: " + ex.Message
-                });
+                return StatusCode(500, new { success = false, message = "Lỗi hệ thống nội bộ." });
             }
         }
+
         [HttpDelete("delete-phieunhapkho")]
-        public IActionResult DeletePhieuNhapKho( [FromQuery] string maphieunhap)
+        public IActionResult DeletePhieuNhapKho([FromQuery] string? maphieunhap)
         {
+            if (ValidateMa(maphieunhap, "Mã phiếu nhập", 15, out string cleanMa) is IActionResult valErr)
+                return valErr;
+
             try
             {
-                string error = _bll.Xoa(maphieunhap);
+                string? bllErr = _pnkBll.Xoa(cleanMa);
+                if (bllErr != null) return HandleBllError(bllErr);
 
-                if (error != null)
-                {
-                    if (error.Contains("Không tìm thấy"))
-                    {
-                        return NotFound(new
-                        {
-                            success = false,
-                            message = error
-                        });
-                    }
-
-                    return BadRequest(new
-                    {
-                        success = false,
-                        message = error
-                    });
-                }
-
-                return Ok(new
-                {
-                    success = true,
-                    message = "Xoá phiếu nhập kho thành công"
-                });
+                return Ok(new { success = true, message = "Xoá phiếu nhập kho thành công." });
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new
-                {
-                    success = false,
-                    message = "Lỗi hệ thống: " + ex.Message
-                });
+                return StatusCode(500, new { success = false, message = "Lỗi hệ thống nội bộ." });
             }
         }
 
+        
 
-
-        //ChiTietNhap
-
-        // 🔹 Lấy tất cả
         [HttpGet("get-all-chitietnhap")]
-        public IActionResult GetAll()
+        public IActionResult GetAllChiTietNhap()
         {
             try
             {
-                var data = ctn_bll.LayTatCa()
-                               .Select(x => new {
-                                   MAPHIEUNHAP = x.MAPHIEUNHAP?.Trim(),
-                                   MASP = x.MASP?.Trim(),
-                                   SOLUONG = x.SOLUONG,
-                                   DONGIANHAP = x.DONGIANHAP,
-                                   THANHTIEN = x.THANHTIEN,
-                               })
-                               .ToList();
-
-                return Ok(new { success = true, message = "Lấy danh sách chi tiết nhập thành công", data });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { success = false, message = "Lỗi: " + ex.Message });
-            }
-        }
-
-        // 🔹 Lấy theo phiếu
-        [HttpGet("get-byphieu-chitietnhap")]
-        public IActionResult GetByPhieu([FromQuery] string? maphieunhap)
-        {
-            try
-            {
-                if (string.IsNullOrWhiteSpace(maphieunhap))
-                    return Ok(new { success = false, message = "Thiếu mã phiếu nhập" });
-
-                var list = ctn_bll.LayTheoPhieu(maphieunhap);
-                var data = list.Select(x => new {
+                var data = _ctnBll.LayTatCa().Select(x => new
+                {
                     MAPHIEUNHAP = x.MAPHIEUNHAP?.Trim(),
                     MASP = x.MASP?.Trim(),
                     SOLUONG = x.SOLUONG,
                     DONGIANHAP = x.DONGIANHAP,
-                    THANHTIEN = x.THANHTIEN,
-                })
-                               .ToList();
+                    THANHTIEN = x.THANHTIEN
+                }).ToList();
 
-                return Ok(new { success = true, message = "Lấy chi tiết theo phiếu thành công", data });
+                return Ok(new { success = true, count = data.Count, message = "Lấy danh sách chi tiết nhập thành công.", data });
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { success = false, message = "Lỗi: " + ex.Message });
+                return StatusCode(500, new { success = false, message = "Lỗi hệ thống nội bộ." });
             }
         }
 
-        //  Lấy theo (MAPHIEUNHAP, MASP)
-        [HttpGet("get-byid-chitietnhap")]
-        public IActionResult GetById([FromQuery] string maphieunhap, [FromQuery] string masp)
+        [HttpGet("get-byphieu-chitietnhap")]
+        public IActionResult GetByPhieu([FromQuery] string? maphieunhap)
         {
+            if (ValidateMa(maphieunhap, "Mã phiếu nhập", 15, out string cleanMa) is IActionResult valErr)
+                return valErr;
+
             try
             {
-                if (string.IsNullOrWhiteSpace(maphieunhap) || string.IsNullOrWhiteSpace(masp))
-                    return Ok(new { success = false, message = "Thiếu mã phiếu nhập hoặc mã sản phẩm" });
-
-                var list = ctn_bll.LayTheoID(maphieunhap, masp);
+                var list = _ctnBll.LayTheoPhieu(cleanMa);
                 if (list == null || list.Count == 0)
-                    return Ok(new { success = false, message = "Không tìm thấy chi tiết nhập" });
+                    return NotFound(new { success = false, message = $"Không tìm thấy chi tiết nhập của phiếu '{cleanMa}'." });
 
-                var x = list.First();
+                var data = list.Select(x => new
+                {
+                    MAPHIEUNHAP = x.MAPHIEUNHAP?.Trim(),
+                    MASP = x.MASP?.Trim(),
+                    SOLUONG = x.SOLUONG,
+                    DONGIANHAP = x.DONGIANHAP,
+                    THANHTIEN = x.THANHTIEN
+                }).ToList();
+
+                return Ok(new { success = true, count = data.Count, message = "Lấy chi tiết theo phiếu thành công.", data });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { success = false, message = "Lỗi hệ thống nội bộ." });
+            }
+        }
+
+        [HttpGet("get-byid-chitietnhap")]
+        public IActionResult GetById([FromQuery] string? maphieunhap, [FromQuery] string? masp)
+        {
+            if (ValidateMa(maphieunhap, "Mã phiếu nhập", 15, out string cleanPhieu) is IActionResult valErr1) return valErr1;
+            if (ValidateMa(masp, "Mã sản phẩm", 15, out string cleanSp) is IActionResult valErr2) return valErr2;
+
+            try
+            {
+                var list = _ctnBll.LayTheoID(cleanPhieu, cleanSp);
+                if (list == null || list.Count == 0)
+                    return NotFound(new { success = false, message = "Không tìm thấy chi tiết nhập kho phù hợp." });
+
+                var x = list[0];
                 var data = new
                 {
                     MAPHIEUNHAP = x.MAPHIEUNHAP?.Trim(),
@@ -291,357 +232,167 @@ namespace API_ThuKho.Controllers
                     THANHTIEN = x.THANHTIEN
                 };
 
-                return Ok(new { success = true, message = "Lấy chi tiết nhập thành công", data });
+                return Ok(new { success = true, message = "Lấy chi tiết nhập thành công.", data });
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { success = false, message = "Lỗi: " + ex.Message });
+                return StatusCode(500, new { success = false, message = "Lỗi hệ thống nội bộ." });
             }
         }
 
-        //  Tạo mới
         [HttpPost("create-chitietnhap")]
         public IActionResult Create([FromBody] ChiTietNhap ct)
         {
+            if (ct == null)
+                return BadRequest(new { success = false, message = "Dữ liệu chi tiết nhập không được để trống." });
+
             try
             {
-                string error = ctn_bll.ThemMoi(ct);
+                string? bllErr = _ctnBll.ThemMoi(ct);
+                if (bllErr != null) return HandleBllError(bllErr);
 
-                if (error != null)
-                {
-                    if (error.Contains("đã tồn tại"))
-                    {
-                        return Conflict(new
-                        {
-                            success = false,
-                            message = error
-                        });
-                    }
-
-                    if (error.Contains("không tồn tại"))
-                    {
-                        return NotFound(new
-                        {
-                            success = false,
-                            message = error
-                        });
-                    }
-
-                    return BadRequest(new
-                    {
-                        success = false,
-                        message = error
-                    });
-                }
-
-                return StatusCode(201, new
-                {
-                    success = true,
-                    message = "Thêm chi tiết nhập thành công"
-                });
+                return StatusCode(201, new { success = true, message = "Thêm chi tiết nhập thành công." });
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new
-                {
-                    success = false,
-                    message = "Lỗi hệ thống: " + ex.Message
-                });
+                return StatusCode(500, new { success = false, message = "Lỗi hệ thống nội bộ." });
             }
         }
 
-        //  Cập nhật
         [HttpPost("update-chitietnhap")]
         public IActionResult Update([FromBody] ChiTietNhap ct)
         {
+            if (ct == null)
+                return BadRequest(new { success = false, message = "Dữ liệu chi tiết nhập không được để trống." });
+
             try
             {
-                string error = ctn_bll.CapNhat(ct);
+                string? bllErr = _ctnBll.CapNhat(ct);
+                if (bllErr != null) return HandleBllError(bllErr);
 
-                if (error != null)
-                {
-                    if (error.Contains("Không tìm thấy"))
-                    {
-                        return NotFound(new
-                        {
-                            success = false, message = error
-                        });
-                    }
-
-                    if (error.Contains("không tồn tại"))
-                    {
-                        return NotFound(new { success = false, message = error });
-                    }
-
-                    return BadRequest(new
-                    { success = false,   message = error });
-                }
-
-                return Ok(new  {  success = true, message = "Cập nhật chi tiết nhập thành công"  });
+                return Ok(new { success = true, message = "Cập nhật chi tiết nhập thành công." });
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { success = false,   message = "Lỗi hệ thống: " + ex.Message  });
+                return StatusCode(500, new { success = false, message = "Lỗi hệ thống nội bộ." });
             }
         }
 
-        //  Xoá
         [HttpDelete("delete-chitietnhap")]
-        public IActionResult Delete([FromQuery] string maphieunhap,[FromQuery] string masp)
+        public IActionResult Delete([FromQuery] string? maphieunhap, [FromQuery] string? masp)
         {
+            if (ValidateMa(maphieunhap, "Mã phiếu nhập", 15, out string cleanPhieu) is IActionResult valErr1) return valErr1;
+            if (ValidateMa(masp, "Mã sản phẩm", 15, out string cleanSp) is IActionResult valErr2) return valErr2;
+
             try
             {
-                string error = ctn_bll.Xoa(
-                    maphieunhap,
-                    masp);
+                string? bllErr = _ctnBll.Xoa(cleanPhieu, cleanSp);
+                if (bllErr != null) return HandleBllError(bllErr);
 
-                if (error != null)
-                {
-                    if (error.Contains("Không tìm thấy"))
-                    {
-                        return NotFound(new
-                        {
-                            success = false,
-                            message = error
-                        });
-                    }
-
-                    return BadRequest(new
-                    {
-                        success = false,
-                        message = error
-                    });
-                }
-
-                return Ok(new
-                {
-                    success = true,
-                    message = "Xoá chi tiết nhập thành công"
-                });
+                return Ok(new { success = true, message = "Xoá chi tiết nhập thành công." });
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new
-                {
-                    success = false,
-                    message = "Lỗi hệ thống: " + ex.Message
-                });
+                return StatusCode(500, new { success = false, message = "Lỗi hệ thống nội bộ." });
             }
         }
 
-        //NhaCungCap
-        [Route("get-all-nhacungcap")]
-        [HttpGet]
-        public IActionResult getAllNCC()
+      
+
+        [HttpGet("get-all-nhacungcap")]
+        public IActionResult GetAllNCC()
         {
             try
             {
-                DataTable dt = NCC_BLL.GetAll();
-                var list = new List<object>();
-                foreach (DataRow row in dt.Rows)
-                {
-                    list.Add(new
-                    {
-                        MANCC = row["MANCC"].ToString().Trim(),
-                        TENNCC = row["TENNCC"],
-                        DIACHI = row["DIACHI"],
-                        SDT = row["SDT"],
-                        EMAIL = row["EMAIL"]
-                    });
-                }
-                return Ok(new { success = true, message = "Lấy danh sách nhà cung cấp thành công", data = list });
+                DataTable dt = _nccBll.GetAll();
+                var data = dt.AsEnumerable().Select(MapNhaCungCap).ToList();
+                return Ok(new { success = true, count = data.Count, message = "Lấy danh sách nhà cung cấp thành công.", data });
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { success = false, message = "Lỗi: " + ex.Message });
+                return StatusCode(500, new { success = false, message = "Lỗi hệ thống nội bộ." });
             }
         }
 
-
-        [Route("get-byid-nhacungcap")]
-        [HttpGet]
-        public IActionResult GetById([FromQuery] string ma)
+        [HttpGet("get-byid-nhacungcap")]
+        public IActionResult GetByIdNCC([FromQuery] string? ma)
         {
+            if (ValidateMa(ma, "Mã nhà cung cấp", 15, out string cleanMa) is IActionResult valErr)
+                return valErr;
+
             try
             {
-                string error = NCC_BLL.ValidateMa(ma);
+                string? valBllErr = _nccBll.ValidateMa(cleanMa);
+                if (valBllErr != null) return BadRequest(new { success = false, message = valBllErr });
 
-                if (error != null)
-                {
-                    return BadRequest(new
-                    {
-                        success = false,
-                        message = error
-                    });
-                }
-
-                DataTable dt = NCC_BLL.GetById(ma.Trim());
-
+                DataTable dt = _nccBll.GetById(cleanMa);
                 if (dt == null || dt.Rows.Count == 0)
-                {
-                    return NotFound(new
-                    {
-                        success = false,
-                        message = $"Không tìm thấy nhà cung cấp có mã '{ma.Trim()}'."
-                    });
-                }
+                    return NotFound(new { success = false, message = $"Không tìm thấy nhà cung cấp có mã '{cleanMa}'." });
 
-                var list = new List<object>();
-
-                foreach (DataRow row in dt.Rows)
-                {
-                    list.Add(new
-                    {
-                        MANCC = row["MANCC"]?.ToString()?.Trim(),
-                        TENNCC = row["TENNCC"],
-                        DIACHI = row["DIACHI"],
-                        SDT = row["SDT"],
-                        EMAIL = row["EMAIL"]
-                    });
-                }
-
-                return Ok(new
-                {
-                    success = true,
-                    message = "Lấy thông tin nhà cung cấp thành công",
-                    data = list
-                });
+                return Ok(new { success = true, message = "Lấy thông tin nhà cung cấp thành công.", data = MapNhaCungCap(dt.Rows[0]) });
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new
-                {
-                    success = false,
-                    message = "Lỗi hệ thống: " + ex.Message
-                });
+                return StatusCode(500, new { success = false, message = "Lỗi hệ thống nội bộ." });
             }
         }
-        [Route("del-nhacungcap")]
-        [HttpDelete]
-        public IActionResult Delete(
-          [FromQuery] string ma)
+
+        [HttpDelete("del-nhacungcap")]
+        public IActionResult DeleteNCC([FromQuery] string? ma)
         {
+            if (ValidateMa(ma, "Mã nhà cung cấp", 15, out string cleanMa) is IActionResult valErr)
+                return valErr;
+
             try
             {
-                string error = NCC_BLL.Delete(ma);
+                string? bllErr = _nccBll.Delete(cleanMa);
+                if (bllErr != null) return HandleBllError(bllErr);
 
-                if (error != null)
-                {
-                    if (error.Contains("Không tìm thấy"))
-                    {
-                        return NotFound(new
-                        {
-                            success = false,
-                            message = error
-                        });
-                    }
-
-                    return BadRequest(new
-                    {
-                        success = false,
-                        message = error
-                    });
-                }
-
-                return Ok(new
-                {
-                    success = true,
-                    message = "Xoá thông tin nhà cung cấp thành công"
-                });
+                return Ok(new { success = true, message = "Xoá thông tin nhà cung cấp thành công." });
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new
-                {
-                    success = false,
-                    message = "Lỗi hệ thống: " + ex.Message
-                });
+                return StatusCode(500, new { success = false, message = "Lỗi hệ thống nội bộ." });
             }
         }
 
-        [Route("update-nhacungcap")]
-        [HttpPost]
-        public IActionResult Update( [FromBody] Models.NhaCungCap model)
+        [HttpPost("update-nhacungcap")]
+        public IActionResult UpdateNCC([FromBody] NhaCungCap model)
         {
+            if (model == null)
+                return BadRequest(new { success = false, message = "Dữ liệu nhà cung cấp không được để trống." });
+
             try
             {
-                string error = NCC_BLL.Update(model);
+                string? bllErr = _nccBll.Update(model);
+                if (bllErr != null) return HandleBllError(bllErr);
 
-                if (error != null)
-                {
-                    if (error.Contains("Không tìm thấy"))
-                    {
-                        return NotFound(new
-                        {
-                            success = false,
-                            message = error
-                        });
-                    }
-
-                    return BadRequest(new
-                    {
-                        success = false,
-                        message = error
-                    });
-                }
-
-                return Ok(new
-                {
-                    success = true,
-                    message = "Thay đổi thông tin nhà cung cấp thành công"
-                });
+                return Ok(new { success = true, message = "Thay đổi thông tin nhà cung cấp thành công." });
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new
-                {
-                    success = false,
-                    message = "Lỗi hệ thống: " + ex.Message
-                });
+                return StatusCode(500, new { success = false, message = "Lỗi hệ thống nội bộ." });
             }
         }
 
-        [Route("create-nhacungcap")]
-        [HttpPost]
-        public IActionResult Create( [FromBody] Models.NhaCungCap model)
+        [HttpPost("create-nhacungcap")]
+        public IActionResult CreateNCC([FromBody] NhaCungCap model)
         {
+            if (model == null)
+                return BadRequest(new { success = false, message = "Dữ liệu nhà cung cấp không được để trống." });
+
             try
             {
-                string error = NCC_BLL.Create(model);
+                string? bllErr = _nccBll.Create(model);
+                if (bllErr != null) return HandleBllError(bllErr);
 
-                if (error != null)
-                {
-                    if (error.Contains("đã tồn tại"))
-                    {
-                        return Conflict(new
-                        {
-                            success = false,
-                            message = error
-                        });
-                    }
-
-                    return BadRequest(new
-                    {
-                        success = false,
-                        message = error
-                    });
-                }
-
-                return StatusCode(201, new
-                {
-                    success = true,
-                    message = "Thêm thông tin nhà cung cấp thành công"
-                });
+                return StatusCode(201, new { success = true, message = "Thêm thông tin nhà cung cấp thành công." });
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new
-                {
-                    success = false,
-                    message = "Lỗi hệ thống: " + ex.Message
-                });
+                return StatusCode(500, new { success = false, message = "Lỗi hệ thống nội bộ." });
             }
         }
-
     }
 }
+

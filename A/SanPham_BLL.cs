@@ -1,4 +1,4 @@
-﻿using DAL;
+using DAL;
 using Models;
 
 namespace BLL
@@ -6,12 +6,12 @@ namespace BLL
     public class SanPham_BLL
     {
         private readonly SanPham_DAL sp_dal;
-        private readonly DanhMuc_DAL dm_dal; // Thêm DAL của Danh mục để kiểm tra khóa ngoại
+        private readonly DanhMuc_DAL dm_dal; 
 
-        public SanPham_BLL()
+        public SanPham_BLL(SanPham_DAL sp_dal, DanhMuc_DAL dm_dal)
         {
-            sp_dal = new SanPham_DAL();
-            dm_dal = new DanhMuc_DAL();
+            this.sp_dal = sp_dal;
+            this.dm_dal = dm_dal;
         }
 
         public List<SanPham> LayTatCa()
@@ -135,7 +135,7 @@ namespace BLL
             }
             catch (Exception ex)
             {
-                return "Lỗi khi thêm sản phẩm: " + ex.Message;
+                return "Lỗi hệ thống khi xử lý yêu cầu.";
             }
         }
 
@@ -235,13 +235,11 @@ namespace BLL
             }
             catch (Exception ex)
             {
-                return "Lỗi khi cập nhật sản phẩm: " + ex.Message;
+                return "Lỗi hệ thống khi xử lý yêu cầu.";
             }
         }
 
-        // =========================
-        // SỬA SỐ LƯỢNG
-        // =========================
+       
         public string SuaSoLuong(string maSP, int soLuongMoi)
         {
             if (string.IsNullOrWhiteSpace(maSP))
@@ -269,7 +267,7 @@ namespace BLL
             }
             catch (Exception ex)
             {
-                return "Lỗi khi cập nhật số lượng: " + ex.Message;
+                return "Lỗi hệ thống khi xử lý yêu cầu.";
             }
         }
 
@@ -297,7 +295,7 @@ namespace BLL
             }
             catch (Exception ex)
             {
-                return "Lỗi khi xóa sản phẩm: " + ex.Message;
+                return "Lỗi hệ thống khi xử lý yêu cầu.";
             }
         }
     }

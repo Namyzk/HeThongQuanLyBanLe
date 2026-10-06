@@ -1,4 +1,4 @@
-﻿using DAL;
+using DAL;
 using Models;
 using System;
 using System.Collections.Generic;
@@ -13,9 +13,9 @@ namespace BLL
     {
         private readonly ChiTietBan_DAL ctb_dal;
 
-        public ChiTietBan_BLL()
+        public ChiTietBan_BLL(ChiTietBan_DAL ctb_dal)
         {
-            ctb_dal = new ChiTietBan_DAL();
+            this.ctb_dal = ctb_dal;
         }
 
         public List<ChiTietBan> LayTatCa()
@@ -31,19 +31,6 @@ namespace BLL
             return ctb_dal.GetByHoaDon(maHDB);
         }
 
-        //public bool ThemMoi(ChiTietBan ct)
-        //{
-        //    if (ct == null)
-        //        return false;
-
-        //    if (string.IsNullOrEmpty(ct.MAHDBAN) || string.IsNullOrEmpty(ct.MASP))
-        //        return false;
-
-        //    if (ctb_dal.KiemTraTonTai(ct.MAHDBAN, ct.MASP))
-        //        return false;
-
-        //    return ctb_dal.Insert(ct);
-        //}
         public string ThemMoi(ChiTietBan ct)
         {
             if (ct == null)
@@ -71,30 +58,23 @@ namespace BLL
             if (ct.DONGIA <= 0)
                 return "Đơn giá phải lớn hơn 0.";
 
-            // Kiểm tra hóa đơn
+          
             if (!ctb_dal.KiemTraHoaDonTonTai(ct.MAHDBAN))
                 return "Mã hóa đơn " + ct.MAHDBAN + " không tồn tại.";
 
-            // Kiểm tra sản phẩm
+           
             if (!ctb_dal.KiemTraSanPhamTonTai(ct.MASP))
                 return "Mã sản phẩm " + ct.MASP + " không tồn tại.";
 
-            // Kiểm tra trùng chi tiết
+           
             if (ctb_dal.KiemTraTonTai(ct.MAHDBAN, ct.MASP))
                 return "Chi tiết sản phẩm " + ct.MASP +
                        " đã tồn tại trong hóa đơn " + ct.MAHDBAN + ".";
 
-            try
-            {
-                if (!ctb_dal.Insert(ct))
-                    return "Thêm chi tiết bán thất bại.";
+            if (!ctb_dal.Insert(ct))
+                return "Thêm chi tiết bán thất bại.";
 
-                return null;
-            }
-            catch (Exception ex)
-            {
-                return "Lỗi khi thêm chi tiết bán: " + ex.Message;
-            }
+            return null;
         }
         public bool Sua(ChiTietBan ct)
         {

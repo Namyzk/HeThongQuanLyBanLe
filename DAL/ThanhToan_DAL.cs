@@ -33,11 +33,9 @@ namespace DAL
                      new SqlParameter("@MATHANHTOAN", SqlDbType.Char, 15)
                 {
                 Value = ma.Trim()
-            }
-        };
+                } };
 
-                DataTable dt = Connect.ExecuteStoredProcedure(  "dbo.sp_GetByIdThanhToan",     parameters
-                );
+                DataTable dt = Connect.ExecuteStoredProcedure(  "dbo.sp_GetByIdThanhToan",     parameters );
 
                 return dt;
             }
@@ -51,8 +49,7 @@ namespace DAL
         {
             try
             {
-                string sql = @"
-                    SELECT COUNT(*)
+                string sql = @" SELECT COUNT(*)
                     FROM dbo.HOADONBAN
                     WHERE RTRIM(MAHDBAN) = RTRIM(@MAHDBAN)";
 
@@ -112,8 +109,7 @@ namespace DAL
             }
             catch (Exception ex)
             {
-                throw new Exception(   "Lỗi khi thêm: " + ex.Message
-                );
+                throw new Exception(   "Lỗi khi thêm: " + ex.Message );
             }
         }
 
@@ -121,22 +117,25 @@ namespace DAL
         {
             try
             {
+                const string sql = @"UPDATE dbo.THANHTOAN
+                                     SET PHUONGTHUC = @PhuongThuc,
+                                         SOTIENTHANHTOAN = @SoTienThanhToan,
+                                         NGAYTHANHTOAN = @NgayThanhToan,
+                                         TRANGTHAI = @TrangThai
+                                     WHERE RTRIM(MATHANHTOAN) = @MaThanhToan";
                 SqlParameter[] parameters =
                 {
-                new SqlParameter("@MaThanhToan", SqlDbType.Char, 15)
-                {
-                    Value = model.MaThanhToan?.Trim() ?? ""
-                },
-                new SqlParameter("@PhuongThuc", SqlDbType.NVarChar, 50)
-                {
-                    Value = model.PhuongThuc?.Trim() ?? ""
-                },
-                new SqlParameter("@TrangThai", SqlDbType.NVarChar, 50)
-                {
-                    Value = model.TrangThai?.Trim() ?? ""
-                } };
+                    new SqlParameter("@MaThanhToan", SqlDbType.Char, 15) { Value = model.MaThanhToan?.Trim() ?? "" },
+                    new SqlParameter("@PhuongThuc", SqlDbType.NVarChar, 50) { Value = model.PhuongThuc?.Trim() ?? "" },
+                    new SqlParameter("@SoTienThanhToan", SqlDbType.Float) { Value = model.SoTienThanhToan },
+                    new SqlParameter("@NgayThanhToan", SqlDbType.DateTime) { Value = model.NgayThanhToan },
+                    new SqlParameter("@TrangThai", SqlDbType.NVarChar, 50) { Value = model.TrangThai?.Trim() ?? "" }
+                };
 
-                return Connect.ExecuteStoredProcedure(  "dbo.SP_SUATT",    parameters  );
+                int rows = Connect.ExecuteNonQuery(sql, parameters);
+                if (rows == 0)
+                    throw new InvalidOperationException("Không tìm thấy thanh toán để cập nhật.");
+                return GetById(model.MaThanhToan);
             }
             catch (Exception ex)
             {
@@ -168,27 +167,14 @@ namespace DAL
         {
             try
             {
-                string sql = @"
-                SELECT 
-                    H.MAHDBAN, 
-                    H.MANV, 
-                    H.MAKH, 
-                    H.NGAYLAP, 
-                    H.TONGTIENHANG, 
-                    H.THUEVAT, 
-                    H.GIAMGIA, 
-                    T.MATHANHTOAN, 
-                    T.PHUONGTHUC, 
-                    T.SOTIENTHANHTOAN, 
-                    T.NGAYTHANHTOAN, 
-                    T.TRANGTHAI 
+                string sql = @" SELECT H.MAHDBAN,   H.MANV,  H.MAKH,   H.NGAYLAP,   H.TONGTIENHANG,   H.THUEVAT, 
+                    H.GIAMGIA,  T.MATHANHTOAN,  T.PHUONGTHUC,  T.SOTIENTHANHTOAN,  T.NGAYTHANHTOAN,   T.TRANGTHAI 
                 FROM dbo.HOADONBAN H 
                 LEFT JOIN dbo.THANHTOAN T 
                     ON RTRIM(H.MAHDBAN) = RTRIM(T.MAHDBAN) 
                 WHERE 
                     T.MAHDBAN IS NULL 
-                    OR T.TRANGTHAI <> N'Đã thanh toán'
-            ";
+                    OR T.TRANGTHAI <> N'Đã thanh toán' ";
 
                 return Connect.ExecuteQuery(sql);
             }

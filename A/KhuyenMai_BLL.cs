@@ -1,4 +1,4 @@
-﻿using DAL;
+using DAL;
 using System;
 using System.Data;
 
@@ -8,9 +8,9 @@ namespace BLL
     {
         private readonly KhuyenMai_DAL _DAL;
 
-        public KhuyenMai_BLL()
+        public KhuyenMai_BLL(KhuyenMai_DAL _DAL)
         {
-            _DAL = new KhuyenMai_DAL();
+            this._DAL = _DAL;
         }
 
         public DataTable getAll()

@@ -1,7 +1,8 @@
-﻿using DAL;
+using DAL;
 using Models;
 using System;
 using System.Collections.Generic;
+using System.Security.Cryptography;
 
 namespace BLL
 {
@@ -9,9 +10,9 @@ namespace BLL
     {
         private readonly TaiKhoan_DAL tk_dal;
 
-        public TaiKhoan_BLL()
+        public TaiKhoan_BLL(TaiKhoan_DAL tk_dal)
         {
-            tk_dal = new TaiKhoan_DAL();
+            this.tk_dal = tk_dal;
         }
 
         public List<TaiKhoan> LayTatCa()
@@ -42,7 +43,6 @@ namespace BLL
 
             tk.MATAIKHOAN = tk.MATAIKHOAN.Trim();
             tk.USERNAME = tk.USERNAME.Trim();
-            tk.PASS = tk.PASS.Trim();
 
             if (tk_dal.KiemTraTonTai(tk.MATAIKHOAN))
                 throw new InvalidOperationException($"Mã tài khoản '{tk.MATAIKHOAN}' đã tồn tại.");
@@ -59,7 +59,6 @@ namespace BLL
 
             tk.MATAIKHOAN = tk.MATAIKHOAN.Trim();
             tk.USERNAME = tk.USERNAME.Trim();
-            tk.PASS = tk.PASS.Trim();
 
             if (!tk_dal.KiemTraTonTai(tk.MATAIKHOAN))
                 throw new KeyNotFoundException($"Không tìm thấy tài khoản có mã '{tk.MATAIKHOAN}'.");
@@ -95,15 +94,24 @@ namespace BLL
                 throw new ArgumentException("Mật khẩu không được để trống.");
 
             username = username.Trim();
-            password = password.Trim();
-
             if (username.Length > 20)
                 throw new ArgumentException("Tên đăng nhập không được vượt quá 20 ký tự.");
 
-            if (password.Length > 20)
-                throw new ArgumentException("Mật khẩu không được vượt quá 20 ký tự.");
+            if (password.Length > 128)
+                throw new ArgumentException("Mật khẩu không được vượt quá 128 ký tự.");
 
-            return tk_dal.Login(username, password);
+            var account = tk_dal.Login(username);
+            if (account == null || !VerifyPassword(password, account.PASS))
+                return new List<TaiKhoan>();
+
+            // Chuyển tài khoản cũ đang lưu PBKDF2 về dạng văn bản sau khi xác thực thành công.
+            if (account.PASS.StartsWith("pbkdf2$", StringComparison.Ordinal))
+            {
+                account.PASS = password;
+                tk_dal.CapNhatMatKhau(account.MATAIKHOAN, account.PASS);
+            }
+
+            return new List<TaiKhoan> { account };
         }
 
         public int LayQuyen(string? username)
@@ -139,16 +147,37 @@ namespace BLL
             if (string.IsNullOrWhiteSpace(tk.PASS))
                 throw new ArgumentException("Mật khẩu không được để trống.");
 
-            tk.PASS = tk.PASS.Trim();
             if (tk.PASS.Length < 6)
                 throw new ArgumentException("Mật khẩu phải có ít nhất 6 ký tự.");
 
-            if (tk.PASS.Length > 20)
-                throw new ArgumentException("Mật khẩu không được vượt quá 20 ký tự.");
+            if (tk.PASS.Length > 128)
+                throw new ArgumentException("Mật khẩu không được vượt quá 128 ký tự.");
 
-            // 4. Quyền: 1 - Admin, 2 - ThuNgan, 3 - ThuKho
-            if (tk.QUYEN < 1 || tk.QUYEN > 3)
-                throw new ArgumentException("Quyền tài khoản không hợp lệ (Chỉ chấp nhận 1: Admin, 2: ThuNgan, 3: ThuKho).");
+            // 4. Quyền: 1 - Admin, 2 - ThuNgan, 3 - ThuKho, 4 - KeToan
+            if (tk.QUYEN < 1 || tk.QUYEN > 4)
+                throw new ArgumentException("Quyền tài khoản không hợp lệ (1: Admin, 2: ThuNgan, 3: ThuKho, 4: KeToan).");
+        }
+
+        private static bool VerifyPassword(string password, string stored)
+        {
+            if (!stored.StartsWith("pbkdf2$", StringComparison.Ordinal))
+                return string.Equals(password, stored, StringComparison.Ordinal);
+
+            string[] parts = stored.Split('$');
+            if (parts.Length != 4 || !int.TryParse(parts[1], out int iterations) || iterations < 100_000 || iterations > 1_000_000)
+                return false;
+
+            try
+            {
+                byte[] salt = Convert.FromBase64String(parts[2]);
+                byte[] expected = Convert.FromBase64String(parts[3]);
+                byte[] actual = Rfc2898DeriveBytes.Pbkdf2(password, salt, iterations, HashAlgorithmName.SHA256, expected.Length);
+                return CryptographicOperations.FixedTimeEquals(actual, expected);
+            }
+            catch (FormatException)
+            {
+                return false;
+            }
         }
     }
 }

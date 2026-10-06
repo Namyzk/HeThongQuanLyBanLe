@@ -1,4 +1,4 @@
-﻿using DAL;
+using DAL;
 using Models;
 using System;
 using System.Data;
@@ -9,13 +9,12 @@ namespace BLL
     {
         private readonly KhachHang_DAL KH_DAL;
 
-        public KhachHang_BLL()
+        public KhachHang_BLL(KhachHang_DAL KH_DAL)
         {
-            KH_DAL = new KhachHang_DAL();
+            this.KH_DAL = KH_DAL;
         }
 
         
-
         public DataTable getAllKH()
         {
             return KH_DAL.getAllKH();
@@ -40,8 +39,6 @@ namespace BLL
         }
 
 
-    
-
         public DataTable DeleteByIdKH(string? makh)
         {
             if (string.IsNullOrWhiteSpace(makh))
@@ -59,8 +56,6 @@ namespace BLL
             return KH_DAL.DeleteByIdKH(makh);
         }
 
-
-        
 
         public DataTable UpdateByIdKH(Models.KhachHang kh)
         {
@@ -94,8 +89,6 @@ namespace BLL
                 throw new Exception( "Dữ liệu khách hàng không được để trống.");
             }
 
-
-          
 
             if (string.IsNullOrWhiteSpace(kh.MaKH))
             {

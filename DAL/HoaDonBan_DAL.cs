@@ -9,7 +9,7 @@ namespace DAL
 {
     public class HoaDonBan_DAL
     {
-        // 1. Chỉ giữ lại 1 hàm kiểm tra sự tồn tại của Hóa đơn bán
+    
         public bool KiemTraTonTai(string maHDB)
         {
             try
@@ -42,11 +42,10 @@ namespace DAL
             }
         }
 
-        // (Tùy chọn) Nếu cần kiểm tra chi tiết, tách thành hàm riêng biệt rõ ràng
+      
         public bool KiemTraTonTaiChiTiet(string maHDB, string maSP)
         {
-            const string sql = @"
-                SELECT COUNT(*)
+            const string sql = @"SELECT COUNT(*)
                 FROM CT_HDB
                 WHERE RTRIM(MAHDBAN) = @MAHDBAN
                   AND RTRIM(MASP) = @MASP";
@@ -195,14 +194,11 @@ namespace DAL
                     }
                 }
 
-                decimal tongTienSauTinh = tongTienSanPham + hd.THUEVAT - hd.GIAMGIA;
-                if (tongTienSauTinh < 0) tongTienSauTinh = 0;
-
                 string sqlHD = @"
                     INSERT INTO HOADONBAN (MAHDBAN, MANV, MAKH, NGAYLAP, TONGTIENHANG, THUEVAT, GIAMGIA)
                     VALUES (@MAHDBAN, @MANV, @MAKH, @NGAYLAP, @TONGTIENHANG, @THUEVAT, @GIAMGIA)";
 
-                // Chuyển DateOnly thành DateTime để truyền vào Sql Server an toàn
+              
                 object ngayLapValue = hd.NGAYLAP.HasValue
                     ? hd.NGAYLAP.Value.ToDateTime(TimeOnly.MinValue)
                     : DateTime.Today;
@@ -213,21 +209,20 @@ namespace DAL
                     new SqlParameter("@MANV", (object?)hd.MANV ?? DBNull.Value),
                     new SqlParameter("@MAKH", (object?)hd.MAKH ?? DBNull.Value),
                     new SqlParameter("@NGAYLAP", ngayLapValue),
-                    new SqlParameter("@TONGTIENHANG", tongTienSauTinh),
+                    new SqlParameter("@TONGTIENHANG", tongTienSanPham),
                     new SqlParameter("@THUEVAT", hd.THUEVAT),
                     new SqlParameter("@GIAMGIA", hd.GIAMGIA)
                 };
 
-                int rows = Connect.ExecuteNonQuery(sqlHD, pHD);
-
-                if (rows > 0 && hd.listjson_chitietban != null)
+                return Connect.ExecuteInTransaction((connection, transaction) =>
                 {
-                    foreach (var ct in hd.listjson_chitietban)
-                    {
-                        string sqlCT = @"
-                            INSERT INTO CT_HDB (MAHDBAN, MASP, SOLUONG, DONGIA, TONGTIEN)
-                            VALUES (@MAHDBAN, @MASP, @SOLUONG, @DONGIA, @TONGTIEN)";
+                    int rows = ExecuteNonQuery(connection, transaction, sqlHD, pHD);
+                    if (rows == 0) return false;
 
+                    foreach (var ct in hd.listjson_chitietban ?? new List<ChiTietBan>())
+                    {
+                        const string sqlCT = @"INSERT INTO CT_HDB (MAHDBAN, MASP, SOLUONG, DONGIA, TONGTIEN)
+                                               VALUES (@MAHDBAN, @MASP, @SOLUONG, @DONGIA, @TONGTIEN)";
                         SqlParameter[] pCT =
                         {
                             new SqlParameter("@MAHDBAN", hd.MAHDBAN.Trim()),
@@ -236,12 +231,10 @@ namespace DAL
                             new SqlParameter("@DONGIA", ct.DONGIA),
                             new SqlParameter("@TONGTIEN", ct.TONGTIEN)
                         };
-
-                        Connect.ExecuteNonQuery(sqlCT, pCT);
+                        ExecuteNonQuery(connection, transaction, sqlCT, pCT);
                     }
-                }
-
-                return rows > 0;
+                    return true;
+                });
             }
             catch (Exception ex)
             {
@@ -256,11 +249,7 @@ namespace DAL
                 if (hd == null || !KiemTraTonTai(hd.MAHDBAN))
                     return false;
 
-                // Xóa chi tiết cũ
-                string sqlDeleteCT = @"DELETE FROM CT_HDB WHERE MAHDBAN = @MAHDBAN";
-                Connect.ExecuteNonQuery(sqlDeleteCT, new SqlParameter[] { new SqlParameter("@MAHDBAN", hd.MAHDBAN) });
-
-                // Tính lại tổng tiền
+               
                 decimal tongTienSanPham = 0;
                 if (hd.listjson_chitietban != null && hd.listjson_chitietban.Count > 0)
                 {
@@ -270,9 +259,6 @@ namespace DAL
                         tongTienSanPham += ct.TONGTIEN;
                     }
                 }
-
-                decimal tongTienSauTinh = tongTienSanPham + hd.THUEVAT - hd.GIAMGIA;
-                if (tongTienSauTinh < 0) tongTienSauTinh = 0;
 
                 string sql = @"UPDATE HOADONBAN
                                SET MANV = @MANV,
@@ -292,21 +278,25 @@ namespace DAL
                     new SqlParameter("@MANV", (object?)hd.MANV ?? DBNull.Value),
                     new SqlParameter("@MAKH", (object?)hd.MAKH ?? DBNull.Value),
                     new SqlParameter("@NGAYLAP", ngayLapValue),
-                    new SqlParameter("@TONGTIENHANG", tongTienSauTinh),
+                    new SqlParameter("@TONGTIENHANG", tongTienSanPham),
                     new SqlParameter("@THUEVAT", hd.THUEVAT),
                     new SqlParameter("@GIAMGIA", hd.GIAMGIA),
                     new SqlParameter("@MAHDBAN", hd.MAHDBAN)
                 };
 
-                int rows = Connect.ExecuteNonQuery(sql, parameters);
-
-                if (rows > 0 && hd.listjson_chitietban != null)
+                return Connect.ExecuteInTransaction((connection, transaction) =>
                 {
-                    foreach (var ct in hd.listjson_chitietban)
-                    {
-                        string sqlCT = @"INSERT INTO CT_HDB (MAHDBAN, MASP, SOLUONG, DONGIA, TONGTIEN)
-                                         VALUES (@MAHDBAN, @MASP, @SOLUONG, @DONGIA, @TONGTIEN)";
+                    int rows = ExecuteNonQuery(connection, transaction, sql, parameters);
+                    if (rows == 0) return false;
 
+                    ExecuteNonQuery(connection, transaction,
+                        "DELETE FROM CT_HDB WHERE MAHDBAN = @MAHDBAN",
+                        new SqlParameter("@MAHDBAN", hd.MAHDBAN));
+
+                    foreach (var ct in hd.listjson_chitietban ?? new List<ChiTietBan>())
+                    {
+                        const string sqlCT = @"INSERT INTO CT_HDB (MAHDBAN, MASP, SOLUONG, DONGIA, TONGTIEN)
+                                               VALUES (@MAHDBAN, @MASP, @SOLUONG, @DONGIA, @TONGTIEN)";
                         SqlParameter[] p =
                         {
                             new SqlParameter("@MAHDBAN", hd.MAHDBAN),
@@ -315,12 +305,10 @@ namespace DAL
                             new SqlParameter("@DONGIA", ct.DONGIA),
                             new SqlParameter("@TONGTIEN", ct.TONGTIEN)
                         };
-
-                        Connect.ExecuteNonQuery(sqlCT, p);
+                        ExecuteNonQuery(connection, transaction, sqlCT, p);
                     }
-                }
-
-                return rows > 0;
+                    return true;
+                });
             }
             catch (Exception ex)
             {
@@ -335,13 +323,16 @@ namespace DAL
                 if (string.IsNullOrWhiteSpace(maHDB) || !KiemTraTonTai(maHDB))
                     return false;
 
-                string sqlCT = @"DELETE FROM CT_HDB WHERE MAHDBAN = @MAHDBAN";
-                Connect.ExecuteNonQuery(sqlCT, new SqlParameter[] { new SqlParameter("@MAHDBAN", maHDB) });
-
-                string sql = @"DELETE FROM HOADONBAN WHERE MAHDBAN = @MAHDBAN";
-                int rows = Connect.ExecuteNonQuery(sql, new SqlParameter[] { new SqlParameter("@MAHDBAN", maHDB) });
-
-                return rows > 0;
+                return Connect.ExecuteInTransaction((connection, transaction) =>
+                {
+                    ExecuteNonQuery(connection, transaction,
+                        "DELETE FROM CT_HDB WHERE MAHDBAN = @MAHDBAN",
+                        new SqlParameter("@MAHDBAN", maHDB));
+                    int rows = ExecuteNonQuery(connection, transaction,
+                        "DELETE FROM HOADONBAN WHERE MAHDBAN = @MAHDBAN",
+                        new SqlParameter("@MAHDBAN", maHDB));
+                    return rows > 0;
+                });
             }
             catch (Exception ex)
             {
@@ -366,6 +357,13 @@ namespace DAL
             {
                 throw new Exception("Lỗi cập nhật TONGTIENHANG: " + ex.Message);
             }
+        }
+
+        private static int ExecuteNonQuery(SqlConnection connection, SqlTransaction transaction, string sql, params SqlParameter[] parameters)
+        {
+            using SqlCommand command = new SqlCommand(sql, connection, transaction);
+            command.Parameters.AddRange(parameters);
+            return command.ExecuteNonQuery();
         }
     }
 }

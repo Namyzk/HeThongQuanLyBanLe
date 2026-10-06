@@ -1,983 +1,467 @@
-﻿using BLL;
-using Microsoft.AspNetCore.Mvc;
-using Models;
 using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using BLL;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Models;
 
 namespace _API_ThuNgan.Controllers
 {
-    [Authorize]
-   // [AllowAnonymous]
+    [Authorize(Roles = "Admin,ThuNgan")]
     [Route("api/QuanLyBanHang")]
     [ApiController]
     public class QuanLyBanHang_Controller : ControllerBase
     {
-        private readonly HoaDonBan_BLL hdb_bll;
-        private readonly ChiTietBan_BLL ctb_bll;
-        private readonly KhachHang_BLL KH_BLL;
-        private readonly DanhMuc_BLL dm_bll;
-        private readonly SanPham_BLL sp_bll;
-        private readonly ThanhToan_BLL tt_bll;
+        private readonly HoaDonBan_BLL _hdbBll;
+        private readonly ChiTietBan_BLL _ctbBll;
+        private readonly KhachHang_BLL _khBll;
+        private readonly DanhMuc_BLL _dmBll;
+        private readonly SanPham_BLL _spBll;
+        private readonly ThanhToan_BLL _ttBll;
+        private readonly NhanVien_BLL _nvBll;
+        private readonly ILogger<QuanLyBanHang_Controller> _logger;
 
-        public QuanLyBanHang_Controller(IConfiguration configuration)
+        public QuanLyBanHang_Controller(HoaDonBan_BLL _hdbBll, ChiTietBan_BLL _ctbBll, KhachHang_BLL _khBll, DanhMuc_BLL _dmBll, SanPham_BLL _spBll, ThanhToan_BLL _ttBll, NhanVien_BLL _nvBll, ILogger<QuanLyBanHang_Controller> logger)
         {
-            hdb_bll = new HoaDonBan_BLL();
-            ctb_bll = new ChiTietBan_BLL();
-            KH_BLL = new KhachHang_BLL();
-            dm_bll = new DanhMuc_BLL();
-            sp_bll = new SanPham_BLL();
-            tt_bll = new ThanhToan_BLL();
+            this._hdbBll = _hdbBll;
+            this._ctbBll = _ctbBll;
+            this._khBll = _khBll;
+            this._dmBll = _dmBll;
+            this._spBll = _spBll;
+            this._ttBll = _ttBll;
+            this._nvBll = _nvBll;
+            _logger = logger;
         }
 
+      
+        private IActionResult? ValidateMa(string? ma, string tenTruong, int maxLen, out string cleanMa)
+        {
+            cleanMa = string.Empty;
+            if (string.IsNullOrWhiteSpace(ma))
+                return BadRequest(new { success = false, message = $"{tenTruong} không được để trống." });
 
-        [Route("get-all-hoadonban")]
-        [HttpGet]
+            cleanMa = ma.Trim();
+            if (cleanMa.Length > maxLen)
+                return BadRequest(new { success = false, message = $"{tenTruong} không được vượt quá {maxLen} ký tự." });
+
+            return null;
+        }
+
+        private static List<Dictionary<string, object?>> ToDictionaryList(DataTable? dt)
+        {
+            if (dt == null || dt.Rows.Count == 0) return new List<Dictionary<string, object?>>();
+
+            return dt.AsEnumerable().Select(row =>
+                dt.Columns.Cast<DataColumn>().ToDictionary(
+                    col => col.ColumnName,
+                    col => row[col] == DBNull.Value ? null : (row[col] is string str ? str.Trim() : row[col])
+                )
+            ).ToList();
+        }
+
+       
+
+        [HttpGet("get-all-nhanvien-ban-hang")]
+        public IActionResult GetNhanVienBanHang()
+        {
+            try
+            {
+                var result = _nvBll.LayTatCa()
+                    .Select(nv => new { nv.MANV, nv.TENNV })
+                    .ToList();
+                return Ok(new { success = true, data = result });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Không thể tải nhân viên cho màn hình bán hàng.");
+                return StatusCode(500, new { success = false, message = "Không thể tải danh sách nhân viên." });
+            }
+        }
+
+        [HttpGet("get-all-hoadonban")]
         public IActionResult GetAll_HoaDon()
         {
             try
             {
-                var result = hdb_bll.LayTatCa();
-
-                return Ok(new
-                {
-                    success = true,
-                    data = result
-                });
+                var result = _hdbBll.LayTatCa();
+                return Ok(new { success = true, count = result?.Count ?? 0, data = result });
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new
-                {
-                    success = false,
-                    message = "Lỗi khi lấy danh sách hóa đơn: " + ex.Message
-                });
+                return StatusCode(500, new { success = false, message = "Lỗi hệ thống nội bộ." });
             }
         }
 
-        [Route("get-hoadonban-by-id")]
-        [HttpGet]
+        [HttpGet("get-hoadonban-by-id")]
         public IActionResult GetByID_HoaDon([FromQuery] string? maHoaDon)
         {
+            if (ValidateMa(maHoaDon, "Mã hóa đơn", 15, out string cleanMa) is IActionResult valErr)
+                return valErr;
+
             try
             {
-                if (string.IsNullOrWhiteSpace(maHoaDon))
-                {
-                    return BadRequest(new
-                    {
-                        success = false,
-                        message = "Mã hóa đơn không được để trống."
-                    });
-                }
-
-                maHoaDon = maHoaDon.Trim();
-
-                if (maHoaDon.Length > 15)
-                {
-                    return BadRequest(new
-                    {
-                        success = false,
-                        message = "Mã hóa đơn không được vượt quá 15 ký tự."
-                    });
-                }
-
-                var result = hdb_bll.LayTheoID(maHoaDon);
-
+                var result = _hdbBll.LayTheoID(cleanMa);
                 if (result == null || result.Count == 0)
-                {
-                    return NotFound(new
-                    {
-                        success = false,
-                        message = $"Không tìm thấy hóa đơn có mã '{maHoaDon}'."
-                    });
-                }
+                    return NotFound(new { success = false, message = $"Không tìm thấy hóa đơn có mã '{cleanMa}'." });
 
-                return Ok(new
-                {
-                    success = true,
-                    data = result
-                });
+                return Ok(new { success = true, data = result[0] });
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new
-                {
-                    success = false,
-                    message = "Lỗi khi lấy hóa đơn: " + ex.Message
-                });
+                return StatusCode(500, new { success = false, message = "Lỗi hệ thống nội bộ." });
             }
         }
 
-
-        
-        [Route("insert-hoadonban")]
-        [HttpPost]
-        public IActionResult CreateHoaDon( [FromBody] HoaDonBan model)
+        [HttpPost("insert-hoadonban")]
+        public IActionResult CreateHoaDon([FromBody] HoaDonBan? model)
         {
+            if (model == null)
+                return BadRequest(new { success = false, message = "Dữ liệu hóa đơn không được để trống." });
+
+            if (ValidateMa(model.MAHDBAN, "Mã hóa đơn", 15, out string cleanMaHD) is IActionResult valErr)
+                return valErr;
+
+            model.MAHDBAN = cleanMaHD;
+
+            if (ValidateMa(model.MANV, "Mã nhân viên", 15, out string cleanMaNV) is IActionResult nvErr)
+                return nvErr;
+
+            model.MANV = cleanMaNV;
+            if (!_nvBll.LayTheoID(cleanMaNV).Any())
+                return BadRequest(new { success = false, message = $"Không tìm thấy nhân viên có mã '{cleanMaNV}'. Hãy chọn mã nhân viên trong danh sách." });
+
+            if (model.listjson_chitietban == null || model.listjson_chitietban.Count == 0)
+                return BadRequest(new { success = false, message = "Hóa đơn phải có ít nhất một sản phẩm." });
+
+            var maSanPhamDaGap = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            foreach (var ct in model.listjson_chitietban)
+            {
+                if (ct == null)
+                    return BadRequest(new { success = false, message = "Chi tiết hóa đơn không được để trống." });
+
+                if (ValidateMa(ct.MASP, "Mã sản phẩm trong chi tiết", 15, out string cleanMaSP) is IActionResult ctErr)
+                    return ctErr;
+
+                ct.MASP = cleanMaSP;
+
+                if (!maSanPhamDaGap.Add(cleanMaSP))
+                    return BadRequest(new { success = false, message = $"Sản phẩm '{cleanMaSP}' bị lặp trong hóa đơn." });
+
+                if (ct.SOLUONG <= 0)
+                    return BadRequest(new { success = false, message = "Số lượng sản phẩm phải lớn hơn 0." });
+
+                if (ct.DONGIA <= 0)
+                    return BadRequest(new { success = false, message = "Đơn giá sản phẩm phải lớn hơn 0." });
+            }
+
             try
             {
-                if (model == null)
-                {
-                    return BadRequest(new
-                    {
-                        success = false,
-                        message = "Dữ liệu hóa đơn không được để trống."
-                    });
-                }
-
-                if (string.IsNullOrWhiteSpace(model.MAHDBAN))
-                {
-                    return BadRequest(new
-                    {
-                        success = false,
-                        message = "Mã hóa đơn không được để trống."
-                    });
-                }
-
-                model.MAHDBAN = model.MAHDBAN.Trim();
-
-                if (model.MAHDBAN.Length > 15)
-                {
-                    return BadRequest(new
-                    {
-                        success = false,
-                        message = "Mã hóa đơn không được vượt quá 15 ký tự."
-                    });
-                }
-
-                if (model.listjson_chitietban == null ||
-                    model.listjson_chitietban.Count == 0)
-                {
-                    return BadRequest(new
-                    {
-                        success = false,
-                        message = "Hóa đơn phải có ít nhất một sản phẩm."
-                    });
-                }
-
-                foreach (var ct in model.listjson_chitietban)
-                {
-                    if (ct == null)
-                    {
-                        return BadRequest(new
-                        {
-                            success = false,
-                            message = "Chi tiết hóa đơn không được để trống."
-                        });
-                    }
-
-                    if (string.IsNullOrWhiteSpace(ct.MASP))
-                    {
-                        return BadRequest(new
-                        {
-                            success = false,
-                            message = "Mã sản phẩm trong chi tiết hóa đơn không được để trống."
-                        });
-                    }
-
-                    ct.MASP = ct.MASP.Trim();
-
-                    if (ct.MASP.Length > 15)
-                    {
-                        return BadRequest(new
-                        {
-                            success = false,
-                            message = "Mã sản phẩm không được vượt quá 15 ký tự."
-                        });
-                    }
-
-                    if (ct.SOLUONG <= 0)
-                    {
-                        return BadRequest(new
-                        {
-                            success = false,
-                            message = "Số lượng sản phẩm phải lớn hơn 0."
-                        });
-                    }
-
-                    if (ct.DONGIA <= 0)
-                    {
-                        return BadRequest(new
-                        {
-                            success = false,
-                            message = "Đơn giá sản phẩm phải lớn hơn 0."
-                        });
-                    }
-                }
-
-                bool kq = hdb_bll.ThemMoi(model);
-
+                bool kq = _hdbBll.ThemMoi(model);
                 if (!kq)
-                {
-                    return Conflict(new
-                    {
-                        success = false,
-                        message = "Không thể thêm hóa đơn. Có thể mã hóa đơn đã tồn tại hoặc dữ liệu không hợp lệ."
-                    });
-                }
+                    return Conflict(new { success = false, message = "Không thể thêm hóa đơn (mã đã tồn tại hoặc dữ liệu không hợp lệ)." });
 
-                return StatusCode(201, new
-                {
-                    success = true,
-                    message = "Thêm hóa đơn thành công."
-                });
+                return StatusCode(201, new { success = true, message = "Thêm hóa đơn thành công." });
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new
-                {
-                    success = false,
-                    message = "Lỗi khi thêm hóa đơn: " + ex.Message
-                });
+                _logger.LogError(ex, "Không thể tạo hóa đơn {MaHoaDon} cho nhân viên {MaNhanVien}.", model.MAHDBAN, model.MANV);
+                return StatusCode(500, new { success = false, message = "Lỗi hệ thống nội bộ." });
             }
         }
 
-        [Route("get-all-chitietban")]
-        [HttpGet]
+       
+        [HttpGet("get-all-chitietban")]
         public IActionResult GetAll_ChiTiet()
         {
             try
             {
-                var result = ctb_bll.LayTatCa();
-
-                return Ok(new
-                {
-                    success = true,
-                    data = result
-                });
+                var result = _ctbBll.LayTatCa();
+                return Ok(new { success = true, count = result?.Count ?? 0, data = result });
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new
-                {
-                    success = false,
-                    message = "Lỗi khi lấy chi tiết bán: " + ex.Message
-                });
+                return StatusCode(500, new { success = false, message = "Lỗi hệ thống nội bộ." });
             }
         }
 
-        [Route("get-chitietban-by-IDhoadon")]
-        [HttpGet]
+        [HttpGet("get-chitietban-by-IDhoadon")]
         public IActionResult GetByHoaDon([FromQuery] string? maHDB)
         {
+            if (ValidateMa(maHDB, "Mã hóa đơn", 15, out string cleanMa) is IActionResult valErr)
+                return valErr;
+
             try
             {
-                if (string.IsNullOrWhiteSpace(maHDB))
-                {
-                    return BadRequest(new
-                    {
-                        success = false,
-                        message = "Mã hóa đơn không được để trống."
-                    });
-                }
-
-                maHDB = maHDB.Trim();
-
-                if (maHDB.Length > 15)
-                {
-                    return BadRequest(new
-                    {
-                        success = false,
-                        message = "Mã hóa đơn không được vượt quá 15 ký tự."
-                    });
-                }
-
-                var result = ctb_bll.LayTheoHoaDon(maHDB);
-
+                var result = _ctbBll.LayTheoHoaDon(cleanMa);
                 if (result == null || result.Count == 0)
-                {
-                    return NotFound(new
-                    {
-                        success = false,
-                        message = "Không tìm thấy chi tiết của hóa đơn."
-                    });
-                }
+                    return NotFound(new { success = false, message = $"Không tìm thấy chi tiết của hóa đơn '{cleanMa}'." });
 
-                return Ok(new
-                {
-                    success = true,
-                    data = result
-                });
+                return Ok(new { success = true, count = result.Count, data = result });
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new
-                {
-                    success = false,
-                    message = "Lỗi khi lấy chi tiết bán: " + ex.Message
-                });
+                return StatusCode(500, new { success = false, message = "Lỗi hệ thống nội bộ." });
             }
         }
 
-        [Route("get-all-khachhang")]
-        [HttpGet]
+     
+        [HttpGet("get-all-khachhang")]
         public IActionResult GetAllKH()
         {
             try
             {
-                DataTable dt = KH_BLL.getAllKH();
-
-                var data = dt.AsEnumerable()
-                    .Select(row => dt.Columns
-                        .Cast<DataColumn>()
-                        .ToDictionary(
-                            col => col.ColumnName,
-                            col => row[col] == DBNull.Value ? null : row[col]
-                        ))
-                    .ToList();
-
-                return Ok(new
-                {
-                    success = true,
-                    message = "Lấy danh sách khách hàng thành công.",
-                    data = data
-                });
+                DataTable dt = _khBll.getAllKH();
+                var list = ToDictionaryList(dt);
+                return Ok(new { success = true, count = list.Count, message = "Lấy danh sách khách hàng thành công.", data = list });
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new
-                {
-                    success = false,
-                    message = "Lỗi khi lấy danh sách khách hàng: " + ex.Message
-                });
+                return StatusCode(500, new { success = false, message = "Lỗi hệ thống nội bộ." });
             }
         }
 
+        [HttpGet("get-byid-khachhang")]
+        public IActionResult GetByIdKH([FromQuery] string? maKH)
+        {
+            if (ValidateMa(maKH, "Mã khách hàng", 15, out string cleanMa) is IActionResult valErr)
+                return valErr;
+
+            try
+            {
+                DataTable dt = _khBll.GetByIdKH(cleanMa);
+                var list = ToDictionaryList(dt);
+
+                if (list.Count == 0)
+                    return NotFound(new { success = false, message = $"Không tìm thấy khách hàng có mã '{cleanMa}'." });
+
+                return Ok(new { success = true, message = "Lấy thông tin khách hàng thành công.", data = list[0] });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { success = false, message = "Lỗi hệ thống nội bộ." });
+            }
+        }
+
+        [HttpPost("insert-khachhang")]
+        public IActionResult CreateKhachHang([FromBody] KhachHang? kh)
+        {
+            if (kh == null)
+                return BadRequest(new { success = false, message = "Dữ liệu khách hàng không được để trống." });
+
+            if (ValidateMa(kh.MaKH, "Mã khách hàng", 15, out string cleanMa) is IActionResult errMa) return errMa;
+            if (ValidateMa(kh.TenKH, "Tên khách hàng", 100, out string cleanTen) is IActionResult errTen) return errTen;
+
+            kh.MaKH = cleanMa;
+            kh.TenKH = cleanTen;
+
+            if (!string.IsNullOrWhiteSpace(kh.SDT))
+            {
+                kh.SDT = kh.SDT.Trim();
+                if (kh.SDT.Length != 10 || !kh.SDT.All(char.IsDigit))
+                    return BadRequest(new { success = false, message = "Số điện thoại phải có đúng 10 chữ số." });
+            }
+
+            if (!string.IsNullOrWhiteSpace(kh.DiaChi))
+            {
+                kh.DiaChi = kh.DiaChi.Trim();
+                if (kh.DiaChi.Length > 300)
+                    return BadRequest(new { success = false, message = "Địa chỉ không được vượt quá 300 ký tự." });
+            }
+
+            try
+            {
+                DataTable check = _khBll.GetByIdKH(kh.MaKH);
+                if (check != null && check.Rows.Count > 0)
+                    return Conflict(new { success = false, message = "Mã khách hàng đã tồn tại." });
+
+                _khBll.CreateKH(kh);
+                return StatusCode(201, new { success = true, message = "Thêm khách hàng thành công." });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { success = false, message = "Lỗi hệ thống nội bộ." });
+            }
+        }
 
       
-        [Route("get-byid-khachhang")]
-        [HttpGet]
-        public IActionResult GetByIdKH([FromQuery] string maKH)
-        {
-            try
-            {
-                if (string.IsNullOrWhiteSpace(maKH))
-                {
-                    return BadRequest(new
-                    {
-                        success = false,
-                        message = "Mã khách hàng không được để trống."
-                    });
-                }
-
-                maKH = maKH.Trim();
-
-                if (maKH.Length > 15)
-                {
-                    return BadRequest(new
-                    {
-                        success = false,
-                        message = "Mã khách hàng không được vượt quá 15 ký tự."
-                    });
-                }
-
-                DataTable dt = KH_BLL.GetByIdKH(maKH);
-
-                if (dt == null || dt.Rows.Count == 0)
-                {
-                    return NotFound(new
-                    {
-                        success = false,
-                        message = "Không tìm thấy khách hàng."
-                    });
-                }
-
-                List<Dictionary<string, object>> data =  new List<Dictionary<string, object>>();
-
-                foreach (DataRow row in dt.Rows)
-                {
-                    Dictionary<string, object> item =  new Dictionary<string, object>();
-
-                    foreach (DataColumn column in dt.Columns)
-                    {
-                        if (row[column] == DBNull.Value)
-                        {
-                            item[column.ColumnName] = null;
-                        }
-                        else
-                        {
-                            item[column.ColumnName] = row[column];
-                        }
-                    }
-
-                    data.Add(item);
-                }
-
-                return Ok(new
-                {
-                    success = true,
-                    message = "Lấy thông tin khách hàng thành công.",
-                    data = data
-                });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new
-                {
-                    success = false,
-                    message = "Lỗi khi lấy khách hàng: " + ex.Message
-                });
-            }
-        }
-
-
-        [Route("insert-khachhang")]
-        [HttpPost]
-        public IActionResult CreateKhachHang( [FromBody] KhachHang kh)
-        {
-            try
-            {
-                if (kh == null)
-                {
-                    return BadRequest(new
-                    {
-                        success = false,
-                        message = "Dữ liệu khách hàng không được để trống."
-                    });
-                }
-
-                if (string.IsNullOrWhiteSpace(kh.MaKH))
-                {
-                    return BadRequest(new
-                    {
-                        success = false,
-                        message = "Mã khách hàng không được để trống."
-                    });
-                }
-
-                kh.MaKH = kh.MaKH.Trim();
-
-                if (kh.MaKH.Length > 15)
-                {
-                    return BadRequest(new
-                    {
-                        success = false,
-                        message = "Mã khách hàng không được vượt quá 15 ký tự."
-                    });
-                }
-
-                if (string.IsNullOrWhiteSpace(kh.TenKH))
-                {
-                    return BadRequest(new
-                    {
-                        success = false,
-                        message = "Tên khách hàng không được để trống."
-                    });
-                }
-
-                kh.TenKH = kh.TenKH.Trim();
-
-                if (kh.TenKH.Length > 100)
-                {
-                    return BadRequest(new
-                    {
-                        success = false,
-                        message = "Tên khách hàng không được vượt quá 100 ký tự."
-                    });
-                }
-
-                if (!string.IsNullOrWhiteSpace(kh.SDT))
-                {
-                    kh.SDT = kh.SDT.Trim();
-
-                    if (kh.SDT.Length != 10)
-                    {
-                        return BadRequest(new
-                        {
-                            success = false,
-                            message = "Số điện thoại phải có đúng 10 ký tự."
-                        });
-                    }
-
-                    if (!kh.SDT.All(char.IsDigit))
-                    {
-                        return BadRequest(new
-                        {
-                            success = false,
-                            message = "Số điện thoại chỉ được chứa chữ số."
-                        });
-                    }
-                }
-
-                if (!string.IsNullOrWhiteSpace(kh.DiaChi))
-                {
-                    kh.DiaChi = kh.DiaChi.Trim();
-
-                    if (kh.DiaChi.Length > 300)
-                    {
-                        return BadRequest(new
-                        {
-                            success = false,
-                            message = "Địa chỉ không được vượt quá 300 ký tự."
-                        });
-                    }
-                }
-
-                DataTable check = KH_BLL.GetByIdKH(kh.MaKH);
-
-                if (check != null && check.Rows.Count > 0)
-                {
-                    return Conflict(new
-                    {
-                        success = false,
-                        message = "Mã khách hàng đã tồn tại."
-                    });
-                }
-
-                KH_BLL.CreateKH(kh);
-
-                return StatusCode(201, new
-                {
-                    success = true,
-                    message = "Thêm khách hàng thành công."
-                });
-            }
-            catch (Exception ex)
-            {
-                if (ex.Message.Contains("không được để trống") ||
-                    ex.Message.Contains("không được vượt quá") ||
-                    ex.Message.Contains("phải có đúng") ||
-                    ex.Message.Contains("chỉ được chứa"))
-                {
-                    return BadRequest(new
-                    {
-                        success = false,
-                        message = ex.Message
-                    });
-                }
-
-                return StatusCode(500, new
-                {
-                    success = false,
-                    message = "Lỗi khi thêm khách hàng: " + ex.Message
-                });
-            }
-        }
-
-        [Route("get-all-danhmuc")]
-        [HttpGet]
+        [HttpGet("get-all-danhmuc")]
         public IActionResult GetAll_DanhMuc()
         {
             try
             {
-                var result = dm_bll.LayTatCa();
-
-                return Ok(new
-                {
-                    success = true,
-                    data = result
-                });
+                var result = _dmBll.LayTatCa();
+                return Ok(new { success = true, count = result?.Count ?? 0, data = result });
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new
-                {
-                    success = false,
-                    message = "Lỗi khi lấy danh sách danh mục: " + ex.Message
-                });
+                return StatusCode(500, new { success = false, message = "Lỗi hệ thống nội bộ." });
             }
         }
 
-        [Route("get-byID-danhmuc")]
-        [HttpGet]
+        [HttpGet("get-byID-danhmuc")]
         public IActionResult GetByID_DanhMuc([FromQuery] string? madanhmuc)
         {
+            if (ValidateMa(madanhmuc, "Mã danh mục", 15, out string cleanMa) is IActionResult valErr)
+                return valErr;
+
             try
             {
-                if (string.IsNullOrWhiteSpace(madanhmuc))
-                {
-                    return BadRequest(new
-                    {
-                        success = false,
-                        message = "Mã danh mục không được để trống."
-                    });
-                }
-
-                madanhmuc = madanhmuc.Trim();
-
-                if (madanhmuc.Length > 15)
-                {
-                    return BadRequest(new
-                    {
-                        success = false,
-                        message = "Mã danh mục không được vượt quá 15 ký tự."
-                    });
-                }
-
-                var result = dm_bll.LayTheoID(madanhmuc);
-
+                var result = _dmBll.LayTheoID(cleanMa);
                 if (result == null || result.Count == 0)
-                {
-                    return NotFound(new
-                    {
-                        success = false,
-                        message = "Không tìm thấy danh mục."
-                    });
-                }
+                    return NotFound(new { success = false, message = $"Không tìm thấy danh mục '{cleanMa}'." });
 
-                return Ok(new
-                {
-                    success = true,
-                    data = result
-                });
+                return Ok(new { success = true, data = result[0] });
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new
-                {
-                    success = false,
-                    message = "Lỗi khi lấy danh mục: " + ex.Message
-                });
+                return StatusCode(500, new { success = false, message = "Lỗi hệ thống nội bộ." });
             }
         }
 
-        [Route("get-all-sanpham")]
-        [HttpGet]
+        [HttpGet("get-all-sanpham")]
         public IActionResult GetAll_SanPham()
         {
             try
             {
-                var result = sp_bll.LayTatCa();
-
-                return Ok(new
-                {
-                    success = true,
-                    data = result
-                });
+                var result = _spBll.LayTatCa();
+                return Ok(new { success = true, count = result?.Count ?? 0, data = result });
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new
-                {
-                    success = false,
-                    message = "Lỗi khi lấy danh sách sản phẩm: " + ex.Message
-                });
+                return StatusCode(500, new { success = false, message = "Lỗi hệ thống nội bộ." });
             }
         }
 
-
-        [Route("get-sanpham-by-id")]
-        [HttpGet]
+        [HttpGet("get-sanpham-by-id")]
         public IActionResult GetByID_SanPham([FromQuery] string? id)
         {
+            if (ValidateMa(id, "Mã sản phẩm", 15, out string cleanMa) is IActionResult valErr)
+                return valErr;
+
             try
             {
-                if (string.IsNullOrWhiteSpace(id))
-                {
-                    return BadRequest(new
-                    {
-                        success = false,
-                        message = "Mã sản phẩm không được để trống."
-                    });
-                }
-
-                id = id.Trim();
-
-                if (id.Length > 15)
-                {
-                    return BadRequest(new
-                    {
-                        success = false,
-                        message = "Mã sản phẩm không được vượt quá 15 ký tự."
-                    });
-                }
-
-                var result = sp_bll.LayTheoID(id);
-
+                var result = _spBll.LayTheoID(cleanMa);
                 if (result == null || result.Count == 0)
-                {
-                    return NotFound(new
-                    {
-                        success = false,
-                        message = "Không tìm thấy sản phẩm."
-                    });
-                }
+                    return NotFound(new { success = false, message = $"Không tìm thấy sản phẩm '{cleanMa}'." });
 
-                return Ok(new
-                {
-                    success = true,
-                    data = result
-                });
+                return Ok(new { success = true, data = result[0] });
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new
-                {
-                    success = false,
-                    message = "Lỗi khi lấy sản phẩm: " + ex.Message
-                });
+                return StatusCode(500, new { success = false, message = "Lỗi hệ thống nội bộ." });
             }
         }
 
-        [Route("update-soluong-sanpham")]
-        [HttpPatch]
-        public IActionResult UpdateSoLuong( [FromQuery] string maSP, [FromQuery] int soLuongMoi)
+        [HttpPatch("update-soluong-sanpham")]
+        public IActionResult UpdateSoLuong([FromQuery] string? maSP, [FromQuery] int soLuongMoi)
         {
+            if (ValidateMa(maSP, "Mã sản phẩm", 15, out string cleanMa) is IActionResult valErr)
+                return valErr;
+
+            if (soLuongMoi < 0)
+                return BadRequest(new { success = false, message = "Số lượng tồn không được nhỏ hơn 0." });
+
             try
             {
-                if (string.IsNullOrWhiteSpace(maSP))
-                {
-                    return BadRequest(new
-                    {
-                        success = false,message = "Mã sản phẩm không được để trống."
-                    });
-                }
-
-                maSP = maSP.Trim();
-
-                if (maSP.Length > 15)
-                {
-                    return BadRequest(new
-                    {
-                        success = false,
-                        message = "Mã sản phẩm không được vượt quá 15 ký tự."
-                    });
-                }
-
-                
-                if (!Request.Query.ContainsKey("soLuongMoi"))
-                {
-                    return BadRequest(new
-                    {
-                        success = false,
-                        message = "Số lượng mới không được để trống."
-                    });
-                }
-
-               
-                if (soLuongMoi < 0)
-                {
-                    return BadRequest(new
-                    {
-                        success = false,
-                        message = "Số lượng tồn không được nhỏ hơn 0."
-                    });
-                }
-
-                string error = sp_bll.SuaSoLuong(maSP, soLuongMoi);
-
+                string? error = _spBll.SuaSoLuong(cleanMa, soLuongMoi);
                 if (error != null)
                 {
-                    if (error.Contains("Không tìm thấy") ||error.Contains("không tồn tại"))
-                    {
-                        return NotFound(new
-                        {
-                            success = false, message = error
-                        });
-                    }
+                    if (error.StartsWith("Lỗi hệ thống", StringComparison.OrdinalIgnoreCase))
+                        return StatusCode(500, new { success = false, message = "Lỗi hệ thống nội bộ." });
 
-                    return BadRequest(new
-                    {
-                        success = false,  message = error
-                    });
+                    if (error.Contains("Không tìm thấy", StringComparison.OrdinalIgnoreCase) || error.Contains("không tồn tại", StringComparison.OrdinalIgnoreCase))
+                        return NotFound(new { success = false, message = error });
+
+                    return BadRequest(new { success = false, message = error });
                 }
 
-                return Ok(new
-                {
-                    success = true, message = "Cập nhật số lượng sản phẩm thành công."
-                });
+                return Ok(new { success = true, message = "Cập nhật số lượng sản phẩm thành công." });
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new
-                {
-                    success = false,
-                    message = "Lỗi khi cập nhật số lượng sản phẩm: " + ex.Message
-                });
+                return StatusCode(500, new { success = false, message = "Lỗi hệ thống nội bộ." });
             }
         }
 
-        [Route("get-all-thanhtoan")]
-        [HttpGet]
+   
+
+        [HttpGet("get-all-thanhtoan")]
         public IActionResult GetAllThanhToan()
         {
             try
             {
-                DataTable dt = tt_bll.getAll();
-
-                if (dt == null || dt.Rows.Count == 0)
-                {
-                    return NotFound(new
-                    {
-                        success = false, message = "Không tìm thấy dữ liệu thanh toán."
-                    });
-                }
-
-                List<Dictionary<string, object>> data = new List<Dictionary<string, object>>();
-
-                foreach (DataRow row in dt.Rows)
-                {
-                    Dictionary<string, object> item =
-                        new Dictionary<string, object>();
-
-                    foreach (DataColumn column in dt.Columns)
-                    {
-                        if (row[column] == DBNull.Value)
-                        {
-                            item[column.ColumnName] = null;
-                        }
-                        else
-                        {
-                            item[column.ColumnName] = row[column];
-                        }
-                    }
-
-                    data.Add(item);
-                }
-
-                return Ok(new
-                {
-                    success = true, message = "Lấy danh sách thanh toán thành công.",
-                    data = data
-                });
+                DataTable dt = _ttBll.getAll();
+                var list = ToDictionaryList(dt);
+                return Ok(new { success = true, count = list.Count, message = "Lấy danh sách thanh toán thành công.", data = list });
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new
-                {
-                    success = false,  message = "Lỗi khi lấy danh sách thanh toán: " + ex.Message
-                });
+                return StatusCode(500, new { success = false, message = "Lỗi hệ thống nội bộ." });
             }
         }
 
-
-        [Route("get-thanhtoan-by-id")]
-        [HttpGet]
-        public IActionResult GetThanhToanById( [FromQuery] string? maThanhToan)
+        [HttpGet("get-thanhtoan-by-id")]
+        public IActionResult GetThanhToanById([FromQuery] string? maThanhToan)
         {
+            if (ValidateMa(maThanhToan, "Mã thanh toán", 15, out string cleanMa) is IActionResult valErr)
+                return valErr;
+
             try
             {
-                if (string.IsNullOrWhiteSpace(maThanhToan))
-                {
-                    return BadRequest(new
-                    {
-                        success = false,message = "Mã thanh toán không được để trống."
-                    });
-                }
+                DataTable dt = _ttBll.GetById(cleanMa);
+                var list = ToDictionaryList(dt);
 
-                maThanhToan = maThanhToan.Trim();
+                if (list.Count == 0)
+                    return NotFound(new { success = false, message = $"Không tìm thấy thanh toán có mã '{cleanMa}'." });
 
-                if (maThanhToan.Length > 15)
-                {
-                    return BadRequest(new
-                    {
-                        success = false,
-                        message = "Mã thanh toán không được vượt quá 15 ký tự."
-                    });
-                }
-
-                DataTable dt = tt_bll.GetById(maThanhToan);
-
-                if (dt == null || dt.Rows.Count == 0)
-                {
-                    return NotFound(new
-                    {
-                        success = false,
-                        message = "Không tìm thấy thanh toán."
-                    });
-                }
-
-                List<Dictionary<string, object>> data = new List<Dictionary<string, object>>();
-
-                foreach (DataRow row in dt.Rows)
-                {
-                    Dictionary<string, object> item =  new Dictionary<string, object>();
-
-                    foreach (DataColumn column in dt.Columns)
-                    {
-                        if (row[column] == DBNull.Value)
-                        {
-                            item[column.ColumnName] = null;
-                        }
-                        else
-                        {
-                            item[column.ColumnName] = row[column];
-                        }
-                    }
-
-                    data.Add(item);
-                }
-
-                return Ok(new
-                {
-                    success = true, message = "Lấy thông tin thanh toán thành công.",
-                    data = data
-                });
+                return Ok(new { success = true, message = "Lấy thông tin thanh toán thành công.", data = list[0] });
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new
-                {
-                    success = false,  message = "Lỗi khi lấy thanh toán: " + ex.Message
-                });
+                return StatusCode(500, new { success = false, message = "Lỗi hệ thống nội bộ." });
             }
         }
 
-        [Route("insert-thanhtoan")]
-        [HttpPost]
-        public IActionResult CreateThanhToan([FromBody] Models.ThanhToan model)
+        [HttpPost("insert-thanhtoan")]
+        public IActionResult CreateThanhToan([FromBody] ThanhToan? model)
         {
+            if (model == null)
+                return BadRequest(new { success = false, message = "Dữ liệu thanh toán không được để trống." });
+
+            if (ValidateMa(model.MaThanhToan, "Mã thanh toán", 15, out string cleanMa) is IActionResult valErr)
+                return valErr;
+
+            if (ValidateMa(model.MaHDBan, "Mã hóa đơn", 15, out string cleanMaHD) is IActionResult errHD) return errHD;
+            if (ValidateMa(model.PhuongThuc, "Phương thức thanh toán", 50, out string cleanPT) is IActionResult errPT) return errPT;
+            if (ValidateMa(model.TrangThai, "Trạng thái thanh toán", 50, out string cleanTT) is IActionResult errTT) return errTT;
+            if (string.Equals(cleanPT, "PayOS", StringComparison.OrdinalIgnoreCase))
+                return BadRequest(new { success = false, message = "Thanh toán PayOS phải được tạo qua luồng QR và xác nhận bằng webhook." });
+            if (!ThanhToan_BLL.TrangThaiHopLe(cleanTT))
+                return BadRequest(new { success = false, message = "Trạng thái thanh toán không hợp lệ." });
+            if (model.SoTienThanhToan <= 0)
+                return BadRequest(new { success = false, message = "Số tiền thanh toán phải lớn hơn 0." });
+
+            model.MaThanhToan = cleanMa;
+            model.MaHDBan = cleanMaHD;
+            model.PhuongThuc = cleanPT;
+            model.TrangThai = cleanTT;
+
             try
             {
-                if (model == null)
-                {
-                    return BadRequest(new
-                    {
-                        success = false, message = "Dữ liệu thanh toán không được để trống."
-                    });
-                }
-
-                if (string.IsNullOrWhiteSpace(model.MaThanhToan))
-                {
-                    return BadRequest(new
-                    {
-                        success = false,  message = "Mã thanh toán không được để trống."
-                    });
-                }
-
-                model.MaThanhToan = model.MaThanhToan.Trim();
-
-                if (model.MaThanhToan.Length > 15)
-                {
-                    return BadRequest(new
-                    {
-                        success = false, message = "Mã thanh toán không được vượt quá 15 ký tự."
-                    });
-                }
-
-                DataTable dt = tt_bll.GetById(model.MaThanhToan);
-
+                DataTable dt = _ttBll.GetById(model.MaThanhToan);
                 if (dt != null && dt.Rows.Count > 0)
-                {
-                    return Conflict(new
-                    {
-                        success = false,  message = "Đã tồn tại thanh toán có mã này."
-                    });
-                }
+                    return Conflict(new { success = false, message = "Đã tồn tại thanh toán có mã này." });
 
-                tt_bll.Create(model);
-
-                return StatusCode(201, new
-                {
-                    success = true, message = "Thêm thông tin thanh toán thành công."
-                });
+                _ttBll.Create(model);
+                return StatusCode(201, new { success = true, message = "Thêm thông tin thanh toán thành công." });
             }
             catch (Exception ex)
             {
-                if (ex.Message.Contains("không được để trống") || ex.Message.Contains("không được vượt quá"))
-                {
-                    return BadRequest(new
-                    {
-                        success = false, message = ex.Message
-                    });
-                }
-
-                return StatusCode(500, new
-                {
-                    success = false,  message = "Lỗi khi thêm thanh toán: " + ex.Message
-                });
+                return StatusCode(500, new { success = false, message = "Lỗi hệ thống nội bộ." });
             }
         }
     }
 }
+

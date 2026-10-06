@@ -10,7 +10,8 @@ namespace Models
     {
         public string MAHDBAN { get; set; }
         public string MANV { get; set; }
-        public string MAKH { get; set; }
+        // Null is valid for walk-in customers; the database column is nullable.
+        public string? MAKH { get; set; }
         public DateOnly? NGAYLAP { get; set; }
         public decimal TONGTIENHANG { get; set; }
         public decimal THUEVAT { get; set; }

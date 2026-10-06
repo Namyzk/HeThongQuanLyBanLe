@@ -1,4 +1,4 @@
-﻿using DAL;
+using DAL;
 using Models;
 using System;
 using System.Data;
@@ -11,9 +11,9 @@ namespace BLL
     {
         private readonly NhaCungCap_DAL NCC_DAL;
 
-        public NhaCungCap_BLL()
+        public NhaCungCap_BLL(NhaCungCap_DAL NCC_DAL)
         {
-            NCC_DAL = new NhaCungCap_DAL();
+            this.NCC_DAL = NCC_DAL;
         }
 
         public DataTable GetAll()
@@ -117,9 +117,6 @@ namespace BLL
         }
 
 
-        // ============================
-        // CREATE
-        // ============================
 
         public string Create(Models.NhaCungCap model)
         {
@@ -143,12 +140,10 @@ namespace BLL
             }
             catch (Exception ex)
             {
-                return "Lỗi khi thêm nhà cung cấp: " + ex.Message;
+                return "Lỗi hệ thống khi xử lý yêu cầu.";
             }
         }
 
-
-        
 
         public string Update(Models.NhaCungCap model)
         {
@@ -172,7 +167,7 @@ namespace BLL
             }
             catch (Exception ex)
             {
-                return "Lỗi khi sửa nhà cung cấp: " + ex.Message;
+                return "Lỗi hệ thống khi xử lý yêu cầu.";
             }
         }
 
@@ -201,7 +196,7 @@ namespace BLL
             }
             catch (Exception ex)
             {
-                return "Lỗi khi xoá nhà cung cấp: " + ex.Message;
+                return "Lỗi hệ thống khi xử lý yêu cầu.";
             }
         }
     }

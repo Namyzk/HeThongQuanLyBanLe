@@ -1,4 +1,4 @@
-﻿using DAL;
+using DAL;
 using Models;
 using System;
 using System.Collections.Generic;
@@ -9,13 +9,11 @@ namespace BLL
     {
         private readonly ChiTietNhap_DAL ctn_dal;
 
-        public ChiTietNhap_BLL()
+        public ChiTietNhap_BLL(ChiTietNhap_DAL ctn_dal)
         {
-            ctn_dal = new ChiTietNhap_DAL();
+            this.ctn_dal = ctn_dal;
         }
 
-
-        
 
         public List<ChiTietNhap> LayTatCa()
         {
@@ -23,9 +21,6 @@ namespace BLL
 
             return (list == null || list.Count == 0) ? new List<ChiTietNhap>() : list;
         }
-
-
-       
 
         public List<ChiTietNhap> LayTheoPhieu(string maphieunhap)
         {
@@ -36,7 +31,6 @@ namespace BLL
 
             return ctn_dal.GetByPhieu(maphieunhap);
         }
-
 
 
         public List<ChiTietNhap> LayTheoID( string maphieunhap,string masp)
@@ -54,8 +48,6 @@ namespace BLL
             return ctn_dal.GetById(maphieunhap, masp);
         }
 
-
-      
 
         private string ValidateChiTiet(  ChiTietNhap ctn,   bool isUpdate = false)
         {
@@ -132,7 +124,7 @@ namespace BLL
             }
             catch (Exception ex)
             {
-                return "Lỗi thêm chi tiết nhập: " + ex.Message;
+                return "Lỗi hệ thống khi xử lý yêu cầu.";
             }
         }
 
@@ -156,7 +148,7 @@ namespace BLL
             }
             catch (Exception ex)
             {
-                return "Lỗi cập nhật chi tiết nhập: " + ex.Message;
+                return "Lỗi hệ thống khi xử lý yêu cầu.";
             }
         }
 
@@ -193,7 +185,7 @@ namespace BLL
             }
             catch (Exception ex)
             {
-                return "Lỗi xoá chi tiết nhập: " + ex.Message;
+                return "Lỗi hệ thống khi xử lý yêu cầu.";
             }
         }
     }

@@ -33,8 +33,7 @@ namespace DAL
                 SqlParameter[] parameters = {  new SqlParameter("@MANCC", SqlDbType.Char, 15) 
                 {
                         Value = ma?.Trim() ?? ""
-                }
- };
+                }};
 
                 DataTable dt = Connect.ExecuteStoredProcedure( "dbo.sp_GetByIdNhaCungCap", parameters );
 

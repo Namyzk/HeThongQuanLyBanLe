@@ -3,7 +3,6 @@ using Models;
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -84,11 +83,10 @@ namespace DAL
         {
             try
             {
-                const string sql = @"
-            SELECT COUNT(*) AS SoLuong
-            FROM CT_HDB
-            WHERE RTRIM(MAHDBAN) = @MAHDBAN
-              AND RTRIM(MASP) = @MASP";
+                const string sql = @"SELECT COUNT(*) AS SoLuong
+                FROM CT_HDB
+                WHERE RTRIM(MAHDBAN) = @MAHDBAN
+                  AND RTRIM(MASP) = @MASP";
 
                 SqlParameter[] parameters =
                 {
@@ -112,68 +110,30 @@ namespace DAL
             }
         }
 
-        //public bool KiemTraTonTai(string maHDB, string maSP)
-        //{
-        //    try
-        //    {
-        //        const string sql = @" SELECT COUNT(*) AS SoLuong FROM CT_HDB
-        //            WHERE MAHDBAN = @MAHDBAN AND MASP = @MASP";
-
-        //        SqlParameter[] parameters =
-        //        {
-        //            new SqlParameter("@MAHDBAN", maHDB),
-        //            new SqlParameter("@MASP", maSP)
-        //        };
-
-        //        var dt = Connect.ExecuteQuery(sql, parameters);
-        //        if (dt.Rows.Count > 0)
-        //        {
-        //            int count = Convert.ToInt32(dt.Rows[0]["SoLuong"]);
-        //            return count > 0;
-        //        }
-
-        //        return false;
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        throw new Exception("Lỗi: " + ex.Message);
-        //    }
-        //}
-
         public bool Insert(ChiTietBan ct)
         {
             try
             {
-                const string sql = @"
-            INSERT INTO CT_HDB
-            (
-                MAHDBAN,
-                MASP,
-                SOLUONG,
-                DONGIA,
-                TONGTIEN
-            )
-            VALUES
-            (
-                @MAHDBAN,
-                @MASP,
-                @SOLUONG,
-                @DONGIA,
-                @TONGTIEN
-            )";
+                ct.TONGTIEN = ct.SOLUONG * ct.DONGIA;
+                const string sql = @"INSERT INTO CT_HDB ( MAHDBAN,MASP, SOLUONG, DONGIA, TONGTIEN )
+                VALUES( @MAHDBAN, @MASP,@SOLUONG, @DONGIA,  @TONGTIEN  )";
 
                 SqlParameter[] parameters =
                 {
-            new SqlParameter("@MAHDBAN", ct.MAHDBAN.Trim()),
-            new SqlParameter("@MASP", ct.MASP.Trim()),
-            new SqlParameter("@SOLUONG", ct.SOLUONG),
-            new SqlParameter("@DONGIA", ct.DONGIA),
-            new SqlParameter("@TONGTIEN", ct.TONGTIEN)
-        };
+                    new SqlParameter("@MAHDBAN", ct.MAHDBAN.Trim()),
+                    new SqlParameter("@MASP", ct.MASP.Trim()),
+                    new SqlParameter("@SOLUONG", ct.SOLUONG),
+                    new SqlParameter("@DONGIA", ct.DONGIA),
+                    new SqlParameter("@TONGTIEN", ct.TONGTIEN)
+                };
 
-                int rows = Connect.ExecuteNonQuery(sql, parameters);
-
-                return rows > 0;
+                return Connect.ExecuteInTransaction((connection, transaction) =>
+                {
+                    int rows = ExecuteNonQuery(connection, transaction, sql, parameters);
+                    if (rows == 0) return false;
+                    RecalculateInvoiceTotal(connection, transaction, ct.MAHDBAN);
+                    return true;
+                });
             }
             catch (Exception ex)
             {
@@ -185,6 +145,7 @@ namespace DAL
         {
             try
             {
+                ct.TONGTIEN = ct.SOLUONG * ct.DONGIA;
                 if (!KiemTraTonTai(ct.MAHDBAN, ct.MASP))
                     return false;
 
@@ -203,8 +164,13 @@ namespace DAL
                     new SqlParameter("@TONGTIEN", ct.TONGTIEN)
                 };
 
-                int rows = Connect.ExecuteNonQuery(sql, parameters);
-                return rows > 0;
+                return Connect.ExecuteInTransaction((connection, transaction) =>
+                {
+                    int rows = ExecuteNonQuery(connection, transaction, sql, parameters);
+                    if (rows == 0) return false;
+                    RecalculateInvoiceTotal(connection, transaction, ct.MAHDBAN);
+                    return true;
+                });
             }
             catch (Exception ex)
             {
@@ -226,8 +192,13 @@ namespace DAL
                     new SqlParameter("@MASP", maSP)
                 };
 
-                int rows = Connect.ExecuteNonQuery(sql, parameters);
-                return rows > 0;
+                return Connect.ExecuteInTransaction((connection, transaction) =>
+                {
+                    int rows = ExecuteNonQuery(connection, transaction, sql, parameters);
+                    if (rows == 0) return false;
+                    RecalculateInvoiceTotal(connection, transaction, maHDB);
+                    return true;
+                });
             }
             catch (Exception ex)
             {
@@ -239,18 +210,16 @@ namespace DAL
         {
             try
             {
-                const string sql = @"
-            SELECT COUNT(*)
-            FROM dbo.HOADONBAN
-            WHERE MAHDBAN = @MAHDBAN";
+                const string sql = @"SELECT COUNT(*)
+                    FROM dbo.HOADONBAN
+                    WHERE MAHDBAN = @MAHDBAN";
 
                 SqlParameter[] parameters =
                 {
-            new SqlParameter("@MAHDBAN", SqlDbType.Char, 15)
-            {
+                    new SqlParameter("@MAHDBAN", SqlDbType.Char, 15)
+                {
                 Value = maHDB.Trim()
-            }
-        };
+                } };
 
                 DataTable dt = Connect.ExecuteQuery(sql, parameters);
 
@@ -269,17 +238,16 @@ namespace DAL
         {
             try
             {
-                const string sql = @"
-            SELECT COUNT(*)
-            FROM dbo.SANPHAM
-            WHERE MASP = @MASP";
+                const string sql = @"SELECT COUNT(*)
+                    FROM dbo.SANPHAM
+                    WHERE MASP = @MASP";
 
                 SqlParameter[] parameters =
                 {
-            new SqlParameter("@MASP", SqlDbType.Char, 15)
-            {
+                    new SqlParameter("@MASP", SqlDbType.Char, 15)
+                {
                 Value = maSP.Trim()
-            }
+                }
         };
 
                 DataTable dt = Connect.ExecuteQuery(sql, parameters);
@@ -293,6 +261,31 @@ namespace DAL
             {
                 return false;
             }
+        }
+
+        private static void RecalculateInvoiceTotal(SqlConnection connection, SqlTransaction transaction, string maHDB)
+        {
+            const string sql = @"UPDATE H
+                                 SET TONGTIENHANG = CASE
+                                     WHEN COALESCE(S.TONG, 0) + COALESCE(H.THUEVAT, 0) - COALESCE(H.GIAMGIA, 0) < 0 THEN 0
+                                     ELSE COALESCE(S.TONG, 0) + COALESCE(H.THUEVAT, 0) - COALESCE(H.GIAMGIA, 0)
+                                 END
+                                 FROM dbo.HOADONBAN H
+                                 OUTER APPLY (SELECT SUM(TONGTIEN) AS TONG
+                                              FROM dbo.CT_HDB
+                                              WHERE RTRIM(MAHDBAN) = RTRIM(H.MAHDBAN)) S
+                                 WHERE RTRIM(H.MAHDBAN) = @MAHDBAN";
+            int rows = ExecuteNonQuery(connection, transaction, sql,
+                new SqlParameter("@MAHDBAN", SqlDbType.Char, 15) { Value = maHDB.Trim() });
+            if (rows == 0)
+                throw new InvalidOperationException("Không tìm thấy hóa đơn để cập nhật tổng tiền.");
+        }
+
+        private static int ExecuteNonQuery(SqlConnection connection, SqlTransaction transaction, string sql, params SqlParameter[] parameters)
+        {
+            using SqlCommand command = new SqlCommand(sql, connection, transaction);
+            command.Parameters.AddRange(parameters);
+            return command.ExecuteNonQuery();
         }
 
     }

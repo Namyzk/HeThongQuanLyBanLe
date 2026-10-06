@@ -1,4 +1,4 @@
-﻿using DAL;
+using DAL;
 using Models;
 using System;
 using System.Collections.Generic;
@@ -10,9 +10,9 @@ namespace BLL
     {
         private readonly PhieuNhapKho_DAL pnk_dal;
 
-        public PhieuNhapKho_BLL()
+        public PhieuNhapKho_BLL(PhieuNhapKho_DAL pnk_dal)
         {
-            pnk_dal = new PhieuNhapKho_DAL();
+            this.pnk_dal = pnk_dal;
         }
 
 
@@ -161,7 +161,7 @@ namespace BLL
             }
             catch (Exception ex)
             {
-                return "Lỗi thêm phiếu nhập: " + ex.Message;
+                return "Lỗi hệ thống khi xử lý yêu cầu.";
             }
         }
 
@@ -182,7 +182,7 @@ namespace BLL
             }
             catch (Exception ex)
             {
-                return "Lỗi cập nhật phiếu nhập: " + ex.Message;
+                return "Lỗi hệ thống khi xử lý yêu cầu.";
             }
         }
 
@@ -206,7 +206,7 @@ namespace BLL
             }
             catch (Exception ex)
             {
-                return "Lỗi xoá phiếu nhập: " + ex.Message;
+                return "Lỗi hệ thống khi xử lý yêu cầu.";
             }
         }
     }

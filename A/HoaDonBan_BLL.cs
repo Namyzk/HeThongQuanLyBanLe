@@ -1,4 +1,4 @@
-﻿using DAL;
+using DAL;
 using Models;
 using System;
 using System.Collections.Generic;
@@ -13,12 +13,10 @@ namespace BLL
     {
         private readonly HoaDonBan_DAL hdb_dal;
 
-        public HoaDonBan_BLL()
+        public HoaDonBan_BLL(HoaDonBan_DAL hdb_dal)
         {
-            hdb_dal = new HoaDonBan_DAL();
+            this.hdb_dal = hdb_dal;
         }
-
-    
 
         public List<HoaDonBan> LayTatCa()
         {

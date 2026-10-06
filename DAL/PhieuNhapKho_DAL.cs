@@ -162,81 +162,6 @@ namespace DAL
             }
         }
 
-
-
-        //public bool Insert(PhieuNhapKho pnk)
-        //{
-        //    try
-        //    {
-        //        if (pnk == null)
-        //            return false;
-
-        //        if (KiemTraTonTai(pnk.MAPHIEUNHAP))
-        //            return false;
-
-        //        decimal tongTienHang = 0;
-
-        //        if (pnk.listjson_chitietnhap != null &&  pnk.listjson_chitietnhap.Count > 0)
-        //        {
-        //            foreach (   var ct in pnk.listjson_chitietnhap)
-        //            {
-        //                ct.THANHTIEN =  ct.SOLUONG *   ct.DONGIANHAP;
-
-        //                tongTienHang +=  ct.THANHTIEN;
-        //            }
-        //        }
-
-        //        decimal tongSauTinh = tongTienHang;
-
-        //        if (tongSauTinh < 0) tongSauTinh = 0;
-
-
-
-        //        string sql = @"  INSERT INTO PHIEUNHAPKHO (  MAPHIEUNHAP,   MANCC,   MANV,  NGAYLAP  )
-        //            VALUES ( @MAPHIEUNHAP,  @MANCC,@MANV,  @NGAYLAP  )";
-
-        //        SqlParameter[] parameters =
-        //        {
-        //            new SqlParameter( "@MAPHIEUNHAP", (object?)pnk.MAPHIEUNHAP?.Trim()  ?? DBNull.Value),
-
-        //            new SqlParameter(  "@MANCC",   (object?)pnk.MANCC   ?? DBNull.Value),
-
-        //            new SqlParameter("@MANV", (object?)pnk.MANV   ?? DBNull.Value),
-
-        //            new SqlParameter( "@NGAYLAP", pnk.NGAYLAP)
-        //        };
-
-        //        int rows = Connect.ExecuteNonQuery( sql,  parameters);
-
-
-
-        //        if (rows > 0 && pnk.listjson_chitietnhap != null)
-        //        {
-        //            foreach ( var ct in pnk.listjson_chitietnhap)
-        //            {
-        //                string sqlCT = @"  INSERT INTO CHITIETNHAP  (  MAPHIEUNHAP,  MASP,  SOLUONG, DONGIANHAP, THANHTIEN  )
-        //                    VALUES (  @MAPHIEUNHAP, @MASP, @DONGIANHAP,  @THANHTIEN )";
-
-        //                SqlParameter[] parametersCT =
-        //                {
-        //                    new SqlParameter( "@MAPHIEUNHAP", pnk.MAPHIEUNHAP),
-        //                    new SqlParameter( "@MASP", ct.MASP),
-        //                    new SqlParameter( "@SOLUONG", ct.SOLUONG),
-        //                    new SqlParameter( "@DONGIANHAP", ct.DONGIANHAP),
-        //                    new SqlParameter( "@THANHTIEN", ct.THANHTIEN)
-        //                };
-
-        //                Connect.ExecuteNonQuery( sqlCT,    parametersCT);
-        //            }
-        //        }
-
-        //        return rows > 0;
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        throw new Exception("Lỗi thêm phiếu nhập: " + ex.Message);
-        //    }
-        //}
         public bool Insert(PhieuNhapKho pnk)
         {
             try
@@ -258,46 +183,41 @@ namespace DAL
                     }
                 }
 
-                string sql = @"
-            INSERT INTO PHIEUNHAPKHO (MAPHIEUNHAP, MANCC, MANV, NGAYLAP)
-            VALUES (@MAPHIEUNHAP, @MANCC, @MANV, @NGAYLAP)";
+                string sql = @" INSERT INTO PHIEUNHAPKHO (MAPHIEUNHAP, MANCC, MANV, NGAYLAP)
+                VALUES (@MAPHIEUNHAP, @MANCC, @MANV, @NGAYLAP)";
 
                 // Xử lý chuyển đổi DateOnly sang DateTime an toàn cho SQL Server
                 object ngayLapValue = pnk.NGAYLAP.ToDateTime(TimeOnly.MinValue);
 
                 SqlParameter[] parameters =
                 {
-            new SqlParameter("@MAPHIEUNHAP", (object?)pnk.MAPHIEUNHAP?.Trim() ?? DBNull.Value),
-            new SqlParameter("@MANCC", (object?)pnk.MANCC ?? DBNull.Value),
-            new SqlParameter("@MANV", (object?)pnk.MANV ?? DBNull.Value),
-            new SqlParameter("@NGAYLAP", ngayLapValue)
-        };
-
-                int rows = Connect.ExecuteNonQuery(sql, parameters);
-
-                if (rows > 0 && pnk.listjson_chitietnhap != null)
-                {
-                    foreach (var ct in pnk.listjson_chitietnhap)
-                    {
-                        // Đã thêm @SOLUONG vào VALUES
-                        string sqlCT = @"
-                    INSERT INTO CHITIETNHAP (MAPHIEUNHAP, MASP, SOLUONG, DONGIANHAP, THANHTIEN)
-                    VALUES (@MAPHIEUNHAP, @MASP, @SOLUONG, @DONGIANHAP, @THANHTIEN)";
-
-                        SqlParameter[] parametersCT =
-                        {
-                    new SqlParameter("@MAPHIEUNHAP", pnk.MAPHIEUNHAP),
-                    new SqlParameter("@MASP", ct.MASP),
-                    new SqlParameter("@SOLUONG", ct.SOLUONG),
-                    new SqlParameter("@DONGIANHAP", ct.DONGIANHAP),
-                    new SqlParameter("@THANHTIEN", ct.THANHTIEN)
+                    new SqlParameter("@MAPHIEUNHAP", (object?)pnk.MAPHIEUNHAP?.Trim() ?? DBNull.Value),
+                    new SqlParameter("@MANCC", (object?)pnk.MANCC ?? DBNull.Value),
+                    new SqlParameter("@MANV", (object?)pnk.MANV ?? DBNull.Value),
+                    new SqlParameter("@NGAYLAP", ngayLapValue)
                 };
 
-                        Connect.ExecuteNonQuery(sqlCT, parametersCT);
-                    }
-                }
+                return Connect.ExecuteInTransaction((connection, transaction) =>
+                {
+                    int rows = ExecuteNonQuery(connection, transaction, sql, parameters);
+                    if (rows == 0) return false;
 
-                return rows > 0;
+                    foreach (var ct in pnk.listjson_chitietnhap ?? new List<ChiTietNhap>())
+                    {
+                        const string sqlCT = @"INSERT INTO CHITIETNHAP (MAPHIEUNHAP, MASP, SOLUONG, DONGIANHAP, THANHTIEN)
+                                               VALUES (@MAPHIEUNHAP, @MASP, @SOLUONG, @DONGIANHAP, @THANHTIEN)";
+                        SqlParameter[] parametersCT =
+                        {
+                            new SqlParameter("@MAPHIEUNHAP", pnk.MAPHIEUNHAP),
+                            new SqlParameter("@MASP", ct.MASP),
+                            new SqlParameter("@SOLUONG", ct.SOLUONG),
+                            new SqlParameter("@DONGIANHAP", ct.DONGIANHAP),
+                            new SqlParameter("@THANHTIEN", ct.THANHTIEN)
+                        };
+                        ExecuteNonQuery(connection, transaction, sqlCT, parametersCT);
+                    }
+                    return true;
+                });
             }
             catch (Exception ex)
             {
@@ -314,17 +234,6 @@ namespace DAL
 
                 if (!KiemTraTonTai(pnk.MAPHIEUNHAP))
                     return false;
-
-
-                string sqlDelCT = @" DELETE FROM CHITIETNHAP
-                    WHERE MAPHIEUNHAP = @MAPHIEUNHAP";
-
-                SqlParameter[] parametersDelCT =
-                {
-                    new SqlParameter( "@MAPHIEUNHAP", pnk.MAPHIEUNHAP)
-                };
-
-                Connect.ExecuteNonQuery( sqlDelCT, parametersDelCT);
 
 
                 decimal tongTienHang = 0;
@@ -344,8 +253,7 @@ namespace DAL
                 if (tongSauTinh < 0)tongSauTinh = 0;
 
 
-                string sql = @"
-                    UPDATE PHIEUNHAPKHO
+                string sql = @" UPDATE PHIEUNHAPKHO
                     SET
                         MANCC = @MANCC,
                         MANV = @MANV,
@@ -355,39 +263,36 @@ namespace DAL
                 SqlParameter[] parameters =
                 {
                     new SqlParameter( "@MANCC",(object?)pnk.MANCC ?? DBNull.Value),
-
                     new SqlParameter( "@MANV",(object?)pnk.MANV ?? DBNull.Value),
-
                     new SqlParameter( "@NGAYLAP",  pnk.NGAYLAP),
-
                     new SqlParameter( "@MAPHIEUNHAP", (object?)pnk.MAPHIEUNHAP?.Trim()    ?? DBNull.Value)
                 };
 
-                int rows = Connect.ExecuteNonQuery(  sql,   parameters);
-
-
-
-                if (rows > 0 &&  pnk.listjson_chitietnhap != null)
+                return Connect.ExecuteInTransaction((connection, transaction) =>
                 {
-                    foreach (var ct in pnk.listjson_chitietnhap)
-                    {
-                        string sqlCT = @"  INSERT INTO CHITIETNHAP  (MAPHIEUNHAP, MASP, SOLUONG, DONGIANHAP, THANHTIEN )
-                            VALUES (  @MAPHIEUNHAP,  @MASP,    @SOLUONG, @DONGIANHAP, @THANHTIEN    )";
+                    int rows = ExecuteNonQuery(connection, transaction, sql, parameters);
+                    if (rows == 0) return false;
 
+                    ExecuteNonQuery(connection, transaction,
+                        "DELETE FROM CHITIETNHAP WHERE MAPHIEUNHAP = @MAPHIEUNHAP",
+                        new SqlParameter("@MAPHIEUNHAP", pnk.MAPHIEUNHAP));
+
+                    foreach (var ct in pnk.listjson_chitietnhap ?? new List<ChiTietNhap>())
+                    {
+                        const string sqlCT = @"INSERT INTO CHITIETNHAP (MAPHIEUNHAP, MASP, SOLUONG, DONGIANHAP, THANHTIEN)
+                                               VALUES (@MAPHIEUNHAP, @MASP, @SOLUONG, @DONGIANHAP, @THANHTIEN)";
                         SqlParameter[] parametersCT =
                         {
-                            new SqlParameter( "@MAPHIEUNHAP",  pnk.MAPHIEUNHAP),
-                            new SqlParameter( "@MASP",  ct.MASP),
-                            new SqlParameter( "@SOLUONG",  ct.SOLUONG),
-                            new SqlParameter( "@DONGIANHAP",  ct.DONGIANHAP),
-                            new SqlParameter( "@THANHTIEN",  ct.THANHTIEN)
+                            new SqlParameter("@MAPHIEUNHAP", pnk.MAPHIEUNHAP),
+                            new SqlParameter("@MASP", ct.MASP),
+                            new SqlParameter("@SOLUONG", ct.SOLUONG),
+                            new SqlParameter("@DONGIANHAP", ct.DONGIANHAP),
+                            new SqlParameter("@THANHTIEN", ct.THANHTIEN)
                         };
-
-                        Connect.ExecuteNonQuery( sqlCT,  parametersCT);
+                        ExecuteNonQuery(connection, transaction, sqlCT, parametersCT);
                     }
-                }
-
-                return rows > 0;
+                    return true;
+                });
             }
             catch (Exception ex)
             {
@@ -401,37 +306,21 @@ namespace DAL
             {
                 if (string.IsNullOrWhiteSpace(maPN))
                     return false;
-
                 maPN = maPN.Trim();
 
                 if (!KiemTraTonTai(maPN))
                     return false;
 
-
-
-                string sqlCT = @" DELETE FROM CHITIETNHAP
-                    WHERE MAPHIEUNHAP = @MAPHIEUNHAP";
-
-                SqlParameter[] parametersCT =
+                return Connect.ExecuteInTransaction((connection, transaction) =>
                 {
-                    new SqlParameter( "@MAPHIEUNHAP",  maPN)
-                };
-
-                Connect.ExecuteNonQuery(sqlCT,   parametersCT);
-
-
-
-                string sql = @"DELETE FROM PHIEUNHAPKHO
-                    WHERE MAPHIEUNHAP = @MAPHIEUNHAP";
-
-                SqlParameter[] parameters =
-                {
-                    new SqlParameter(  "@MAPHIEUNHAP",   maPN)
-                };
-
-                int rows = Connect.ExecuteNonQuery( sql, parameters);
-
-                return rows > 0;
+                    ExecuteNonQuery(connection, transaction,
+                        "DELETE FROM CHITIETNHAP WHERE MAPHIEUNHAP = @MAPHIEUNHAP",
+                        new SqlParameter("@MAPHIEUNHAP", maPN));
+                    int rows = ExecuteNonQuery(connection, transaction,
+                        "DELETE FROM PHIEUNHAPKHO WHERE MAPHIEUNHAP = @MAPHIEUNHAP",
+                        new SqlParameter("@MAPHIEUNHAP", maPN));
+                    return rows > 0;
+                });
             }
             catch (Exception ex)
             {
@@ -445,10 +334,9 @@ namespace DAL
         {
             try
             {
-                string sql = @"
-            SELECT COUNT(*)
-            FROM NHACUNGCAP
-            WHERE MANCC = @MANCC";
+                string sql = @"SELECT COUNT(*)
+                FROM NHACUNGCAP
+                WHERE MANCC = @MANCC";
 
                 SqlParameter[] parameters =
                 { new SqlParameter("@MANCC", mancc.Trim()) };
@@ -469,10 +357,9 @@ namespace DAL
         {
             try
             {
-                string sql = @"
-            SELECT COUNT(*)
-            FROM NHANVIEN
-            WHERE MANV = @MANV";
+                string sql = @" SELECT COUNT(*)
+                FROM NHANVIEN
+                WHERE MANV = @MANV";
 
                 SqlParameter[] parameters =
                 {
@@ -485,8 +372,7 @@ namespace DAL
             }
             catch (Exception ex)
             {
-                throw new Exception(
-                  "Lỗi kiểm tra nhân viên: " + ex.Message);
+                throw new Exception("Lỗi kiểm tra nhân viên: " + ex.Message);
             }
         }
 
@@ -495,8 +381,7 @@ namespace DAL
         {
             try
             {
-                string sql = @"
-                    SELECT COUNT(*)
+                string sql = @"  SELECT COUNT(*)
                     FROM SANPHAM
                     WHERE MASP = @MASP";
 
@@ -513,6 +398,13 @@ namespace DAL
             {
                 throw new Exception( "Lỗi kiểm tra sản phẩm: " + ex.Message);
             }
+        }
+
+        private static int ExecuteNonQuery(SqlConnection connection, SqlTransaction transaction, string sql, params SqlParameter[] parameters)
+        {
+            using SqlCommand command = new SqlCommand(sql, connection, transaction);
+            command.Parameters.AddRange(parameters);
+            return command.ExecuteNonQuery();
         }
     }
 }

@@ -1,398 +1,243 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Data.Common;
-using System.Linq;
-using System.Threading.Tasks;
 using BLL;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Data.SqlClient;
-using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Configuration;
-using Models;
-using System.Data.SqlClient;
-using System.Threading.Tasks;
+using System;
+using System.Data;
+using System.Linq;
 
 namespace API_KeToan1.Controllers
 {
-    [Authorize]
-    
+    [Authorize(Roles = "Admin,KeToan")]
     [Route("api/BaoCaoThongKe")]
     [ApiController]
     public class BaoCaoThongKe_Controller : ControllerBase
     {
-        private readonly DanhMuc_BLL dm_bll;
-        private readonly SanPham_BLL sp_bll;
-        private readonly KhuyenMai_BLL KM_BLL;
-        private readonly PhieuNhapKho_BLL PNK_bll;
-        private readonly ChiTietNhap_BLL CTN_bll;
-        private readonly HoaDonBan_BLL hdb_bll;
-        private readonly ChiTietBan_BLL ctb_bll;
+        private readonly DanhMuc_BLL _dmBll;
+        private readonly SanPham_BLL _spBll;
+        private readonly KhuyenMai_BLL _kmBll;
+        private readonly PhieuNhapKho_BLL _pnkBll;
+        private readonly ChiTietNhap_BLL _ctnBll;
+        private readonly HoaDonBan_BLL _hdbBll;
+        private readonly ChiTietBan_BLL _ctbBll;
 
-        public BaoCaoThongKe_Controller()
+        public BaoCaoThongKe_Controller(DanhMuc_BLL _dmBll, SanPham_BLL _spBll, KhuyenMai_BLL _kmBll, PhieuNhapKho_BLL _pnkBll, ChiTietNhap_BLL _ctnBll, HoaDonBan_BLL _hdbBll, ChiTietBan_BLL _ctbBll)
         {
-            dm_bll = new DanhMuc_BLL();
-            sp_bll = new SanPham_BLL();
-            KM_BLL = new KhuyenMai_BLL();
-            PNK_bll = new PhieuNhapKho_BLL();
-            CTN_bll = new ChiTietNhap_BLL();
-            hdb_bll = new HoaDonBan_BLL();
-            ctb_bll = new ChiTietBan_BLL();
+            this._dmBll = _dmBll;
+            this._spBll = _spBll;
+            this._kmBll = _kmBll;
+            this._pnkBll = _pnkBll;
+            this._ctnBll = _ctnBll;
+            this._hdbBll = _hdbBll;
+            this._ctbBll = _ctbBll;
         }
 
-        [Route("get-all-danhmuc")]
-        [HttpGet]
+       
+        private IActionResult? ValidateMa(string? ma, string tenTruong, out string maTrimmed)
+        {
+            maTrimmed = string.Empty;
+            if (string.IsNullOrWhiteSpace(ma))
+                return BadRequest(new { success = false, message = $"{tenTruong} không được để trống." });
+
+            maTrimmed = ma.Trim();
+            if (maTrimmed.Length > 15)
+                return BadRequest(new { success = false, message = $"{tenTruong} không được vượt quá 15 ký tự." });
+
+            return null;
+        }
+
+      
+        [HttpGet("get-all-danhmuc")]
         public IActionResult GetAll_DM()
         {
             try
             {
-                var list = dm_bll.LayTatCa();
-
-                if (list == null || !list.Any())
-                {
-                    return NoContent();
-                }
-
-                return Ok(list);
+                var list = _dmBll.LayTatCa();
+                return Ok(new { success = true, count = list?.Count ?? 0, data = list });
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { success = false, message = "Lỗi: " + ex.Message });
+                return StatusCode(500, new { success = false, message = "Lỗi hệ thống nội bộ." });
             }
         }
 
-        [Route("get-byID-danhmuc")]
-        [HttpGet]
+        [HttpGet("get-byID-danhmuc")]
         public IActionResult Get_DM_ByID([FromQuery] string? madanhmuc)
         {
+            if (ValidateMa(madanhmuc, "Mã danh mục", out string cleanMa) is IActionResult error)
+                return error;
+
             try
             {
-                if (string.IsNullOrWhiteSpace(madanhmuc))
-                {
-                    return BadRequest(new
-                    {
-                        success = false, message = "Mã danh mục không được để trống."
-                    });
-                }
-
-                madanhmuc = madanhmuc.Trim();
-
-                if (madanhmuc.Length > 15)
-                {
-                    return BadRequest(new
-                    {
-                        success = false, message = "Mã danh mục không được vượt quá 15 ký tự."
-                    });
-                }
-
-                var danhmuc = dm_bll.LayTheoID(madanhmuc);
-
+                var danhmuc = _dmBll.LayTheoID(cleanMa);
                 if (danhmuc == null || danhmuc.Count == 0)
-                {
-                    return NotFound(new
-                    {
-                        success = false,  message = "Không tìm thấy danh mục."
-                    });
-                }
+                    return NotFound(new { success = false, message = $"Không tìm thấy danh mục có mã '{cleanMa}'." });
 
-                return Ok(new
-                {
-                    success = true, message = "Lấy thông tin danh mục thành công",  data = danhmuc
-                });
+                return Ok(new { success = true, message = "Lấy thông tin danh mục thành công.", data = danhmuc });
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new
-                {
-                    success = false, message = "Lỗi: " + ex.Message
-                });
+                return StatusCode(500, new { success = false, message = "Lỗi hệ thống nội bộ." });
             }
         }
+
         [HttpGet("get-all-sanpham")]
         public IActionResult GetAll_SP()
         {
             try
             {
-                var result = sp_bll.LayTatCa(); return Ok(result);
+                var data = _spBll.LayTatCa();
+                return Ok(new { success = true, count = data?.Count ?? 0, data });
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { success = false, message = "Lỗi: " + ex.Message });
+                return StatusCode(500, new { success = false, message = "Lỗi hệ thống nội bộ." });
             }
         }
 
         [HttpGet("get-sanpham-by-id")]
         public IActionResult Get_SP_ByID([FromQuery] string? id)
         {
+            if (ValidateMa(id, "Mã sản phẩm", out string cleanId) is IActionResult error)
+                return error;
+
             try
             {
-                if (string.IsNullOrWhiteSpace(id))
-                {
-                    return BadRequest(new
-                    {
-                        success = false, message = "Mã sản phẩm không được để trống."
-                    });
-                }
-
-                id = id.Trim();
-
-                if (id.Length > 15)
-                {
-                    return BadRequest(new
-                    {
-                        success = false,  message = "Mã sản phẩm không được vượt quá 15 ký tự."
-                    });
-                }
-
-                var result = sp_bll.LayTheoID(id);
-
+                var result = _spBll.LayTheoID(cleanId);
                 if (result == null || result.Count == 0)
-                {
-                    return NotFound(new
-                    {
-                        success = false, message = "Không tìm thấy sản phẩm."
-                    });
-                }
+                    return NotFound(new { success = false, message = $"Không tìm thấy sản phẩm có mã '{cleanId}'." });
 
-                return Ok(new
-                {
-                    success = true, message = "Lấy thông tin sản phẩm thành công",
-                    data = result
-                });
+                return Ok(new { success = true, message = "Lấy thông tin sản phẩm thành công.", data = result });
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new
-                {
-                    success = false, message = "Lỗi: " + ex.Message
-                });
+                return StatusCode(500, new { success = false, message = "Lỗi hệ thống nội bộ." });
             }
         }
 
-        [Route("get-all-khuyenmai")]
-        [HttpGet]
-        public IActionResult getAll_KM()
+       
+        [HttpGet("get-all-khuyenmai")]
+        public IActionResult GetAll_KM()
         {
             try
             {
-                DataTable dt = KM_BLL.getAll();
-                var list = new List<object>();
-                foreach (DataRow row in dt.Rows)
+                var dt = _kmBll.getAll();
+                var data = dt.AsEnumerable().Select(row => new
                 {
-                    list.Add(new
-                    {
-                        MAKM = row["MAKM"],
-                        TENKM = row["TENKM"],
-                        MASP = row["MASP"],
-                        NGAYBATDAU = row["NGAYBATDAU"],
-                        NGAYKETTHUC = row["NGAYKETTHUC"]
-                    });
-                }
-                return Ok(new { success = true, message = "Lấy danh sách khuyến mại thành công", data = list });
+                    MAKM = row["MAKM"]?.ToString()?.Trim(),
+                    TENKM = row["TENKM"]?.ToString()?.Trim(),
+                    MASP = row["MASP"]?.ToString()?.Trim(),
+                    NGAYBATDAU = row["NGAYBATDAU"] == DBNull.Value ? null : Convert.ToDateTime(row["NGAYBATDAU"]).ToString("yyyy-MM-dd"),
+                    NGAYKETTHUC = row["NGAYKETTHUC"] == DBNull.Value ? null : Convert.ToDateTime(row["NGAYKETTHUC"]).ToString("yyyy-MM-dd")
+                }).ToList();
+
+                return Ok(new { success = true, count = data.Count, message = "Lấy danh sách khuyến mại thành công.", data });
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { success = false, message = "Lỗi: " + ex.Message });
+                return StatusCode(500, new { success = false, message = "Lỗi hệ thống nội bộ." });
             }
         }
 
-
-        [Route("get-byid-khuyenmai")]
-        [HttpGet]
+        [HttpGet("get-byid-khuyenmai")]
         public IActionResult Get_KM_ById([FromQuery] string? ma)
         {
+            if (ValidateMa(ma, "Mã khuyến mại", out string cleanMa) is IActionResult error)
+                return error;
+
             try
             {
-                if (string.IsNullOrWhiteSpace(ma))
-                {
-                    return BadRequest(new
-                    {
-                        success = false,
-                        message = "Mã khuyến mại không được để trống."
-                    });
-                }
-
-                ma = ma.Trim();
-
-                if (ma.Length > 15)
-                {
-                    return BadRequest(new
-                    {
-                        success = false,
-                        message = "Mã khuyến mại không được vượt quá 15 ký tự."
-                    });
-                }
-
-                DataTable dt = KM_BLL.GetById(ma);
-
+                var dt = _kmBll.GetById(cleanMa);
                 if (dt == null || dt.Rows.Count == 0)
-                {
-                    return NotFound(new
-                    {
-                        success = false,
-                        message = "Không tìm thấy mã khuyến mại."
-                    });
-                }
+                    return NotFound(new { success = false, message = $"Không tìm thấy mã khuyến mại: {cleanMa}" });
 
-                var list = new List<object>();
-
-                foreach (DataRow row in dt.Rows)
+                var data = dt.AsEnumerable().Select(row => new
                 {
-                    list.Add(new
-                    {
-                        MAKM = row["MAKM"]?.ToString()?.Trim(),
-                        TENKM = row["TENKM"]?.ToString()?.Trim(),
-                        MASP = row["MASP"]?.ToString()?.Trim(),
-                        NGAYBATDAU = row["NGAYBATDAU"],
-                        NGAYKETTHUC = row["NGAYKETTHUC"]
-                    });
-                }
+                    MAKM = row["MAKM"]?.ToString()?.Trim(),
+                    TENKM = row["TENKM"]?.ToString()?.Trim(),
+                    MASP = row["MASP"]?.ToString()?.Trim(),
+                    NGAYBATDAU = row["NGAYBATDAU"] == DBNull.Value ? null : Convert.ToDateTime(row["NGAYBATDAU"]).ToString("yyyy-MM-dd"),
+                    NGAYKETTHUC = row["NGAYKETTHUC"] == DBNull.Value ? null : Convert.ToDateTime(row["NGAYKETTHUC"]).ToString("yyyy-MM-dd")
+                }).ToList();
 
-                return Ok(new
-                {
-                    success = true,
-                    message = "Lấy thông tin khuyến mại thành công",
-                    data = list
-                });
+                return Ok(new { success = true, message = "Lấy thông tin khuyến mại thành công.", data });
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new
-                {
-                    success = false,
-                    message = "Lỗi: " + ex.Message
-                });
+                return StatusCode(500, new { success = false, message = "Lỗi hệ thống nội bộ." });
             }
         }
 
+       
         [HttpGet("get-all-phieunhapkho")]
         public IActionResult GetAllPhieuNhapKho()
         {
             try
             {
-                var data = PNK_bll.LayTatCa();
-                return Ok(new { success = true, message = "Lấy danh sách phiếu nhập kho thành công", data });
+                var data = _pnkBll.LayTatCa();
+                return Ok(new { success = true, count = data?.Count ?? 0, message = "Lấy danh sách phiếu nhập kho thành công.", data });
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { success = false, message = "Lỗi: " + ex.Message });
+                return StatusCode(500, new { success = false, message = "Lỗi hệ thống nội bộ." });
             }
         }
 
         [HttpGet("get-byid-phieunhapkho")]
         public IActionResult GetByIdPhieuNhapKho([FromQuery] string? maphieunhap)
         {
+            if (ValidateMa(maphieunhap, "Mã phiếu nhập", out string cleanMa) is IActionResult error)
+                return error;
+
             try
             {
-                if (string.IsNullOrWhiteSpace(maphieunhap))
-                {
-                    return BadRequest(new
-                    {
-                        success = false, message = "Mã phiếu nhập không được để trống."
-                    });
-                }
+                var data = _pnkBll.LayTheoID(cleanMa);
+                if (data == null || data.Count == 0)
+                    return NotFound(new { success = false, message = $"Không tìm thấy phiếu nhập kho '{cleanMa}'." });
 
-                maphieunhap = maphieunhap.Trim();
-
-                if (maphieunhap.Length > 15)
-                {
-                    return BadRequest(new
-                    {
-                        success = false, message = "Mã phiếu nhập không được vượt quá 15 ký tự."
-                    });
-                }
-
-                var list = PNK_bll.LayTheoID(maphieunhap);
-
-                if (list == null || list.Count == 0)
-                {
-                    return NotFound(new
-                    {
-                        success = false,  message = "Không tìm thấy phiếu nhập kho."
-                    });
-                }
-
-                return Ok(new
-                {
-                    success = true,  message = "Lấy thông tin phiếu nhập kho thành công",
-                    data = list
-                });
+                return Ok(new { success = true, message = "Lấy thông tin phiếu nhập kho thành công.", data });
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new
-                {
-                    success = false,  message = "Lỗi: " + ex.Message
-                });
+                return StatusCode(500, new { success = false, message = "Lỗi hệ thống nội bộ." });
             }
         }
+
+     
         [HttpGet("get-all-chitietnhap")]
         public IActionResult GetAll_CTN()
         {
             try
             {
-                var data = CTN_bll.LayTatCa()
-                 .Select(x => new {
-                     MAPHIEUNHAP = x.MAPHIEUNHAP?.Trim(),
-                     MASP = x.MASP?.Trim(),
-                     SOLUONG = x.SOLUONG,
-                     DONGIANHAP = x.DONGIANHAP,
-                     THANHTIEN = x.THANHTIEN,
-                 })
-                 .ToList();
+                var data = _ctnBll.LayTatCa()
+                    .Select(x => new
+                    {
+                        MAPHIEUNHAP = x.MAPHIEUNHAP?.Trim(),
+                        MASP = x.MASP?.Trim(),
+                        SOLUONG = x.SOLUONG,
+                        DONGIANHAP = x.DONGIANHAP,
+                        THANHTIEN = x.THANHTIEN
+                    }).ToList();
 
-                return Ok(new { success = true, message = "Lấy danh sách chi tiết nhập thành công", data });
+                return Ok(new { success = true, count = data.Count, message = "Lấy danh sách chi tiết nhập thành công.", data });
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { success = false, message = "Lỗi: " + ex.Message });
+                return StatusCode(500, new { success = false, message = "Lỗi hệ thống nội bộ." });
             }
         }
 
         [HttpGet("get-byphieu-chitietnhap")]
         public IActionResult GetByPhieu([FromQuery] string? maphieunhap)
         {
+            if (ValidateMa(maphieunhap, "Mã phiếu nhập", out string cleanMa) is IActionResult error)
+                return error;
+
             try
             {
-                
-                if (string.IsNullOrWhiteSpace(maphieunhap))
-                {
-                    return BadRequest(new
-                    {
-                        success = false,
-                        message = "Mã phiếu nhập không được để trống."
-                    });
-                }
-
-                maphieunhap = maphieunhap.Trim();
-
-                
-                if (maphieunhap.Length > 15)
-                {
-                    return BadRequest(new
-                    {
-                        success = false,
-                        message = "Mã phiếu nhập không được vượt quá 15 ký tự."
-                    });
-                }
-
-             
-                var list = CTN_bll.LayTheoPhieu(maphieunhap);
-
-                
+                var list = _ctnBll.LayTheoPhieu(cleanMa);
                 if (list == null || list.Count == 0)
-                {
-                    return NotFound(new
-                    {
-                        success = false,
-                        message = "Không tìm thấy chi tiết nhập kho của phiếu: "
-                                  + maphieunhap
-                    });
-                }
+                    return NotFound(new { success = false, message = $"Không tìm thấy chi tiết nhập kho của phiếu: {cleanMa}" });
 
-                
                 var data = list.Select(x => new
                 {
                     MAPHIEUNHAP = x.MAPHIEUNHAP?.Trim(),
@@ -402,87 +247,86 @@ namespace API_KeToan1.Controllers
                     THANHTIEN = x.THANHTIEN
                 }).ToList();
 
-                return Ok(new
-                {
-                    success = true,
-                    message = "Lấy chi tiết theo phiếu thành công",
-                    data = data
-                });
+                return Ok(new { success = true, count = data.Count, message = "Lấy chi tiết theo phiếu thành công.", data });
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new
-                {
-                    success = false,
-                    message = "Lỗi: " + ex.Message
-                });
+                return StatusCode(500, new { success = false, message = "Lỗi hệ thống nội bộ." });
             }
         }
 
-        [Route("get-all-hoadonban")]
-        [HttpGet]
+     
+        [HttpGet("get-all-hoadonban")]
         public IActionResult GetAll_HDB()
         {
             try
             {
-                var result = hdb_bll.LayTatCa();
-                return Ok(result);
+                var data = _hdbBll.LayTatCa();
+                return Ok(new { success = true, count = data?.Count ?? 0, message = "Lấy danh sách hóa đơn thành công.", data });
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { success = false, message = "Lỗi: " + ex.Message });
+                return StatusCode(500, new { success = false, message = "Lỗi hệ thống nội bộ." });
             }
         }
 
-        [Route("get-hoadonban-by-id")]
-        [HttpGet]
-        public IActionResult Get_HDB_ByID(string maHoaDon)
+        [HttpGet("get-hoadonban-by-id")]
+        public IActionResult Get_HDB_ByID([FromQuery] string? maHoaDon)
         {
+            if (ValidateMa(maHoaDon, "Mã hóa đơn", out string cleanMa) is IActionResult error)
+                return error;
+
             try
             {
-                var result = hdb_bll.LayTheoID(maHoaDon);
-                if (result == null || result.Count == 0)
-                    return NotFound("Không tìm thấy hóa đơn.");
+                var data = _hdbBll.LayTheoID(cleanMa);
+                if (data == null || data.Count == 0)
+                    return NotFound(new { success = false, message = $"Không tìm thấy hóa đơn có mã '{cleanMa}'." });
 
-                return Ok(result);
+                return Ok(new { success = true, message = "Lấy thông tin hóa đơn thành công.", data });
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { success = false, message = "Lỗi: " + ex.Message });
+                return StatusCode(500, new { success = false, message = "Lỗi hệ thống nội bộ." });
             }
         }
 
-        [Route("get-all-chitietban")]
-        [HttpGet]
+        [HttpGet("get-all-chitietban")]
         public IActionResult GetAll_CTB()
         {
             try
             {
-                var result = ctb_bll.LayTatCa();
-                return Ok(result);
+                var data = _ctbBll.LayTatCa();
+                return Ok(new { success = true, count = data?.Count ?? 0, message = "Lấy danh sách chi tiết bán thành công.", data });
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { success = false, message = "Lỗi: " + ex.Message });
+                return StatusCode(500, new { success = false, message = "Lỗi hệ thống nội bộ." });
             }
         }
 
-        [Route("get-chitietban-by-IDhoadon")]
-        [HttpGet]
-        public IActionResult Get_CTB_ByHoaDon(string maHDB)
+        [HttpGet("get-chitietban-by-IDhoadon")]
+        public IActionResult Get_CTB_ByHoaDon([FromQuery] string? maHDB)
         {
+            if (ValidateMa(maHDB, "Mã hóa đơn", out string cleanMa) is IActionResult error)
+                return error;
+
             try
             {
-                var result = ctb_bll.LayTheoHoaDon(maHDB);
-                if (result == null || result.Count == 0)
-                    return NotFound("Không tìm thấy chi tiết của hóa đơn.");
+                var data = _ctbBll.LayTheoHoaDon(cleanMa);
+                if (data == null || data.Count == 0)
+                    return NotFound(new { success = false, message = $"Không tìm thấy chi tiết của hóa đơn '{cleanMa}'." });
 
-                return Ok(result);
+                return Ok(new { success = true, count = data.Count, message = "Lấy chi tiết hóa đơn thành công.", data });
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { success = false, message = "Lỗi: " + ex.Message });
+                return StatusCode(500, new { success = false, message = "Lỗi hệ thống nội bộ." });
             }
         }
     }
 }
+
+
+
+
+

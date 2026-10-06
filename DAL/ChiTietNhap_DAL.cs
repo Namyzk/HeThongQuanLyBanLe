@@ -300,8 +300,8 @@ namespace DAL
             try
             {
                 string sql = @"SELECT COUNT(*)
-            FROM PHIEUNHAPKHO
-            WHERE MAPHIEUNHAP = @MAPHIEUNHAP";
+                FROM PHIEUNHAPKHO
+                WHERE MAPHIEUNHAP = @MAPHIEUNHAP";
 
                 SqlParameter[] parameters =
                 {

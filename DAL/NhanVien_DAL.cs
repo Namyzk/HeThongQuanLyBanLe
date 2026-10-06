@@ -10,8 +10,7 @@ namespace DAL
     public class NhanVien_DAL
     {
        
-        // KIỂM TRA MANV ĐÃ TỒN TẠI
-
+      
         public bool KiemTraTonTai(string manv)
         {
             try
@@ -182,8 +181,7 @@ namespace DAL
                     return false;
                 }
 
-                string sql = @"
-                    UPDATE NHANVIEN
+                string sql = @"  UPDATE NHANVIEN
                     SET
                         TENNV = @TENNV,
                         SDT = @SDT,

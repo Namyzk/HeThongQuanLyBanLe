@@ -1,4 +1,4 @@
-﻿using DAL;
+using DAL;
 using Models;
 
 namespace BLL
@@ -7,12 +7,11 @@ namespace BLL
     {
         private readonly DanhMuc_DAL dm_dal;
 
-        public DanhMuc_BLL()
+        public DanhMuc_BLL(DanhMuc_DAL dm_dal)
         {
-            dm_dal = new DanhMuc_DAL();
+            this.dm_dal = dm_dal;
         }
 
-    
         public List<DanhMuc> LayTatCa()
         {
             var list = dm_dal.GetAll();

@@ -1,4 +1,4 @@
-﻿using DAL;
+using DAL;
 using Models;
 using System;
 using System.Collections.Generic;
@@ -8,11 +8,15 @@ namespace BLL
 {
     public class ThanhToan_BLL
     {
+        public static bool TrangThaiHopLe(string? trangThai) =>
+            string.Equals(trangThai?.Trim(), "Chưa thanh toán", StringComparison.Ordinal) ||
+            string.Equals(trangThai?.Trim(), "Đã thanh toán", StringComparison.Ordinal);
+
         private readonly ThanhToan_DAL TT_DAL;
 
-        public ThanhToan_BLL()
+        public ThanhToan_BLL(ThanhToan_DAL TT_DAL)
         {
-            TT_DAL = new ThanhToan_DAL();
+            this.TT_DAL = TT_DAL;
         }
 
         public DataTable getAll()
@@ -63,6 +67,18 @@ namespace BLL
 
                 if (model.MaThanhToan.Length > 15)
                     throw new Exception("Mã thanh toán không được vượt quá 15 ký tự.");
+
+                if (!TrangThaiHopLe(model.TrangThai))
+                    throw new ArgumentException("Trạng thái thanh toán không hợp lệ.");
+
+                if (string.IsNullOrWhiteSpace(model.PhuongThuc) || model.PhuongThuc.Trim().Length > 50)
+                    throw new ArgumentException("Phương thức thanh toán không hợp lệ.");
+
+                if (model.SoTienThanhToan <= 0)
+                    throw new ArgumentException("Số tiền thanh toán phải lớn hơn 0.");
+
+                if (model.NgayThanhToan == default)
+                    throw new ArgumentException("Ngày thanh toán không hợp lệ.");
 
                 return TT_DAL.Update(model);
             }
@@ -208,6 +224,9 @@ namespace BLL
                 throw new Exception("Trạng thái thanh toán không được để trống.");
 
             model.TrangThai = model.TrangThai.Trim();
+
+            if (!TrangThaiHopLe(model.TrangThai))
+                throw new ArgumentException("Trạng thái thanh toán không hợp lệ.");
 
             if (model.TrangThai.Length > 50)
                 throw new Exception("Trạng thái thanh toán không được vượt quá 50 ký tự.");
