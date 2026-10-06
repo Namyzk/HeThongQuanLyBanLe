@@ -1,255 +1,159 @@
-﻿using BLL;
-using DAL.DataHelper;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Data.SqlClient;
-using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Configuration;
-using Models;
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Data.Common;
-using System.Linq;
-using System.Threading.Tasks;
+using BLL;
+using DAL.DataHelper;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Data.SqlClient;
+using Models;
 
 namespace API_Admin.Controllers
 {
-    [Authorize]
+    [Authorize(Roles = "Admin")]
     
     [Route("api/QuanLyKhuyenMai")]
+
     [ApiController]
     public class QuanLyKhuyenMai_Controller : ControllerBase
     {
-        private readonly KhuyenMai_BLL _BLL;   // đổi TaiKhoan_BLL -> KhuyenMai_BLL
+        private readonly KhuyenMai_BLL _bll;
 
-        public QuanLyKhuyenMai_Controller()
+        public QuanLyKhuyenMai_Controller(KhuyenMai_BLL _bll)
         {
-            _BLL = new KhuyenMai_BLL();  // khởi tạo đúng BLL khuyến mãi
+            this._bll = _bll;
         }
+
+        
+        private static object MapKhuyenMai(DataRow row) => new
+        {
+            MAKM = row["MAKM"]?.ToString()?.Trim(),
+            TENKM = row["TENKM"]?.ToString()?.Trim(),
+            MASP = row["MASP"]?.ToString()?.Trim(),
+            NGAYBATDAU = row["NGAYBATDAU"] == DBNull.Value ? null : Convert.ToDateTime(row["NGAYBATDAU"]).ToString("yyyy-MM-dd"),
+            NGAYKETTHUC = row["NGAYKETTHUC"] == DBNull.Value ? null : Convert.ToDateTime(row["NGAYKETTHUC"]).ToString("yyyy-MM-dd")
+        };
 
         [HttpGet("test-db")]
         public IActionResult TestDatabase()
         {
             try
             {
-                using SqlConnection conn = Connect.GetConnection();
-
+                using var conn = Connect.GetConnection();
                 conn.Open();
-
-                return Ok(new
-                {
-                    success = true,
-                    server = conn.DataSource,
-                    database = conn.Database,
-                    state = conn.State.ToString()
-                });
+                return Ok(new { success = true, server = conn.DataSource, database = conn.Database, state = conn.State.ToString() });
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new
-                {
-                    success = false,
-                    message = ex.Message
-                });
+                return StatusCode(500, new { success = false, message = "Lỗi hệ thống nội bộ." });
             }
         }
 
-
-        [Route("get-all-khuyenmai")]
-        [HttpGet]
-        public IActionResult getAll()
+        [HttpGet("get-all-khuyenmai")]
+        public IActionResult GetAll()
         {
             try
             {
-                DataTable dt = Connect.ExecuteStoredProcedure(  "dbo.sp_GetKhuyenMai"
-                );
-
-                var data = dt.AsEnumerable().Select(row => dt.Columns .Cast<DataColumn>()
-                .ToDictionary( column => column.ColumnName,  column =>
-                {
-                    if (row[column] == DBNull.Value) return null;
-                    object value = row[column];
-                    if (value is DateTime dateTime)
-                    return dateTime.ToString("yyyy-MM-dd"); return value; }))
-                    .ToList();
-
-                return Ok(new
-                {
-                    success = true, count = data.Count, data = data
-                });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new
-                {
-                    success = false,message = ex.Message,  inner = ex.InnerException?.Message
-                });
-            }
-        }
-
-        [HttpGet("get-byid-khuyenmai")]
-        public IActionResult GetById(string ma)    
-        {
-            if (string.IsNullOrWhiteSpace(ma))
-            {
-                return BadRequest(new
-                {
-                    success = false, statucode = 400,
-                    message = "Vui lòng nhập mã khuyến mại."
-                });
-            }
-
-            try
-            {
-                DataTable dt = _BLL.GetById(ma);
+                DataTable dt = Connect.ExecuteStoredProcedure("dbo.sp_GetKhuyenMai");
                 var list = new List<object>();
 
                 foreach (DataRow row in dt.Rows)
                 {
-                    list.Add(new
-                    {
-                        MAKM = row["MAKM"].ToString()?.Trim(),
-                        TENKM = row["TENKM"],
-                        MASP = row["MASP"].ToString()?.Trim(),
-                        NGAYBATDAU = row["NGAYBATDAU"] == DBNull.Value ? null  : Convert.ToDateTime(row["NGAYBATDAU"]).ToString("yyyy-MM-dd"),
-                        NGAYKETTHUC = row["NGAYKETTHUC"] == DBNull.Value  ? null : Convert.ToDateTime(row["NGAYKETTHUC"]).ToString("yyyy-MM-dd")
-                    });
+                    list.Add(MapKhuyenMai(row));
                 }
 
-                if (list.Count == 0)
-                {
-                    return NotFound(new
-                    {
-                        success = false, StatusCode = 404, message = "Không tìm thấy mã khuyến mại: " + ma
-                    });
-                }
+                return Ok(new { success = true, count = list.Count, data = list });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { success = false, message = "Lỗi hệ thống nội bộ." });
+            }
+        }
+
+        [HttpGet("get-byid-khuyenmai")]
+        public IActionResult GetById([FromQuery] string ma)
+        {
+            if (string.IsNullOrWhiteSpace(ma))
+                return BadRequest(new { success = false, message = "Vui lòng nhập mã khuyến mại." });
+
+            try
+            {
+                DataTable dt = _bll.GetById(ma.Trim());
+                if (dt.Rows.Count == 0)
+                    return NotFound(new { success = false, message = $"Không tìm thấy mã khuyến mại: {ma}" });
 
                 return Ok(new
                 {
-                    success = true, StatusCode = 200,  message = "Lấy thông tin khuyến mại thành công",
-                    data = list
+                    success = true,
+                    message = "Lấy thông tin khuyến mại thành công.",
+                    data = MapKhuyenMai(dt.Rows[0]) 
                 });
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new
-                {
-                    success = false, StatusCode = 500, message = "Lỗi không tìm thấy mã: " + ex.Message
-
-                });
+                return StatusCode(500, new { success = false, message = "Lỗi hệ thống nội bộ." });
             }
         }
 
-        [Route("del-khuyenmai")]
-        [HttpDelete]
-        public IActionResult Delete(string ma)
+        [HttpPost("create-khuyenmai")]
+        public IActionResult Create([FromBody] KhuyenMai model)
         {
+            if (model == null || string.IsNullOrWhiteSpace(model.MaKM))
+                return BadRequest(new { success = false, message = "Dữ liệu khuyến mại và mã KM không được để trống." });
+
             try
             {
-                if (string.IsNullOrWhiteSpace(ma))
-                {
-                    return BadRequest(new
-                    {
-                        success = false, StatusCode = 400, message = "Mã khuyến mại không được để trống."
-                    });
-                }
+                _bll.Create(model);
+                return Ok(new { success = true, message = "Thêm thông tin khuyến mại thành công." });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { success = false, message = "Lỗi hệ thống nội bộ." });
+            }
+        }
+
+        [HttpPost("update-khuyenmai")]
+        public IActionResult Update([FromBody] KhuyenMai model)
+        {
+            if (model == null || string.IsNullOrWhiteSpace(model.MaKM))
+                return BadRequest(new { success = false, message = "Dữ liệu khuyến mại và mã KM không được để trống." });
+
+            try
+            {
+                DataTable check = _bll.GetById(model.MaKM.Trim());
+                if (check.Rows.Count == 0)
+                    return NotFound(new { success = false, message = $"Không tìm thấy khuyến mại có mã '{model.MaKM}'." });
+
+                _bll.Update(model);
+                return Ok(new { success = true, message = "Thay đổi thông tin khuyến mại thành công." });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { success = false, message = "Lỗi hệ thống nội bộ." });
+            }
+        }
+
+        [HttpDelete("del-khuyenmai")]
+        public IActionResult Delete([FromQuery] string ma)
+        {
+            if (string.IsNullOrWhiteSpace(ma))
+                return BadRequest(new { success = false, message = "Mã khuyến mại không được để trống." });
+
+            try
+            {
                 ma = ma.Trim();
-                DataTable dt = _BLL.GetById(ma);
-                if (dt.Rows.Count < 1)
-                {
-                    return NotFound(new
-                    {
-                        success = false, StatusCode = 404, message = "Không có thông tin khuyến mại có mã này."
-                    });
-                }
+                DataTable dt = _bll.GetById(ma);
+                if (dt.Rows.Count == 0)
+                    return NotFound(new { success = false, message = $"Không tìm thấy khuyến mại có mã '{ma}'." });
 
-                _BLL.Delete(ma);
-
-                return Ok(new
-                {
-                    success = true, StatusCode = 200, message = "Xoá thông tin khuyến mại thành công."
-                });
+                _bll.Delete(ma);
+                return Ok(new { success = true, message = "Xoá thông tin khuyến mại thành công." });
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new
-                {
-                    success = false, StatusCode = 500, message = "Lỗi: " + ex.Message
-                });
-            }
-        }
-
-        [Route("update-khuyenmai")]
-        [HttpPost]
-        public IActionResult Update([FromBody] Models.KhuyenMai model)
-        {
-            try
-            {
-                if (model == null)
-                {
-                    return BadRequest(new
-                    {
-                        success = false, StatusCode = 400, message = "Dữ liệu khuyến mại không được để trống."
-                    });
-                }
-
-                DataTable check = _BLL.GetById(model.MaKM ?? "");
-
-                if (check.Rows.Count < 1)
-                {
-                    return NotFound(new
-                    {
-                        success = false,StatusCode = 404, message = "Không có thông tin khuyến mại có mã này."
-                    });
-                }
-
-                _BLL.Update(model);
-
-                return Ok(new
-                {
-                    success = true, StatusCode = 200, message = "Thay đổi thông tin khuyến mại thành công."
-                });
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new
-                {
-                    success = false, StatusCode = 500, message = ex.Message
-                });
-            }
-        }
-
-        [Route("create-khuyenmai")]
-        [HttpPost]
-        public IActionResult Create([FromBody] Models.KhuyenMai model)
-        {
-            try
-            {
-                if (model == null)
-                {
-                    return BadRequest(new
-                    {
-                        success = false, StatusCode = 400, message = "Dữ liệu khuyến mại không được để trống."
-                    });
-                }
-
-                DataTable dt = _BLL.Create(model);
-
-                return Ok(new
-                {
-                    success = true, StatusCode = 200, message = "Thêm thông tin khuyến mại thành công"
-                });
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new
-                {
-                    success = false, StatusCode = 400, message = ex.Message
-
-                });
+                return StatusCode(500, new { success = false, message = "Lỗi hệ thống nội bộ." });
             }
         }
     }
 }
+

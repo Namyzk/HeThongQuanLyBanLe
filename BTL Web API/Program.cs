@@ -1,18 +1,55 @@
-﻿using DAL.DataHelper;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
+using DAL.Middleware;
+using DAL;
+using BLL;
+using DAL.DataHelper;
 using Microsoft.OpenApi.Models;
-using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Services.AddScoped<AuditLog_DAL>();
+
+builder.Services.AddAuthentication(Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme, options =>
+    {
+        var jwt = builder.Configuration.GetSection("Jwt");
+        var key = jwt["Key"] ?? throw new InvalidOperationException("Thiếu cấu hình Jwt:Key.");
+        if (System.Text.Encoding.UTF8.GetByteCount(key) < 32)
+            throw new InvalidOperationException("Jwt:Key phải có tối thiểu 32 byte.");
+
+        options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidIssuer = jwt["Issuer"],
+            ValidateAudience = true,
+            ValidAudience = jwt["Audience"],
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new Microsoft.IdentityModel.Tokens.SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(key)),
+            ValidateLifetime = true,
+            ClockSkew = TimeSpan.Zero,
+            RoleClaimType = System.Security.Claims.ClaimTypes.Role,
+            NameClaimType = System.Security.Claims.ClaimTypes.NameIdentifier
+        };
+    });
+builder.Services.AddAuthorization();
 
 // ============ CORS DEV ============
 const string PermissiveDevCors = "PermissiveDevCors";
+var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>();
+if (allowedOrigins == null || allowedOrigins.Length == 0)
+{
+    if (!builder.Environment.IsDevelopment())
+        throw new InvalidOperationException("Cấu hình Cors:AllowedOrigins là bắt buộc ngoài môi trường Development.");
+    allowedOrigins = new[] { 
+        "http://localhost:3000", 
+        "http://localhost:5173", 
+        "https://localhost:3001", 
+        "https://localhost:5173" 
+    };
+}
 builder.Services.AddCors(options =>
 {
     options.AddPolicy(PermissiveDevCors, policy =>
         policy
-            .SetIsOriginAllowed(origin => true)
+            .WithOrigins(allowedOrigins)
             .AllowAnyHeader()
             .AllowAnyMethod()
     );
@@ -53,35 +90,52 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
-// ============ JWT ============
-var jwt = builder.Configuration.GetSection("Jwt");
-string secretKey = jwt["Key"] ?? "QUANLYBANLE_SUPER_SECRET_KEY_2026_MIN_32_CHARS_LONG";
-var key = Encoding.UTF8.GetBytes(secretKey);
-
-builder.Services.AddAuthentication(o =>
-{
-    o.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    o.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-})
-.AddJwtBearer(o =>
-{
-    o.RequireHttpsMetadata = false; // DEV
-    o.SaveToken = true;
-    o.TokenValidationParameters = new TokenValidationParameters
-    {
-        ValidateIssuer = true,
-        ValidateAudience = true,
-        ValidateIssuerSigningKey = true,
-        ValidIssuer = jwt["Issuer"] ?? "QUANLYBANLE_API",
-        ValidAudience = jwt["Audience"] ?? "QUANLYBANLE_CLIENT",
-        IssuerSigningKey = new SymmetricSecurityKey(key),
-        ClockSkew = TimeSpan.Zero
-    };
-});
-
-builder.Services.AddAuthorization();
+// DI registrations
+builder.Services.AddScoped<ChiTietBan_DAL>();
+builder.Services.AddScoped<ChiTietNhap_DAL>();
+builder.Services.AddScoped<DanhMuc_DAL>();
+builder.Services.AddScoped<HoaDonBan_DAL>();
+builder.Services.AddScoped<KhachHang_DAL>();
+builder.Services.AddScoped<KhuyenMai_DAL>();
+builder.Services.AddScoped<NhaCungCap_DAL>();
+builder.Services.AddScoped<NhanVien_DAL>();
+builder.Services.AddScoped<PhieuNhapKho_DAL>();
+builder.Services.AddScoped<SanPham_DAL>();
+builder.Services.AddScoped<TaiKhoan_DAL>();
+builder.Services.AddScoped<ThanhToan_DAL>();
+builder.Services.AddScoped<ChiTietBan_BLL>();
+builder.Services.AddScoped<ChiTietNhap_BLL>();
+builder.Services.AddScoped<DanhMuc_BLL>();
+builder.Services.AddScoped<HoaDonBan_BLL>();
+builder.Services.AddScoped<KhachHang_BLL>();
+builder.Services.AddScoped<KhuyenMai_BLL>();
+builder.Services.AddScoped<NhaCungCap_BLL>();
+builder.Services.AddScoped<NhanVien_BLL>();
+builder.Services.AddScoped<PhieuNhapKho_BLL>();
+builder.Services.AddScoped<SanPham_BLL>();
+builder.Services.AddScoped<TaiKhoan_BLL>();
+builder.Services.AddScoped<ThanhToan_BLL>();
 
 var app = builder.Build();
+
+app.Use(async (context, next) =>
+{
+    var remoteIp = context.Connection.RemoteIpAddress;
+    if (remoteIp != null)
+    {
+        if (remoteIp.IsIPv4MappedToIPv6)
+            remoteIp = remoteIp.MapToIPv4();
+
+        if (!System.Net.IPAddress.IsLoopback(remoteIp))
+        {
+            context.Response.StatusCode = StatusCodes.Status403Forbidden;
+            await context.Response.WriteAsync("API này chỉ nhận request từ Gateway nội bộ.");
+            return;
+        }
+    }
+
+    await next();
+});
 
 if (app.Environment.IsDevelopment())
 {
@@ -89,36 +143,19 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
-
 //  CORS phải đứng TRƯỚC auth/authorization & MapControllers
 app.UseCors(PermissiveDevCors);
 
-// Preflight cho proxy/hosting
-app.Use(async (ctx, next) =>
-{
-    if (string.Equals(ctx.Request.Method, "OPTIONS", StringComparison.OrdinalIgnoreCase))
-    {
-        var origin = ctx.Request.Headers["Origin"].ToString();
-        if (!string.IsNullOrEmpty(origin) || origin == "null")
-        {
-            ctx.Response.Headers["Access-Control-Allow-Origin"] = string.IsNullOrEmpty(origin) ? "null" : origin;
-            ctx.Response.Headers["Vary"] = "Origin";
-        }
-        ctx.Response.Headers["Access-Control-Allow-Methods"] = "GET,POST,PUT,PATCH,DELETE,OPTIONS";
-        ctx.Response.Headers["Access-Control-Allow-Headers"] = "Authorization,Content-Type,Accept";
-        ctx.Response.StatusCode = StatusCodes.Status204NoContent;
-        return;
-    }
-    await next();
-});
 Connect.ConnectionString =
     builder.Configuration.GetConnectionString("DefaultConnection");
 
 //  Xác thực và Ủy quyền
+
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseMiddleware<AuditChangeMiddleware>("API_Admin");
 
 app.MapControllers();
 
 app.Run();
+

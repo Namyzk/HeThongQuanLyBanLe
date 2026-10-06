@@ -1,165 +1,143 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Data.Common;
+using System;
 using System.Linq;
-using System.Threading.Tasks;
 using BLL;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Data.SqlClient;
-using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Configuration;
 using Models;
-using System.Data.SqlClient;
+
 namespace API_Admin.Controllers
 {
-    [Authorize]
-    
+    [Authorize(Roles = "Admin")]
     [Route("api/QuanLyNhanVien")]
     [ApiController]
     public class QuanLyNhanVien_Controller : ControllerBase
     {
         private readonly NhanVien_BLL _bll;
-        public QuanLyNhanVien_Controller()
+
+        public QuanLyNhanVien_Controller(NhanVien_BLL _bll)
         {
-            _bll = new NhanVien_BLL();
+            this._bll = _bll;
         }
+
+        
+        private static object MapNhanVien(NhanVien x) => new
+        {
+            MANV = x.MANV?.Trim(),
+            TENNV = x.TENNV?.Trim(),
+            SDT = x.SDT?.Trim(),
+            DIACHI = x.DIACHI?.Trim()
+        };
 
         [HttpGet("get-all-nhanvien")]
         public IActionResult GetAllNhanVien()
         {
             try
             {
-                var data = _bll.LayTatCa()
-                    .Select(x => new
-                    {
-                        MANV = x.MANV?.Trim(),
-                        TENNV = x.TENNV?.Trim(),
-                        SDT = x.SDT?.Trim(),
-                        DIACHI = x.DIACHI?.Trim()
-                    })
-                    .ToList();
-
-                return Ok(new { success = true, message = "Lấy danh sách nhân viên thành công", data });
+                var data = _bll.LayTatCa().Select(MapNhanVien).ToList();
+                return Ok(new { success = true, count = data.Count, data });
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { success = false, message = "Lỗi: " + ex.Message });
+                return StatusCode(500, new { success = false, message = "Lỗi hệ thống nội bộ." });
             }
         }
 
+        
         [HttpGet("get-byid-nhanvien")]
         public IActionResult GetByIdNhanVien([FromQuery] string manv)
         {
+            if (string.IsNullOrWhiteSpace(manv))
+                return BadRequest(new { success = false, message = "Mã nhân viên không được để trống." });
+
             try
             {
-                var list = _bll.LayTheoID(manv);
+                var list = _bll.LayTheoID(manv.Trim());
                 if (list == null || list.Count == 0)
-                    return Ok(new { success = false, message = "Không tìm thấy nhân viên" });
+                    return NotFound(new { success = false, message = $"Không tìm thấy nhân viên có mã '{manv}'." });
 
-                var data = list.Select(x => new
+                return Ok(new
                 {
-                    MANV = x.MANV?.Trim(),
-                    TENNV = x.TENNV?.Trim(),
-                    SDT = x.SDT?.Trim(),
-                    DIACHI = x.DIACHI?.Trim()
+                    success = true,
+                    message = "Lấy thông tin nhân viên thành công.",
+                    data = MapNhanVien(list[0]) // Trả về 1 object chi tiết trực tiếp
                 });
-
-                return Ok(new { success = true, message = "Lấy thông tin nhân viên thành công", data });
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { success = false, message = "Lỗi: " + ex.Message });
+                return StatusCode(500, new { success = false, message = "Lỗi hệ thống nội bộ." });
             }
         }
 
         [HttpPost("create-nhanvien")]
         public IActionResult CreateNhanVien([FromBody] NhanVien nv)
         {
+            if (nv == null || string.IsNullOrWhiteSpace(nv.MANV))
+                return BadRequest(new { success = false, message = "Dữ liệu nhân viên và mã nhân viên không được để trống." });
+
             try
             {
-                var ok = _bll.ThemMoi(nv);
-
+                bool ok = _bll.ThemMoi(nv);
                 if (!ok)
-                {
-                    return Ok(new
-                    {
-                        success = false, StatusCode = 400, message = "Không thể thêm nhân viên."
-                    });
-                }
+                    return BadRequest(new { success = false, message = "Không thể thêm nhân viên." });
 
-                return Ok(new
-                {
-                    success = true, statusCode = 200, message = "Thêm nhân viên thành công"
-                });
+                return Ok(new { success = true, message = "Thêm nhân viên thành công." });
             }
             catch (Exception ex)
             {
-                return StatusCode(400, new
-                {
-                    success = false, statusCode = 400, message = ex.Message
-                });
+                return BadRequest(new { success = false, message = "Lỗi hệ thống nội bộ." });
             }
         }
 
         [HttpPost("update-nhanvien")]
         public IActionResult UpdateNhanVien([FromBody] NhanVien nv)
         {
+            if (nv == null || string.IsNullOrWhiteSpace(nv.MANV))
+                return BadRequest(new { success = false, message = "Dữ liệu nhân viên và mã nhân viên không được để trống." });
+
             try
             {
-                var ok = _bll.CapNhat(nv);
-
+                bool ok = _bll.CapNhat(nv);
                 if (!ok)
-                {
-                    return Ok(new
-                    {
-                        success = false, statusCode = 400, message = "Không thể cập nhật nhân viên."
-                    });
-                }
+                    return BadRequest(new { success = false, message = "Không thể cập nhật nhân viên." });
 
-                return Ok(new
-                {
-                    success = true, statusCode = 200, message = "Cập nhật nhân viên thành công"
-                });
+                return Ok(new { success = true, message = "Cập nhật nhân viên thành công." });
             }
             catch (Exception ex)
             {
-                return StatusCode(400, new
-                {
-                    success = false, statusCode = 400, message = ex.Message
-                });
+                return BadRequest(new { success = false, message = "Lỗi hệ thống nội bộ." });
             }
         }
+
         [HttpDelete("delete-nhanvien")]
         public IActionResult DeleteNhanVien([FromQuery] string manv)
         {
+            if (string.IsNullOrWhiteSpace(manv))
+                return BadRequest(new { success = false, message = "Mã nhân viên không được để trống." });
+
             try
             {
-                var ok = _bll.Xoa(manv);
-
+                bool ok = _bll.Xoa(manv.Trim());
                 if (!ok)
-                {
-                    return Ok(new
-                    {
-                        success = false, statusCode = 400, message = "Không thể xoá nhân viên."
-                    });
-                }
+                    return BadRequest(new { success = false, message = "Không thể xoá nhân viên." });
 
-                return Ok(new
-                {
-                    success = true, statusCode = 200, message = "Xoá nhân viên thành công"
-                });
+                return Ok(new { success = true, message = "Xoá nhân viên thành công." });
             }
             catch (Exception ex)
             {
-                return StatusCode(400, new
+                // Bắt lỗi ràng buộc khóa ngoại tham chiếu sang Phiếu Nhập hoặc Hóa Đơn
+                if (ex.Message.Contains("REFERENCE constraint") || ex.Message.Contains("FK_"))
                 {
-                    success = false, statusCode = 400, message = ex.Message
-                });
+                    return BadRequest(new
+                    {
+                        success = false,
+                        message = "Không thể xóa nhân viên này vì đã có dữ liệu Phiếu nhập kho hoặc Hóa đơn bán hàng liên quan!"
+                    });
+                }
+
+                return StatusCode(500, new { success = false, message = "Lỗi hệ thống nội bộ." });
             }
         }
     }
-
 }
+
+
