@@ -34,7 +34,8 @@ namespace API_Admin.Controllers
             NGAYKETTHUC = row["NGAYKETTHUC"] == DBNull.Value ? null : Convert.ToDateTime(row["NGAYKETTHUC"]).ToString("yyyy-MM-dd")
         };
 
-        [HttpGet("test-db")]
+        [Route("test-db")]
+        [HttpGet]
         public IActionResult TestDatabase()
         {
             try
@@ -45,11 +46,12 @@ namespace API_Admin.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { success = false, message = "Lỗi hệ thống nội bộ." });
+                return StatusCode(500, new { success = false, message = "Lỗi hệ thống." });
             }
         }
 
-        [HttpGet("get-all-khuyenmai")]
+        [Route("get-all-khuyenmai")]
+        [HttpGet]
         public IActionResult GetAll()
         {
             try
@@ -66,11 +68,13 @@ namespace API_Admin.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { success = false, message = "Lỗi hệ thống nội bộ." });
+                return StatusCode(500, new { success = false, message = "Lỗi hệ thống." });
             }
         }
 
-        [HttpGet("get-byid-khuyenmai")]
+
+        [Route("get-byid-khuyenmai")]
+        [HttpGet]
         public IActionResult GetById([FromQuery] string ma)
         {
             if (string.IsNullOrWhiteSpace(ma))
@@ -91,11 +95,13 @@ namespace API_Admin.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { success = false, message = "Lỗi hệ thống nội bộ." });
+                return StatusCode(500, new { success = false, message = "Lỗi hệ thống." });
             }
         }
 
-        [HttpPost("create-khuyenmai")]
+
+        [Route("create-khuyenmai")]
+        [HttpPost]
         public IActionResult Create([FromBody] KhuyenMai model)
         {
             if (model == null || string.IsNullOrWhiteSpace(model.MaKM))
@@ -108,11 +114,13 @@ namespace API_Admin.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest(new { success = false, message = "Lỗi hệ thống nội bộ." });
+                return BadRequest(new { success = false, message = "Lỗi hệ thống." });
             }
         }
 
-        [HttpPost("update-khuyenmai")]
+
+        [Route("update-khuyenmai")]
+        [HttpPost]
         public IActionResult Update([FromBody] KhuyenMai model)
         {
             if (model == null || string.IsNullOrWhiteSpace(model.MaKM))
@@ -129,11 +137,13 @@ namespace API_Admin.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest(new { success = false, message = "Lỗi hệ thống nội bộ." });
+                return BadRequest(new { success = false, message = "Lỗi hệ thống." });
             }
         }
 
-        [HttpDelete("del-khuyenmai")]
+
+        [Route("del-khuyenmai")]
+        [HttpDelete]
         public IActionResult Delete([FromQuery] string ma)
         {
             if (string.IsNullOrWhiteSpace(ma))
@@ -151,7 +161,7 @@ namespace API_Admin.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { success = false, message = "Lỗi hệ thống nội bộ." });
+                return StatusCode(500, new { success = false, message = "Lỗi hệ thống." });
             }
         }
     }

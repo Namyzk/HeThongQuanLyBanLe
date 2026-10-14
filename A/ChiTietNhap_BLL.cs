@@ -54,7 +54,6 @@ namespace BLL
             if (ctn == null)
                 return "Thông tin chi tiết nhập không được để trống.";
 
-            // MÃ PHIẾU
             if (string.IsNullOrWhiteSpace(ctn.MAPHIEUNHAP))
                 return "Mã phiếu nhập không được để trống.";
 
@@ -63,7 +62,7 @@ namespace BLL
             if (ctn.MAPHIEUNHAP.Length > 15)
                 return "Mã phiếu nhập không được vượt quá 15 ký tự.";
 
-            // MÃ SẢN PHẨM
+            
             if (string.IsNullOrWhiteSpace(ctn.MASP))
                 return "Mã sản phẩm không được để trống.";
 
@@ -72,36 +71,29 @@ namespace BLL
             if (ctn.MASP.Length > 15)
                 return "Mã sản phẩm không được vượt quá 15 ký tự.";
 
-            // KIỂM TRA PHIẾU
             if (!ctn_dal.KiemTraPhieuNhapTonTai(ctn.MAPHIEUNHAP))
             {
                 return $"Phiếu nhập có mã '{ctn.MAPHIEUNHAP}' không tồn tại.";
             }
 
-            // KIỂM TRA SẢN PHẨM
             if (!ctn_dal.KiemTraSanPhamTonTai(ctn.MASP))
             {
                 return $"Sản phẩm có mã '{ctn.MASP}' không tồn tại.";
             }
 
-            // SỐ LƯỢNG
             if (ctn.SOLUONG <= 0)
                 return "Số lượng nhập phải lớn hơn 0.";
 
-            // ĐƠN GIÁ
             if (ctn.DONGIANHAP < 0)
                 return "Đơn giá nhập không được nhỏ hơn 0.";
 
-            // THÀNH TIỀN
             ctn.THANHTIEN =
                 ctn.SOLUONG * ctn.DONGIANHAP;
 
             if (ctn.THANHTIEN < 0)
                 return "Thành tiền không hợp lệ.";
 
-            // KIỂM TRA TRÙNG
-            if (!isUpdate &&
-                ctn_dal.KiemTraTonTai(  ctn.MAPHIEUNHAP,    ctn.MASP))
+            if (!isUpdate &&  ctn_dal.KiemTraTonTai(  ctn.MAPHIEUNHAP,    ctn.MASP))
             {
                 return $"Sản phẩm '{ctn.MASP}' đã tồn tại trong phiếu nhập '{ctn.MAPHIEUNHAP}'.";
             }
@@ -172,9 +164,7 @@ namespace BLL
             if (masp.Length > 15)
                 return "Mã sản phẩm không được vượt quá 15 ký tự.";
 
-            if (!ctn_dal.KiemTraTonTai(
-                maphieunhap,
-                masp))
+            if (!ctn_dal.KiemTraTonTai(  maphieunhap, masp))
             {
                 return $"Không tìm thấy chi tiết sản phẩm '{masp}' trong phiếu nhập '{maphieunhap}'.";
             }

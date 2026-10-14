@@ -545,363 +545,58 @@ USE QUANLYBANLE;
 GO
 ---------------------------------------------------------
 
-CREATE PROCEDURE dbo.sp_GetKhachHang
+CREATE OR ALTER PROCEDURE dbo.SP_KIEMTRAUSERNAME
+    @USERNAME CHAR(20)
 AS
 BEGIN
     SET NOCOUNT ON;
 
-    SELECT   MAKH, TENKH, SDT, DIACHI
-    FROM dbo.KHACHHANG;
-END
-GO
--------------------------------------------------------------
-
-CREATE PROCEDURE dbo.sp_GetThanhToan
-AS
-BEGIN
-    SET NOCOUNT ON;
-
-    SELECT  MATHANHTOAN,  MAHDBAN, PHUONGTHUC,   SOTIENTHANHTOAN, NGAYTHANHTOAN,TRANGTHAI
-    FROM dbo.THANHTOAN;
-END
-GO
--------------------------------------------------------------
-CREATE  PROCEDURE dbo.sp_GetNhaCungCap
-AS
-BEGIN
-    SET NOCOUNT ON;
-
-    SELECT MANCC,    TENNCC,    DIACHI,    SDT,  EMAIL
-    FROM dbo.NHACUNGCAP;
+    SELECT MATAIKHOAN
+    FROM dbo.TAIKHOAN
+    WHERE USERNAME = @USERNAME;
 END
 GO
 
--------------------------------------------------------------------
-
-
-CREATE  PROCEDURE dbo.sp_GetByIdNhaCungCap
-    @MANCC CHAR(15)
+-----------------
+--Kiem tr user name của tk khac
+CREATE OR ALTER PROCEDURE dbo.SP_KIEMTRAUSERNAMEKHAC
+    @USERNAME CHAR(20),
+    @MATAIKHOAN CHAR(15)
 AS
 BEGIN
     SET NOCOUNT ON;
 
-    SELECT MANCC, TENNCC, DIACHI,SDT,   EMAIL
-    FROM dbo.NHACUNGCAP
-    WHERE RTRIM(MANCC) = RTRIM(@MANCC);
-END
-GO
-----------------------------------------------
-CREATE PROCEDURE dbo.SP_SUATT
-    @MaThanhToan CHAR(15),
-    @PhuongThuc NVARCHAR(50),
-    @TrangThai NVARCHAR(50)
-AS
-BEGIN
-    SET NOCOUNT ON;
-
-    IF NOT EXISTS
-    (
-        SELECT 1
-        FROM dbo.THANHTOAN
-        WHERE RTRIM(MATHANHTOAN) = RTRIM(@MaThanhToan)
-    )
-    BEGIN
-        RETURN -1;
-    END;
-
-    UPDATE dbo.THANHTOAN
-    SET
-        PHUONGTHUC = @PhuongThuc,
-        TRANGTHAI = @TrangThai
-    WHERE RTRIM(MATHANHTOAN) = RTRIM(@MaThanhToan);
-
-    RETURN 0;
-END
-GO
--------------------------------------
-
-CREATE OR ALTER PROCEDURE dbo.sp_GetByIdThanhToan
-    @MATHANHTOAN CHAR(15)
-AS
-BEGIN
-    SET NOCOUNT ON;
-
-    SELECT MATHANHTOAN,   MAHDBAN,     PHUONGTHUC,   SOTIENTHANHTOAN,     NGAYTHANHTOAN,    TRANGTHAI
-    FROM dbo.THANHTOAN
-    WHERE RTRIM(MATHANHTOAN) = RTRIM(@MATHANHTOAN);
+    SELECT MATAIKHOAN
+    FROM dbo.TAIKHOAN
+    WHERE USERNAME = @USERNAME
+      AND MATAIKHOAN <> @MATAIKHOAN;
 END
 GO
 
 
 
 
-
-
-SELECT
-    H.MAHDBAN,
-    H.MANV,
-    H.MAKH,
-    H.NGAYLAP,
-    H.TONGTIENHANG,
-    H.THUEVAT,
-    H.GIAMGIA,
-    T.MATHANHTOAN,
-    T.PHUONGTHUC,
-    T.SOTIENTHANHTOAN,
-    T.NGAYTHANHTOAN,
-    T.TRANGTHAI
-FROM dbo.HOADONBAN H
-LEFT JOIN dbo.THANHTOAN T
-    ON RTRIM(H.MAHDBAN) = RTRIM(T.MAHDBAN)
-WHERE
-    T.MAHDBAN IS NULL
-    OR T.TRANGTHAI <> N'Đã thanh toán';
---------------------------------------------------------
 USE QUANLYBANLE;
 GO
 
-CREATE  PROCEDURE dbo.sp_GetByIDKhachHang
-    @MAKH CHAR(15)
+CREATE OR ALTER PROCEDURE dbo.SP_GetByIDKM
+    @MAKM CHAR(15)
 AS
 BEGIN
     SET NOCOUNT ON;
 
     SELECT
-        MAKH,
-        TENKH,
-        SDT,
-        DIACHI
-    FROM dbo.KHACHHANG
-    WHERE RTRIM(MAKH) = RTRIM(@MAKH);
-END;
-GO
-EXEC dbo.sp_GetByIDKhachHang @MAKH = 'KH001';
-
-
---------------------------------------------------------
-
- SELECT
-    H.MAHDBAN,
-    T.MATHANHTOAN,
-    T.TRANGTHAI,
-    T.PHUONGTHUC
-FROM dbo.HOADONBAN H
-LEFT JOIN dbo.THANHTOAN T
-    ON RTRIM(H.MAHDBAN) = RTRIM(T.MAHDBAN)
-WHERE RTRIM(H.MAHDBAN) = 'HD001';
----------------------------------------------------------------
-
-CREATE PROCEDURE dbo.SP_CAPNHAT_TRANGTHAI_THANHTOANTHANHCONG
-    @MAHDBAN CHAR(15),
-    @PHUONGTHUC NVARCHAR(50)
-AS
-BEGIN
-    SET NOCOUNT ON;
-
-    IF NOT EXISTS
-    (
-        SELECT 1
-        FROM dbo.HOADONBAN
-        WHERE RTRIM(MAHDBAN) = RTRIM(@MAHDBAN)
-    )
-    BEGIN
-        RETURN -1;
-    END;
-
-    IF NOT EXISTS
-    (
-        SELECT 1
-        FROM dbo.THANHTOAN
-        WHERE RTRIM(MAHDBAN) = RTRIM(@MAHDBAN)
-    )
-    BEGIN
-        RETURN -2;
-    END;
-
-    UPDATE dbo.THANHTOAN
-    SET
-        TRANGTHAI = N'Đã thanh toán',
-        PHUONGTHUC = @PHUONGTHUC,
-        SOTIENTHANHTOAN =
-        (
-            SELECT TOP 1
-                ISNULL(TONGTIENHANG, 0)
-                + ISNULL(THUEVAT, 0)
-                - ISNULL(GIAMGIA, 0)
-            FROM dbo.HOADONBAN
-            WHERE RTRIM(MAHDBAN) = RTRIM(@MAHDBAN)
-        ),
-        NGAYTHANHTOAN = GETDATE()
-    WHERE RTRIM(MAHDBAN) = RTRIM(@MAHDBAN);
-
-    RETURN 0;
-END;
-GO
-﻿-------------------------------------------------------------------------------------------------
-CREATE OR ALTER PROCEDURE sp_GetKhachHang
-AS
-BEGIN
-    SELECT MaKH, TenKH, SDT, DiaChi
-    FROM KHACHHANG
-    WHERE 
-        MaKH IS NOT NULL AND MaKH <> ''
-END
-EXEC sp_GetKhachHang
--------------------------------------------------------------------------------------------------
-CREATE OR ALTER PROC sp_GetByIDKhachHang(@MAKH CHAR(15))
-AS
-BEGIN
-    SELECT MaKH, TenKH, SDT, DiaChi
-    FROM KHACHHANG
-    WHERE 
-        MaKH = @MaKH
-END
-EXEC sp_GetByIDKhachHang'KH006'
--------------------------------------------------------------------------------------------------
---XÓA THÔNG TIN CỦA KH CÓ MÃ BẤT KỲ
-CREATE OR ALTER PROC SP_XOAKH(@MAKH CHAR(15))
-AS
-BEGIN
-	IF(NOT EXISTS(SELECT * FROM KHACHHANG K WHERE K.MAKH = @MAKH)) 
-		RETURN -1
-	IF(EXISTS(SELECT * FROM KHACHHANG K WHERE K.MAKH = @MAKH))
-	DELETE FROM KHACHHANG
-	WHERE MAKH = @MAKH
-END
-EXEC SP_XOAKH'SV100'--KHÔNG XÓA ĐƯỢC
-EXEC SP_XOAKH'KH005'--XÓA ĐƯỢC
--------------------------------------------------------------------------------------------------
---THÊM THÔNG TIN CỦA KH
-CREATE OR ALTER PROC SP_THEMKH
-	@MAKH CHAR(15),
-	@TENKH NVARCHAR(100),
-	@SDT CHAR(10),
-	@DIACHI NVARCHAR(300)
-AS
-BEGIN
-	IF(EXISTS(SELECT * FROM KHACHHANG K WHERE K.MAKH = @MAKH)) 
-		RETURN -1
-	IF(NOT EXISTS(SELECT * FROM KHACHHANG K WHERE K.MAKH = @MAKH))
-		INSERT INTO KHACHHANG VALUES (@MAKH, @TENKH, @SDT, @DIACHI)
-END
-EXEC SP_THEMKH'KH006', N'Đỗ Tiến Đạt', '0905555555', N'Hưng Yên'
-EXEC SP_THEMKH'KH007', N'Đỗ Hữu Quốc Anh', '0905555555', N'Hưng Yên'
--------------------------------------------------------------------------------------------------
---SỬA THÔNG TIN CỦA KH CÓ MÃ BẤT KỲ
-CREATE OR ALTER PROC SP_SUAKH(@MAKH CHAR(15),
-								@TENKH NVARCHAR(100),
-								@SDT CHAR(10),
-								@DIACHI NVARCHAR(300))
-AS
-BEGIN
-	IF(NOT EXISTS(SELECT * FROM KHACHHANG K WHERE K.MAKH = @MAKH)) 
-		RETURN -1
-	IF(EXISTS(SELECT * FROM KHACHHANG K WHERE K.MAKH = @MAKH))
-	UPDATE KHACHHANG SET TENKH = @TENKH, SDT = @SDT, DIACHI = @DIACHI 
-	WHERE MAKH = @MAKH
-END
-EXEC SP_SUAKH'KH006', N'Đỗ Hữu Quốc Anh', '0905555553', N'Hà Nội'
-EXEC SP_SUAKH'KH007', N'Đỗ Tiến Đạt', '0905555554', N'Thái Nguyên'
--------------------------------------------------------------------------------------------------
-CREATE OR ALTER PROCEDURE dbo.SP_LAY_HOADON_CHUA_THANHTOAN_THEO_TENKH
-    @TENKH NVARCHAR(100)
-AS
-BEGIN
-    SET NOCOUNT ON;
-
-    SELECT   HDB.MAHDBAN,  HDB.MAKH,   KH.TENKH,  KH.SDT,   HDB.NGAYLAP,  HDB.TONGTIENHANG,   HDB.THUEVAT,  HDB.GIAMGIA, 
-    TT.MATHANHTOAN,   TT.PHUONGTHUC,   TT.SOTIENTHANHTOAN,    TT.NGAYTHANHTOAN,    TT.TRANGTHAI
-    FROM dbo.HOADONBAN HDB
-
-    INNER JOIN dbo.KHACHHANG KH
-        ON HDB.MAKH = KH.MAKH
-
-    LEFT JOIN dbo.THANHTOAN TT
-        ON HDB.MAHDBAN = TT.MAHDBAN
-
-    WHERE KH.TENKH LIKE N'%' + @TENKH + '%'
-      AND (
-            TT.MAHDBAN IS NULL
-            OR TT.TRANGTHAI IS NULL
-            OR TT.TRANGTHAI <> N'Đã thanh toán'
-          )
-
-    ORDER BY HDB.NGAYLAP DESC;
+        RTRIM(MAKM) AS MAKM,
+        TENKM,
+        RTRIM(MASP) AS MASP,
+        NGAYBATDAU,
+        NGAYKETTHUC
+    FROM dbo.KHUYENMAI
+    WHERE MAKM = @MAKM;
 END
 GO
--------------------------------------------------------------------------------------------------
-CREATE OR ALTER PROCEDURE sp_GetNhaCungCap
-AS
-BEGIN
-    SELECT MANCC, TENNCC, DIACHI, SDT, EMAIL
-    FROM NHACUNGCAP
-    WHERE 
-        MANCC IS NOT NULL AND MANCC <> ''
-END
-EXEC sp_GetNhaCungCap
--------------------------------------------------------------------------------------------------
-CREATE OR ALTER PROCEDURE sp_GetByIDNhaCungCap(@MANCC CHAR(15))
-AS
-BEGIN
-    SELECT MaNCC, TENNCC, DiaChi, SDT, EMAIL
-    FROM NHACUNGCAP
-    WHERE 
-        MANCC = @MANCC
-END
-EXEC sp_GetByIDNhaCungCap'NCC001'
--------------------------------------------------------------------------------------------------
---XÓA THÔNG TIN CỦA NCC CÓ MÃ BẤT KỲ
-USE [QUANLYBANLE]
-GO
 
-CREATE  PROCEDURE [dbo].[SP_XOANCC]
-    @MANCC VARCHAR(15)
-AS
-BEGIN
-    SET NOCOUNT ON;
-
-    -- Xóa nhà cung cấp theo mã
-    DELETE FROM dbo.NHACUNGCAP
-    WHERE RTRIM(MANCC) = RTRIM(@MANCC);
-END
-GO
--------------------------------------------------------------------------------------------------
---THÊM THÔNG TIN CỦA NCC
-CREATE OR ALTER PROC SP_THEMNCC
-	@MANCC CHAR(15),
-	@TENNCC NVARCHAR(300),
-	@DIACHI NVARCHAR(500),
-	@SDT VARCHAR(12),
-	@EMAIL NVARCHAR(320)
-AS
-BEGIN
-	IF(EXISTS(SELECT * FROM NHACUNGCAP WHERE MANCC = @MANCC)) 
-		RETURN -1
-	IF(NOT EXISTS(SELECT * FROM NHACUNGCAP WHERE MANCC = @MANCC))
-		INSERT INTO NHACUNGCAP VALUES (@MANCC, @TENNCC, @DIACHI, @SDT, @EMAIL)
-END
-EXEC SP_THEMNCC'NCC005', N'Việt Tiến', N'Hà Nội', '0905678901', 'viettien@gmail.com'
-EXEC SP_THEMNCC'NCC006', N'Việt Tiến 2', N'Hà Nội', '0905678901', 'viettien@gmail.com'
--------------------------------------------------------------------------------------------------
---SỬA THÔNG TIN CỦA NCC CÓ MÃ BẤT KỲ
-CREATE OR ALTER PROC SP_SUANCC(@MANCC CHAR(15),
-	@TENNCC NVARCHAR(300),
-	@DIACHI NVARCHAR(500),
-	@SDT VARCHAR(12),
-	@EMAIL NVARCHAR(320))
-AS
-BEGIN
-	IF(NOT EXISTS(SELECT * FROM NHACUNGCAP WHERE MANCC = @MANCC)) 
-		RETURN -1
-	IF(EXISTS(SELECT * FROM NHACUNGCAP WHERE MANCC = @MANCC))
-	UPDATE NHACUNGCAP SET TENNCC = @TENNCC, SDT = @SDT, DIACHI = @DIACHI, EMAIL = @EMAIL 
-	WHERE MANCC = @MANCC
-END
-EXEC SP_SUANCC'NCC006', N'Việt Tiến 2', N'Hà Nội', '0905678901', 'viettien@gmail.com'
-EXEC SP_SUANCC'NCC007', N'Việt Tiến 2', N'Hà Nội', '0905678901', 'viettien@gmail.com'
-
-
-----------------------------------------------------------------------------------------------
+------------------------------------------------------
 
 
 CREATE PROCEDURE dbo.SP_THEMKM
@@ -934,25 +629,39 @@ END;
 GO
 
 -----------------------------------------------------------------
-CREATE OR ALTER PROCEDURE dbo.SP_GetByIDKM
-    @MAKM CHAR(15)
+CREATE PROCEDURE dbo.SP_SUAKM
+    @MAKM CHAR(15),
+    @TENKM NVARCHAR(300),
+    @MASP CHAR(15),
+    @NGAYBATDAU DATE,
+    @NGAYKETTHUC DATE
 AS
 BEGIN
     SET NOCOUNT ON;
 
-    SELECT
-        RTRIM(MAKM) AS MAKM,
-        TENKM,
-        RTRIM(MASP) AS MASP,
-        NGAYBATDAU,
-        NGAYKETTHUC
-    FROM dbo.KHUYENMAI
+    IF NOT EXISTS
+    (
+        SELECT 1
+        FROM dbo.KHUYENMAI
+        WHERE MAKM = @MAKM
+    )
+    BEGIN
+        RETURN -1;
+    END;
+
+    UPDATE dbo.KHUYENMAI
+    SET
+        TENKM = @TENKM,
+        MASP = @MASP,
+        NGAYBATDAU = @NGAYBATDAU,
+        NGAYKETTHUC = @NGAYKETTHUC
     WHERE MAKM = @MAKM;
+
+    RETURN 0;
 END
 GO
 
-------------------------------------------------------
-
+---------------------------------------------------------------------------
 
 CREATE PROCEDURE dbo.SP_XOAKM
     @MAKM CHAR(15)
@@ -984,137 +693,63 @@ GO
 
 
 -------------------------------------------------------------------------------------------------
-CREATE OR ALTER PROCEDURE sp_GetThanhToan
-AS
-BEGIN
-    SELECT * FROM THANHTOAN
-    WHERE 
-        MATHANHTOAN IS NOT NULL AND MATHANHTOAN <> ''
-END
-EXEC sp_GetThanhToan
--------------------------------------------------------------------------------------------------
-CREATE OR ALTER PROCEDURE sp_GetByIDTT(@MATHANHTOAN CHAR(15))
-AS
-BEGIN
-    SELECT * FROM THANHTOAN WHERE 
-        MATHANHTOAN = @MATHANHTOAN
-END
-EXEC sp_GetByIDTT'TT007'
--------------------------------------------------------------------------------------------------
---XÓA THÔNG TIN CỦA TT CÓ MÃ BẤT KỲ
-CREATE OR ALTER PROC SP_XOATT(@MATHANHTOAN CHAR(15))
-AS
-BEGIN
-	IF(NOT EXISTS(SELECT * FROM THANHTOAN WHERE MATHANHTOAN= @MATHANHTOAN)) 
-		RETURN -1
-	IF(EXISTS(SELECT * FROM THANHTOAN WHERE MATHANHTOAN= @MATHANHTOAN))
-	DELETE FROM THANHTOAN
-	WHERE MATHANHTOAN = @MATHANHTOAN
-END
-EXEC SP_XOATT'TT100'
--------------------------------------------------------------------------------------------------
---THÊM THÔNG TIN CỦA TT
-CREATE OR ALTER PROC SP_THEMTT
-	@MATHANHTOAN CHAR(15),
-	@MAHDBAN CHAR(15),
-	@PHUONGTHUC NVARCHAR(50),
-	@SOTIENTHANHTOAN FLOAT,
-	@NGAYTHANHTOAN DATETIME,
-	@TRANGTHAI NVARCHAR(50)
-AS
-BEGIN
-	IF(EXISTS(SELECT * FROM THANHTOAN WHERE MATHANHTOAN= @MATHANHTOAN)) 
-		RETURN -1
-	IF(NOT EXISTS(SELECT * FROM THANHTOAN WHERE MATHANHTOAN= @MATHANHTOAN))
-		INSERT INTO THANHTOAN VALUES (@MATHANHTOAN, @MAHDBAN, @PHUONGTHUC, @SOTIENTHANHTOAN, @NGAYTHANHTOAN, @TRANGTHAI)
-END
-EXEC SP_THEMTT'TT005', 'HD005', N'Chuyển khoản', 1400000, '2025-01-14', N'Chưa thanh toán'
--------------------------------------------------------------------------------------------------
---SỬA PHƯƠNG THỨC TT, TRẠNG THÁI CỦA TT CÓ MÃ BẤT KỲ
-CREATE OR ALTER PROC SP_SUATT(
-	@MATHANHTOAN CHAR(15),
-	@PHUONGTHUC NVARCHAR(50),
-	@TRANGTHAI NVARCHAR(50))
-AS
-BEGIN
-	IF(NOT EXISTS(SELECT * FROM THANHTOAN WHERE MATHANHTOAN= @MATHANHTOAN)) 
-		RETURN -1
-	IF(EXISTS(SELECT * FROM THANHTOAN WHERE MATHANHTOAN= @MATHANHTOAN))
-	UPDATE THANHTOAN SET PHUONGTHUC = @PHUONGTHUC, TRANGTHAI = @TRANGTHAI
-	WHERE MATHANHTOAN = @MATHANHTOAN
-END
-EXEC SP_SUATT'TT007', N'Chuyển khoản', N'Đã thanh toán'
-
-------------------------------------------------------------
-CREATE PROCEDURE SP_CAPNHAT_TRANGTHAI_THANHTOANTHANHCONG
-    @MAHDBAN NVARCHAR(10),
-    @PHUONGTHUC NVARCHAR(50)
+CREATE OR ALTER PROCEDURE dbo.SP_KIEMTRASDT
+    @SDT CHAR(10)
 AS
 BEGIN
     SET NOCOUNT ON;
 
-    -- Kiểm tra xem hóa đơn có tồn tại trong bảng THANHTOAN không
-    IF EXISTS (SELECT 1 FROM THANHTOAN WHERE MAHDBAN = @MAHDBAN)
-    BEGIN
-        UPDATE THANHTOAN
-        SET 
-            TRANGTHAI = N'Đã thanh toán',
-            PHUONGTHUC = @PHUONGTHUC,
-            SOTIENTHANHTOAN = (
-                SELECT TOP 1 (TONGTIENHANG + THUEVAT - GIAMGIA)
-                FROM HOADONBAN
-                WHERE MAHDBAN = @MAHDBAN
-            ),
-            NGAYTHANHTOAN = GETDATE()
-        WHERE MAHDBAN = @MAHDBAN;
-
-        PRINT N' Cập nhật trạng thái, phương thức, số tiền và ngày thanh toán thành công!';
-    END
-    ELSE
-    BEGIN
-        PRINT N' Hóa đơn không tồn tại trong bảng THANHTOAN!';
-    END
+    SELECT MANV
+    FROM dbo.NHANVIEN
+    WHERE SDT = @SDT;
 END
+GO
 
-EXEC SP_CAPNHAT_TRANGTHAI_THANHTOANTHANHCONG 
-	@MAHDBAN = 'HD78271906',
-    @PHUONGTHUC = N'Tiền mặt';
 
-------------------------------------------------------------------
+-------------------------------
 
-CREATE OR ALTER PROCEDURE SP_LAY_HOADON_CHUA_THANHTOAN
+CREATE OR ALTER PROCEDURE dbo.SP_KIEMTRASDTKHAC
+    @SDT CHAR(10),
+    @MANV CHAR(15)
 AS
 BEGIN
     SET NOCOUNT ON;
 
-    SELECT 
-        H.MAHDBAN AS MaHoaDon,
-        K.TENKH AS TenKhachHang,
-        K.SDT AS SoDienThoai,
-        H.NGAYLAP AS NgayLap,
-        (H.TONGTIENHANG + H.THUEVAT - H.GIAMGIA) AS SoTienPhaiTra,
-        ISNULL((
-            SELECT TOP (1) T2.TRANGTHAI
-            FROM THANHTOAN T2
-            WHERE T2.MAHDBAN = H.MAHDBAN
-            ORDER BY CASE WHEN T2.TRANGTHAI = N'Đã thanh toán' THEN 0 ELSE 1 END,
-                     T2.PAYOS_CREATED_AT_UTC DESC, T2.NGAYTHANHTOAN DESC
-        ), N'Chưa thanh toán') AS TrangThai
-    FROM HOADONBAN H
-        INNER JOIN KHACHHANG K ON H.MAKH = K.MAKH
-    WHERE NOT EXISTS (
-        SELECT 1 FROM THANHTOAN T
-        WHERE T.MAHDBAN = H.MAHDBAN AND T.TRANGTHAI = N'Đã thanh toán'
-    );
+    SELECT MANV
+    FROM dbo.NHANVIEN
+    WHERE SDT = @SDT
+      AND MANV <> @MANV;
 END
+GO
+-------------------------------------------
+-- Kim tra user name
+CREATE OR ALTER PROCEDURE dbo.SP_LAY_HOADON_CHUA_THANHTOAN_THEO_TENKH
+    @TENKH NVARCHAR(100)
+AS
+BEGIN
+    SET NOCOUNT ON;
 
-EXEC SP_LAY_HOADON_CHUA_THANHTOAN
+    SELECT   HDB.MAHDBAN,  HDB.MAKH,   KH.TENKH,  KH.SDT,   HDB.NGAYLAP,  HDB.TONGTIENHANG,   HDB.THUEVAT,  HDB.GIAMGIA, 
+    TT.MATHANHTOAN,   TT.PHUONGTHUC,   TT.SOTIENTHANHTOAN,    TT.NGAYTHANHTOAN,    TT.TRANGTHAI
+    FROM dbo.HOADONBAN HDB
 
+    INNER JOIN dbo.KHACHHANG KH
+        ON HDB.MAKH = KH.MAKH
 
-----------------------------------------------------------
+    LEFT JOIN dbo.THANHTOAN TT
+        ON HDB.MAHDBAN = TT.MAHDBAN
 
+    WHERE KH.TENKH LIKE N'%' + @TENKH + '%'
+      AND (
+            TT.MAHDBAN IS NULL
+            OR TT.TRANGTHAI IS NULL
+            OR TT.TRANGTHAI <> N'Đã thanh toán'
+          )
 
-
+    ORDER BY HDB.NGAYLAP DESC;
+END
+GO
+-------------------------------------------------------------------------------------------------
 CREATE OR ALTER PROCEDURE SP_LAY_HOADON_CHUA_THANHTOAN_THEO_TENKH
     @TenKhachHang NVARCHAR(100)
 AS
@@ -1195,12 +830,165 @@ BEGIN
 END
 GO
 
-CREATE PROCEDURE dbo.SP_SUAKM
-    @MAKM CHAR(15),
-    @TENKM NVARCHAR(300),
-    @MASP CHAR(15),
-    @NGAYBATDAU DATE,
-    @NGAYKETTHUC DATE
+CREATE OR ALTER PROCEDURE SP_LAY_HOADON_CHUA_THANHTOAN
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SELECT 
+        H.MAHDBAN AS MaHoaDon,
+        K.TENKH AS TenKhachHang,
+        K.SDT AS SoDienThoai,
+        H.NGAYLAP AS NgayLap,
+        (H.TONGTIENHANG + H.THUEVAT - H.GIAMGIA) AS SoTienPhaiTra,
+        ISNULL((
+            SELECT TOP (1) T2.TRANGTHAI
+            FROM THANHTOAN T2
+            WHERE T2.MAHDBAN = H.MAHDBAN
+            ORDER BY CASE WHEN T2.TRANGTHAI = N'Đã thanh toán' THEN 0 ELSE 1 END,
+                     T2.PAYOS_CREATED_AT_UTC DESC, T2.NGAYTHANHTOAN DESC
+        ), N'Chưa thanh toán') AS TrangThai
+    FROM HOADONBAN H
+        INNER JOIN KHACHHANG K ON H.MAKH = K.MAKH
+    WHERE NOT EXISTS (
+        SELECT 1 FROM THANHTOAN T
+        WHERE T.MAHDBAN = H.MAHDBAN AND T.TRANGTHAI = N'Đã thanh toán'
+    );
+END
+
+EXEC SP_LAY_HOADON_CHUA_THANHTOAN
+
+
+----------------------------------------------------------
+
+
+
+CREATE PROCEDURE dbo.sp_GetThanhToan
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SELECT  MATHANHTOAN,  MAHDBAN, PHUONGTHUC,   SOTIENTHANHTOAN, NGAYTHANHTOAN,TRANGTHAI
+    FROM dbo.THANHTOAN;
+END
+GO
+-------------------------------------------------------------
+CREATE OR ALTER PROCEDURE sp_GetThanhToan
+AS
+BEGIN
+    SELECT * FROM THANHTOAN
+    WHERE 
+        MATHANHTOAN IS NOT NULL AND MATHANHTOAN <> ''
+END
+EXEC sp_GetThanhToan
+-------------------------------------------------------------------------------------------------
+CREATE OR ALTER PROCEDURE dbo.sp_GetByIdThanhToan
+    @MATHANHTOAN CHAR(15)
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SELECT MATHANHTOAN,   MAHDBAN,     PHUONGTHUC,   SOTIENTHANHTOAN,     NGAYTHANHTOAN,    TRANGTHAI
+    FROM dbo.THANHTOAN
+    WHERE RTRIM(MATHANHTOAN) = RTRIM(@MATHANHTOAN);
+END
+GO
+
+
+
+
+
+
+SELECT
+    H.MAHDBAN,
+    H.MANV,
+    H.MAKH,
+    H.NGAYLAP,
+    H.TONGTIENHANG,
+    H.THUEVAT,
+    H.GIAMGIA,
+    T.MATHANHTOAN,
+    T.PHUONGTHUC,
+    T.SOTIENTHANHTOAN,
+    T.NGAYTHANHTOAN,
+    T.TRANGTHAI
+FROM dbo.HOADONBAN H
+LEFT JOIN dbo.THANHTOAN T
+    ON RTRIM(H.MAHDBAN) = RTRIM(T.MAHDBAN)
+WHERE
+    T.MAHDBAN IS NULL
+    OR T.TRANGTHAI <> N'Đã thanh toán';
+--------------------------------------------------------
+USE QUANLYBANLE;
+GO
+
+CREATE OR ALTER PROCEDURE sp_GetByIDTT(@MATHANHTOAN CHAR(15))
+AS
+BEGIN
+    SELECT * FROM THANHTOAN WHERE 
+        MATHANHTOAN = @MATHANHTOAN
+END
+EXEC sp_GetByIDTT'TT007'
+-------------------------------------------------------------------------------------------------
+--XÓA THÔNG TIN CỦA TT CÓ MÃ BẤT KỲ
+CREATE OR ALTER PROC SP_THEMTT
+	@MATHANHTOAN CHAR(15),
+	@MAHDBAN CHAR(15),
+	@PHUONGTHUC NVARCHAR(50),
+	@SOTIENTHANHTOAN FLOAT,
+	@NGAYTHANHTOAN DATETIME,
+	@TRANGTHAI NVARCHAR(50)
+AS
+BEGIN
+	IF(EXISTS(SELECT * FROM THANHTOAN WHERE MATHANHTOAN= @MATHANHTOAN)) 
+		RETURN -1
+	IF(NOT EXISTS(SELECT * FROM THANHTOAN WHERE MATHANHTOAN= @MATHANHTOAN))
+		INSERT INTO THANHTOAN VALUES (@MATHANHTOAN, @MAHDBAN, @PHUONGTHUC, @SOTIENTHANHTOAN, @NGAYTHANHTOAN, @TRANGTHAI)
+END
+EXEC SP_THEMTT'TT005', 'HD005', N'Chuyển khoản', 1400000, '2025-01-14', N'Chưa thanh toán'
+-------------------------------------------------------------------------------------------------
+--SỬA PHƯƠNG THỨC TT, TRẠNG THÁI CỦA TT CÓ MÃ BẤT KỲ
+CREATE  PROCEDURE dbo.SP_THEMTT
+    @MaThanhToan CHAR(15),
+    @MaHDBan CHAR(15),
+    @PhuongThuc NVARCHAR(50),
+    @SoTienThanhToan FLOAT,
+    @NgayThanhToan DATETIME,
+    @TrangThai NVARCHAR(50)
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    INSERT INTO dbo.THANHTOAN
+    (
+        MATHANHTOAN,
+        MAHDBAN,
+        PHUONGTHUC,
+        SOTIENTHANHTOAN,
+        NGAYTHANHTOAN,
+        TRANGTHAI
+    )
+    VALUES
+    (
+        @MaThanhToan,
+        @MaHDBan,
+        @PhuongThuc,
+        @SoTienThanhToan,
+        @NgayThanhToan,
+        @TrangThai
+    );
+
+    SELECT *
+    FROM dbo.THANHTOAN
+    WHERE MATHANHTOAN = @MaThanhToan;
+END;
+GO
+
+
+CREATE PROCEDURE dbo.SP_SUATT
+    @MaThanhToan CHAR(15),
+    @PhuongThuc NVARCHAR(50),
+    @TrangThai NVARCHAR(50)
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -1208,98 +996,200 @@ BEGIN
     IF NOT EXISTS
     (
         SELECT 1
-        FROM dbo.KHUYENMAI
-        WHERE MAKM = @MAKM
+        FROM dbo.THANHTOAN
+        WHERE RTRIM(MATHANHTOAN) = RTRIM(@MaThanhToan)
     )
     BEGIN
         RETURN -1;
     END;
 
-    UPDATE dbo.KHUYENMAI
+    UPDATE dbo.THANHTOAN
     SET
-        TENKM = @TENKM,
-        MASP = @MASP,
-        NGAYBATDAU = @NGAYBATDAU,
-        NGAYKETTHUC = @NGAYKETTHUC
-    WHERE MAKM = @MAKM;
+        PHUONGTHUC = @PhuongThuc,
+        TRANGTHAI = @TrangThai
+    WHERE RTRIM(MATHANHTOAN) = RTRIM(@MaThanhToan);
 
     RETURN 0;
 END
 GO
+-------------------------------------
 
----------------------------------------------------------------------------
-
-CREATE OR ALTER PROCEDURE dbo.SP_KIEMTRASDT
-    @SDT CHAR(10)
+CREATE PROCEDURE dbo.SP_CAPNHAT_TRANGTHAI_THANHTOANTHANHCONG
+    @MAHDBAN CHAR(15),
+    @PHUONGTHUC NVARCHAR(50)
 AS
 BEGIN
     SET NOCOUNT ON;
 
-    SELECT MANV
-    FROM dbo.NHANVIEN
-    WHERE SDT = @SDT;
-END
+    IF NOT EXISTS
+    (
+        SELECT 1
+        FROM dbo.HOADONBAN
+        WHERE RTRIM(MAHDBAN) = RTRIM(@MAHDBAN)
+    )
+    BEGIN
+        RETURN -1;
+    END;
+
+    IF NOT EXISTS
+    (
+        SELECT 1
+        FROM dbo.THANHTOAN
+        WHERE RTRIM(MAHDBAN) = RTRIM(@MAHDBAN)
+    )
+    BEGIN
+        RETURN -2;
+    END;
+
+    UPDATE dbo.THANHTOAN
+    SET
+        TRANGTHAI = N'Đã thanh toán',
+        PHUONGTHUC = @PHUONGTHUC,
+        SOTIENTHANHTOAN =
+        (
+            SELECT TOP 1
+                ISNULL(TONGTIENHANG, 0)
+                + ISNULL(THUEVAT, 0)
+                - ISNULL(GIAMGIA, 0)
+            FROM dbo.HOADONBAN
+            WHERE RTRIM(MAHDBAN) = RTRIM(@MAHDBAN)
+        ),
+        NGAYTHANHTOAN = GETDATE()
+    WHERE RTRIM(MAHDBAN) = RTRIM(@MAHDBAN);
+
+    RETURN 0;
+END;
 GO
+﻿-------------------------------------------------------------------------------------------------
+CREATE OR ALTER PROC SP_SUATT(
+	@MATHANHTOAN CHAR(15),
+	@PHUONGTHUC NVARCHAR(50),
+	@TRANGTHAI NVARCHAR(50))
+AS
+BEGIN
+	IF(NOT EXISTS(SELECT * FROM THANHTOAN WHERE MATHANHTOAN= @MATHANHTOAN)) 
+		RETURN -1
+	IF(EXISTS(SELECT * FROM THANHTOAN WHERE MATHANHTOAN= @MATHANHTOAN))
+	UPDATE THANHTOAN SET PHUONGTHUC = @PHUONGTHUC, TRANGTHAI = @TRANGTHAI
+	WHERE MATHANHTOAN = @MATHANHTOAN
+END
+EXEC SP_SUATT'TT007', N'Chuyển khoản', N'Đã thanh toán'
 
-
--------------------------------
-
-CREATE OR ALTER PROCEDURE dbo.SP_KIEMTRASDTKHAC
-    @SDT CHAR(10),
-    @MANV CHAR(15)
+------------------------------------------------------------
+CREATE PROCEDURE SP_CAPNHAT_TRANGTHAI_THANHTOANTHANHCONG
+    @MAHDBAN NVARCHAR(10),
+    @PHUONGTHUC NVARCHAR(50)
 AS
 BEGIN
     SET NOCOUNT ON;
 
-    SELECT MANV
-    FROM dbo.NHANVIEN
-    WHERE SDT = @SDT
-      AND MANV <> @MANV;
+    -- Kiểm tra xem hóa đơn có tồn tại trong bảng THANHTOAN không
+    IF EXISTS (SELECT 1 FROM THANHTOAN WHERE MAHDBAN = @MAHDBAN)
+    BEGIN
+        UPDATE THANHTOAN
+        SET 
+            TRANGTHAI = N'Đã thanh toán',
+            PHUONGTHUC = @PHUONGTHUC,
+            SOTIENTHANHTOAN = (
+                SELECT TOP 1 (TONGTIENHANG + THUEVAT - GIAMGIA)
+                FROM HOADONBAN
+                WHERE MAHDBAN = @MAHDBAN
+            ),
+            NGAYTHANHTOAN = GETDATE()
+        WHERE MAHDBAN = @MAHDBAN;
+
+        PRINT N' Cập nhật trạng thái, phương thức, số tiền và ngày thanh toán thành công!';
+    END
+    ELSE
+    BEGIN
+        PRINT N' Hóa đơn không tồn tại trong bảng THANHTOAN!';
+    END
 END
-GO
--------------------------------------------
--- Kim tra user name
-CREATE OR ALTER PROCEDURE dbo.SP_KIEMTRAUSERNAME
-    @USERNAME CHAR(20)
+
+EXEC SP_CAPNHAT_TRANGTHAI_THANHTOANTHANHCONG 
+	@MAHDBAN = 'HD78271906',
+    @PHUONGTHUC = N'Tiền mặt';
+
+------------------------------------------------------------------
+
+CREATE OR ALTER PROC SP_XOATT(@MATHANHTOAN CHAR(15))
+AS
+BEGIN
+	IF(NOT EXISTS(SELECT * FROM THANHTOAN WHERE MATHANHTOAN= @MATHANHTOAN)) 
+		RETURN -1
+	IF(EXISTS(SELECT * FROM THANHTOAN WHERE MATHANHTOAN= @MATHANHTOAN))
+	DELETE FROM THANHTOAN
+	WHERE MATHANHTOAN = @MATHANHTOAN
+END
+EXEC SP_XOATT'TT100'
+-------------------------------------------------------------------------------------------------
+--THÊM THÔNG TIN CỦA TT
+CREATE  PROCEDURE dbo.sp_GetNhaCungCap
 AS
 BEGIN
     SET NOCOUNT ON;
 
-    SELECT MATAIKHOAN
-    FROM dbo.TAIKHOAN
-    WHERE USERNAME = @USERNAME;
+    SELECT MANCC,    TENNCC,    DIACHI,    SDT,  EMAIL
+    FROM dbo.NHACUNGCAP;
 END
 GO
 
------------------
---Kiem tr user name của tk khac
-CREATE OR ALTER PROCEDURE dbo.SP_KIEMTRAUSERNAMEKHAC
-    @USERNAME CHAR(20),
-    @MATAIKHOAN CHAR(15)
+-------------------------------------------------------------------
+
+
+CREATE OR ALTER PROCEDURE sp_GetNhaCungCap
+AS
+BEGIN
+    SELECT MANCC, TENNCC, DIACHI, SDT, EMAIL
+    FROM NHACUNGCAP
+    WHERE 
+        MANCC IS NOT NULL AND MANCC <> ''
+END
+EXEC sp_GetNhaCungCap
+-------------------------------------------------------------------------------------------------
+CREATE  PROCEDURE dbo.sp_GetByIdNhaCungCap
+    @MANCC CHAR(15)
 AS
 BEGIN
     SET NOCOUNT ON;
 
-    SELECT MATAIKHOAN
-    FROM dbo.TAIKHOAN
-    WHERE USERNAME = @USERNAME
-      AND MATAIKHOAN <> @MATAIKHOAN;
+    SELECT MANCC, TENNCC, DIACHI,SDT,   EMAIL
+    FROM dbo.NHACUNGCAP
+    WHERE RTRIM(MANCC) = RTRIM(@MANCC);
 END
 GO
-
-
-
-
-
-
-
-
-
-
-
-USE QUANLYBANLE;
+----------------------------------------------
+CREATE OR ALTER PROCEDURE sp_GetByIDNhaCungCap(@MANCC CHAR(15))
+AS
+BEGIN
+    SELECT MaNCC, TENNCC, DiaChi, SDT, EMAIL
+    FROM NHACUNGCAP
+    WHERE 
+        MANCC = @MANCC
+END
+EXEC sp_GetByIDNhaCungCap'NCC001'
+-------------------------------------------------------------------------------------------------
+--XÓA THÔNG TIN CỦA NCC CÓ MÃ BẤT KỲ
+USE [QUANLYBANLE]
 GO
 
+CREATE OR ALTER PROC SP_THEMNCC
+	@MANCC CHAR(15),
+	@TENNCC NVARCHAR(300),
+	@DIACHI NVARCHAR(500),
+	@SDT VARCHAR(12),
+	@EMAIL NVARCHAR(320)
+AS
+BEGIN
+	IF(EXISTS(SELECT * FROM NHACUNGCAP WHERE MANCC = @MANCC)) 
+		RETURN -1
+	IF(NOT EXISTS(SELECT * FROM NHACUNGCAP WHERE MANCC = @MANCC))
+		INSERT INTO NHACUNGCAP VALUES (@MANCC, @TENNCC, @DIACHI, @SDT, @EMAIL)
+END
+EXEC SP_THEMNCC'NCC005', N'Việt Tiến', N'Hà Nội', '0905678901', 'viettien@gmail.com'
+EXEC SP_THEMNCC'NCC006', N'Việt Tiến 2', N'Hà Nội', '0905678901', 'viettien@gmail.com'
+-------------------------------------------------------------------------------------------------
+--SỬA THÔNG TIN CỦA NCC CÓ MÃ BẤT KỲ
 CREATE PROCEDURE dbo.SP_THEMNCC
     @MANCC CHAR(15),
     @TENNCC NVARCHAR(300),
@@ -1339,6 +1229,26 @@ EXEC sp_helptext 'dbo.SP_SUANCC';
 USE QUANLYBANLE;
 GO
 
+CREATE OR ALTER PROC SP_SUANCC(@MANCC CHAR(15),
+	@TENNCC NVARCHAR(300),
+	@DIACHI NVARCHAR(500),
+	@SDT VARCHAR(12),
+	@EMAIL NVARCHAR(320))
+AS
+BEGIN
+	IF(NOT EXISTS(SELECT * FROM NHACUNGCAP WHERE MANCC = @MANCC)) 
+		RETURN -1
+	IF(EXISTS(SELECT * FROM NHACUNGCAP WHERE MANCC = @MANCC))
+	UPDATE NHACUNGCAP SET TENNCC = @TENNCC, SDT = @SDT, DIACHI = @DIACHI, EMAIL = @EMAIL 
+	WHERE MANCC = @MANCC
+END
+EXEC SP_SUANCC'NCC006', N'Việt Tiến 2', N'Hà Nội', '0905678901', 'viettien@gmail.com'
+EXEC SP_SUANCC'NCC007', N'Việt Tiến 2', N'Hà Nội', '0905678901', 'viettien@gmail.com'
+
+
+----------------------------------------------------------------------------------------------
+
+
 CREATE PROCEDURE dbo.SP_SUANCC
     @MANCC CHAR(15),
     @TENNCC NVARCHAR(300),
@@ -1369,50 +1279,128 @@ GO
 USE QUANLYBANLE;
 GO
 
-CREATE  PROCEDURE dbo.SP_THEMTT
-    @MaThanhToan CHAR(15),
-    @MaHDBan CHAR(15),
-    @PhuongThuc NVARCHAR(50),
-    @SoTienThanhToan FLOAT,
-    @NgayThanhToan DATETIME,
-    @TrangThai NVARCHAR(50)
+CREATE  PROCEDURE [dbo].[SP_XOANCC]
+    @MANCC VARCHAR(15)
 AS
 BEGIN
     SET NOCOUNT ON;
 
-    INSERT INTO dbo.THANHTOAN
-    (
-        MATHANHTOAN,
-        MAHDBAN,
-        PHUONGTHUC,
-        SOTIENTHANHTOAN,
-        NGAYTHANHTOAN,
-        TRANGTHAI
-    )
-    VALUES
-    (
-        @MaThanhToan,
-        @MaHDBan,
-        @PhuongThuc,
-        @SoTienThanhToan,
-        @NgayThanhToan,
-        @TrangThai
-    );
+    -- Xóa nhà cung cấp theo mã
+    DELETE FROM dbo.NHACUNGCAP
+    WHERE RTRIM(MANCC) = RTRIM(@MANCC);
+END
+GO
+-------------------------------------------------------------------------------------------------
+--THÊM THÔNG TIN CỦA NCC
+CREATE PROCEDURE dbo.sp_GetKhachHang
+AS
+BEGIN
+    SET NOCOUNT ON;
 
-    SELECT *
-    FROM dbo.THANHTOAN
-    WHERE MATHANHTOAN = @MaThanhToan;
+    SELECT   MAKH, TENKH, SDT, DIACHI
+    FROM dbo.KHACHHANG;
+END
+GO
+-------------------------------------------------------------
+
+CREATE OR ALTER PROCEDURE sp_GetKhachHang
+AS
+BEGIN
+    SELECT MaKH, TenKH, SDT, DiaChi
+    FROM KHACHHANG
+    WHERE 
+        MaKH IS NOT NULL AND MaKH <> ''
+END
+EXEC sp_GetKhachHang
+-------------------------------------------------------------------------------------------------
+CREATE  PROCEDURE dbo.sp_GetByIDKhachHang
+    @MAKH CHAR(15)
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SELECT
+        MAKH,
+        TENKH,
+        SDT,
+        DIACHI
+    FROM dbo.KHACHHANG
+    WHERE RTRIM(MAKH) = RTRIM(@MAKH);
 END;
 GO
+EXEC dbo.sp_GetByIDKhachHang @MAKH = 'KH001';
 
 
+--------------------------------------------------------
+
+ SELECT
+    H.MAHDBAN,
+    T.MATHANHTOAN,
+    T.TRANGTHAI,
+    T.PHUONGTHUC
+FROM dbo.HOADONBAN H
+LEFT JOIN dbo.THANHTOAN T
+    ON RTRIM(H.MAHDBAN) = RTRIM(T.MAHDBAN)
+WHERE RTRIM(H.MAHDBAN) = 'HD001';
+---------------------------------------------------------------
+
+CREATE OR ALTER PROC sp_GetByIDKhachHang(@MAKH CHAR(15))
+AS
+BEGIN
+    SELECT MaKH, TenKH, SDT, DiaChi
+    FROM KHACHHANG
+    WHERE 
+        MaKH = @MaKH
+END
+EXEC sp_GetByIDKhachHang'KH006'
+-------------------------------------------------------------------------------------------------
+--XÓA THÔNG TIN CỦA KH CÓ MÃ BẤT KỲ
+CREATE OR ALTER PROC SP_THEMKH
+	@MAKH CHAR(15),
+	@TENKH NVARCHAR(100),
+	@SDT CHAR(10),
+	@DIACHI NVARCHAR(300)
+AS
+BEGIN
+	IF(EXISTS(SELECT * FROM KHACHHANG K WHERE K.MAKH = @MAKH)) 
+		RETURN -1
+	IF(NOT EXISTS(SELECT * FROM KHACHHANG K WHERE K.MAKH = @MAKH))
+		INSERT INTO KHACHHANG VALUES (@MAKH, @TENKH, @SDT, @DIACHI)
+END
+EXEC SP_THEMKH'KH006', N'Đỗ Tiến Đạt', '0905555555', N'Hưng Yên'
+EXEC SP_THEMKH'KH007', N'Đỗ Hữu Quốc Anh', '0905555555', N'Hưng Yên'
+-------------------------------------------------------------------------------------------------
+--SỬA THÔNG TIN CỦA KH CÓ MÃ BẤT KỲ
+CREATE OR ALTER PROC SP_SUAKH(@MAKH CHAR(15),
+								@TENKH NVARCHAR(100),
+								@SDT CHAR(10),
+								@DIACHI NVARCHAR(300))
+AS
+BEGIN
+	IF(NOT EXISTS(SELECT * FROM KHACHHANG K WHERE K.MAKH = @MAKH)) 
+		RETURN -1
+	IF(EXISTS(SELECT * FROM KHACHHANG K WHERE K.MAKH = @MAKH))
+	UPDATE KHACHHANG SET TENKH = @TENKH, SDT = @SDT, DIACHI = @DIACHI 
+	WHERE MAKH = @MAKH
+END
+EXEC SP_SUAKH'KH006', N'Đỗ Hữu Quốc Anh', '0905555553', N'Hà Nội'
+EXEC SP_SUAKH'KH007', N'Đỗ Tiến Đạt', '0905555554', N'Thái Nguyên'
+-------------------------------------------------------------------------------------------------
+CREATE OR ALTER PROC SP_XOAKH(@MAKH CHAR(15))
+AS
+BEGIN
+	IF(NOT EXISTS(SELECT * FROM KHACHHANG K WHERE K.MAKH = @MAKH)) 
+		RETURN -1
+	IF(EXISTS(SELECT * FROM KHACHHANG K WHERE K.MAKH = @MAKH))
+	DELETE FROM KHACHHANG
+	WHERE MAKH = @MAKH
+END
+EXEC SP_XOAKH'SV100'--KHÔNG XÓA ĐƯỢC
+EXEC SP_XOAKH'KH005'--XÓA ĐƯỢC
+-------------------------------------------------------------------------------------------------
+--THÊM THÔNG TIN CỦA KH
 USE QUANLYBANLE;
 GO
 
 SELECT MAHDBAN, MANV, MAKH, NGAYLAP, TONGTIENHANG
 FROM dbo.HOADONBAN;
-
-
-
-
-

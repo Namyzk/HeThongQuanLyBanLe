@@ -29,7 +29,7 @@ namespace API_ThuKho.Controllers
         private IActionResult HandleBllError(string bllError)
         {
             if (bllError.StartsWith("Lỗi hệ thống", StringComparison.OrdinalIgnoreCase))
-                return StatusCode(500, new { success = false, message = "Lỗi hệ thống nội bộ." });
+                return StatusCode(500, new { success = false, message = "Lỗi hệ thống." });
 
             if (bllError.Contains("đã tồn tại", StringComparison.OrdinalIgnoreCase))
                 return Conflict(new { success = false, message = bllError });
@@ -65,8 +65,8 @@ namespace API_ThuKho.Controllers
             EMAIL = row["EMAIL"]?.ToString()?.Trim()
         };
 
-       
-        [HttpGet("get-all-phieunhapkho")]
+        [Route("get-all-phieunhapkho")]
+        [HttpGet]
         public IActionResult GetAllPhieuNhapKho()
         {
             try
@@ -76,11 +76,12 @@ namespace API_ThuKho.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { success = false, message = "Lỗi hệ thống nội bộ." });
+                return StatusCode(500, new { success = false, message = "Lỗi hệ thống." });
             }
         }
 
-        [HttpGet("get-byid-phieunhapkho")]
+        [Route("get-byid-phieunhapkho")]
+        [HttpGet]
         public IActionResult GetByIdPhieuNhapKho([FromQuery] string? maphieunhap)
         {
             if (ValidateMa(maphieunhap, "Mã phiếu nhập", 15, out string cleanMa) is IActionResult valErr)
@@ -96,11 +97,12 @@ namespace API_ThuKho.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { success = false, message = "Lỗi hệ thống nội bộ." });
+                return StatusCode(500, new { success = false, message = "Lỗi hệ thống." });
             }
         }
 
-        [HttpPost("create-phieunhapkho")]
+        [Route("create-phieunhapkho")]
+        [HttpPost]
         public IActionResult CreatePhieuNhapKho([FromBody] PhieuNhapKho pnk)
         {
             if (pnk == null)
@@ -115,11 +117,12 @@ namespace API_ThuKho.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { success = false, message = "Lỗi hệ thống nội bộ." });
+                return StatusCode(500, new { success = false, message = "Lỗi hệ thống." });
             }
         }
 
-        [HttpPost("update-phieunhapkho")]
+        [Route("update-phieunhapkho")]
+        [HttpPut]
         public IActionResult UpdatePhieuNhapKho([FromBody] PhieuNhapKho pnk)
         {
             if (pnk == null)
@@ -134,11 +137,12 @@ namespace API_ThuKho.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { success = false, message = "Lỗi hệ thống nội bộ." });
+                return StatusCode(500, new { success = false, message = "Lỗi hệ thống." });
             }
         }
 
-        [HttpDelete("delete-phieunhapkho")]
+        [Route("delete-phieunhapkho")]
+        [HttpDelete]
         public IActionResult DeletePhieuNhapKho([FromQuery] string? maphieunhap)
         {
             if (ValidateMa(maphieunhap, "Mã phiếu nhập", 15, out string cleanMa) is IActionResult valErr)
@@ -153,13 +157,12 @@ namespace API_ThuKho.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { success = false, message = "Lỗi hệ thống nội bộ." });
+                return StatusCode(500, new { success = false, message = "Lỗi hệ thống." });
             }
         }
 
-        
-
-        [HttpGet("get-all-chitietnhap")]
+        [Route("get-all-chitietnhap")]
+        [HttpGet]
         public IActionResult GetAllChiTietNhap()
         {
             try
@@ -177,11 +180,12 @@ namespace API_ThuKho.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { success = false, message = "Lỗi hệ thống nội bộ." });
+                return StatusCode(500, new { success = false, message = "Lỗi hệ thống." });
             }
         }
 
-        [HttpGet("get-byphieu-chitietnhap")]
+        [Route("get-byphieu-chitietnhap")]
+        [HttpGet]
         public IActionResult GetByPhieu([FromQuery] string? maphieunhap)
         {
             if (ValidateMa(maphieunhap, "Mã phiếu nhập", 15, out string cleanMa) is IActionResult valErr)
@@ -206,11 +210,12 @@ namespace API_ThuKho.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { success = false, message = "Lỗi hệ thống nội bộ." });
+                return StatusCode(500, new { success = false, message = "Lỗi hệ thống." });
             }
         }
 
-        [HttpGet("get-byid-chitietnhap")]
+        [Route("get-byid-chitietnhap")]
+        [HttpGet]
         public IActionResult GetById([FromQuery] string? maphieunhap, [FromQuery] string? masp)
         {
             if (ValidateMa(maphieunhap, "Mã phiếu nhập", 15, out string cleanPhieu) is IActionResult valErr1) return valErr1;
@@ -236,11 +241,13 @@ namespace API_ThuKho.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { success = false, message = "Lỗi hệ thống nội bộ." });
+                return StatusCode(500, new { success = false, message = "Lỗi hệ thống." });
             }
         }
 
-        [HttpPost("create-chitietnhap")]
+
+        [Route("create-chitietnhap")]
+        [HttpPost]
         public IActionResult Create([FromBody] ChiTietNhap ct)
         {
             if (ct == null)
@@ -253,41 +260,7 @@ namespace API_ThuKho.Controllers
 
                 return StatusCode(201, new { success = true, message = "Thêm chi tiết nhập thành công." });
             }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { success = false, message = "Lỗi hệ thống nội bộ." });
-            }
-        }
-
-        [HttpPost("update-chitietnhap")]
-        public IActionResult Update([FromBody] ChiTietNhap ct)
-        {
-            if (ct == null)
-                return BadRequest(new { success = false, message = "Dữ liệu chi tiết nhập không được để trống." });
-
-            try
-            {
-                string? bllErr = _ctnBll.CapNhat(ct);
-                if (bllErr != null) return HandleBllError(bllErr);
-
-                return Ok(new { success = true, message = "Cập nhật chi tiết nhập thành công." });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { success = false, message = "Lỗi hệ thống nội bộ." });
-            }
-        }
-
-        [HttpDelete("delete-chitietnhap")]
-        public IActionResult Delete([FromQuery] string? maphieunhap, [FromQuery] string? masp)
-        {
-            if (ValidateMa(maphieunhap, "Mã phiếu nhập", 15, out string cleanPhieu) is IActionResult valErr1) return valErr1;
-            if (ValidateMa(masp, "Mã sản phẩm", 15, out string cleanSp) is IActionResult valErr2) return valErr2;
-
-            try
-            {
-                string? bllErr = _ctnBll.Xoa(cleanPhieu, cleanSp);
-                if (bllErr != null) return HandleBllError(bllErr);
+            catch �N-�G����ƭy�rr);
 
                 return Ok(new { success = true, message = "Xoá chi tiết nhập thành công." });
             }

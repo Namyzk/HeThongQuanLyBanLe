@@ -48,7 +48,8 @@ namespace API_ThuKho.Controllers
             return null;
         }
 
-        [HttpGet("get-all-sanpham")]
+        [Route("get-all-sanpham")]
+        [HttpGet]
         public IActionResult GetAll()
         {
             try
@@ -63,11 +64,12 @@ namespace API_ThuKho.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { success = false, message = "Lỗi hệ thống nội bộ." });
+                return StatusCode(500, new { success = false, message = "Lỗi hệ thống." });
             }
         }
 
-        [HttpGet("get-sanpham-by-id")]
+        [Route("get-sanpham-by-id")]
+        [HttpGet]
         public IActionResult GetByID([FromQuery] string? id)
         {
             if (ValidateMa(id, out string cleanId) is IActionResult valErr)
@@ -87,11 +89,13 @@ namespace API_ThuKho.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { success = false, message = "Lỗi hệ thống nội bộ." });
+                return StatusCode(500, new { success = false, message = "Lỗi hệ thống." });
             }
         }
 
-        [HttpPost("insert-sanpham")]
+
+        [Route("insert-sanpham")]
+        [HttpPost]
         public IActionResult Create([FromBody] SanPham? model)
         {
             if (model == null)
@@ -106,11 +110,12 @@ namespace API_ThuKho.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { success = false, message = "Lỗi hệ thống nội bộ." });
+                return StatusCode(500, new { success = false, message = "Lỗi hệ thống." });
             }
         }
 
-        [HttpPut("update-sanpham")]
+        [Route("update-sanpham")]
+        [HttpPost]
         public IActionResult Update([FromBody] SanPham? model)
         {
             if (model == null)
@@ -125,11 +130,12 @@ namespace API_ThuKho.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { success = false, message = "Lỗi hệ thống nội bộ." });
+                return StatusCode(500, new { success = false, message = "Lỗi hệ thống." });
             }
         }
 
-        [HttpPatch("update-soluong-sanpham")]
+        [Route("update-soluong-sanpham")]
+        [HttpPost]
         public IActionResult UpdateSoLuong([FromQuery] string? maSP, [FromQuery] int soLuongMoi)
         {
             if (ValidateMa(maSP, out string cleanMa) is IActionResult valErr)
@@ -147,11 +153,12 @@ namespace API_ThuKho.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { success = false, message = "Lỗi hệ thống nội bộ." });
+                return StatusCode(500, new { success = false, message = "Lỗi hệ thống." });
             }
         }
 
-        [HttpDelete("delete-sanpham")]
+        [Route("delete-sanpham")]
+        [HttpDelete]
         public IActionResult Delete([FromQuery] string? maSP)
         {
             if (ValidateMa(maSP, out string cleanMa) is IActionResult valErr)
@@ -166,7 +173,7 @@ namespace API_ThuKho.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { success = false, message = "Lỗi hệ thống nội bộ." });
+                return StatusCode(500, new { success = false, message = "Lỗi hệ thống." });
             }
         }
     }

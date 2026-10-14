@@ -9,8 +9,8 @@ using System.Text.Json;
 namespace DAL.Middleware;
 
 
-/// Ghi audit cho các request có khả năng làm thay đổi dữ liệu.
-/// Chỉ lưu các mã định danh đã chọn, không lưu toàn bộ body hoặc thông tin bí mật.
+// Ghi audit cho các request có khả năng làm thay đổi dữ liệu.
+// Chỉ lưu các mã định danh đã chọn, không lưu toàn bộ body hoặc thông tin bí mật.
 
 public sealed class AuditChangeMiddleware
 {

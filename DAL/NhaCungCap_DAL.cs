@@ -57,13 +57,9 @@ namespace DAL
                 SqlParameter[] parameters =
                 {
                     new SqlParameter( "@MANCC",   model.MaNCC?.Trim() ?? ""),
-
                     new SqlParameter("@TENNCC",model.TenNCC?.Trim() ?? ""),
-
                     new SqlParameter( "@DIACHI", model.DiaChi?.Trim() ?? ""),
-
                     new SqlParameter( "@SDT", model.SDT?.Trim() ?? ""),
-
                     new SqlParameter( "@EMAIL", model.EMAIL?.Trim() ?? "")
                 };
 
@@ -112,13 +108,8 @@ namespace DAL
         {
             try
             {
-                SqlParameter[] parameters =
-                {
-                    new SqlParameter("@MANCC", ma)
-                };
-
+                SqlParameter[] parameters = {  new SqlParameter("@MANCC", ma)     };
                 DataTable dt = Connect.ExecuteStoredProcedure("SP_XOANCC",  parameters);
-
                 return dt;
             }
             catch (Exception ex)

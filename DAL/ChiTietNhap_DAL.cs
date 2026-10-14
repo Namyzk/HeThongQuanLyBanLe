@@ -59,20 +59,11 @@ namespace DAL
                 {
                     list.Add(new ChiTietNhap
                     {
-                        MAPHIEUNHAP = row["MAPHIEUNHAP"] == DBNull.Value? ""
-                            : row["MAPHIEUNHAP"].ToString()?.Trim() ?? "",
-
-                        MASP = row["MASP"] == DBNull.Value ? ""
-                            : row["MASP"].ToString()?.Trim() ?? "",
-
-                        SOLUONG = row["SOLUONG"] == DBNull.Value ? 0
-                            : Convert.ToInt32(row["SOLUONG"]),
-
-                        DONGIANHAP = row["DONGIANHAP"] == DBNull.Value ? 0
-                            : Convert.ToDecimal(row["DONGIANHAP"]),
-
-                        THANHTIEN = row["THANHTIEN"] == DBNull.Value ? 0
-                            : Convert.ToDecimal(row["THANHTIEN"])
+                        MAPHIEUNHAP = row["MAPHIEUNHAP"] == DBNull.Value? ""   : row["MAPHIEUNHAP"].ToString()?.Trim() ?? "",
+                        MASP = row["MASP"] == DBNull.Value ? ""  : row["MASP"].ToString()?.Trim() ?? "",
+                        SOLUONG = row["SOLUONG"] == DBNull.Value ? 0  : Convert.ToInt32(row["SOLUONG"]),
+                        DONGIANHAP = row["DONGIANHAP"] == DBNull.Value ? 0 : Convert.ToDecimal(row["DONGIANHAP"]),
+                        THANHTIEN = row["THANHTIEN"] == DBNull.Value ? 0  : Convert.ToDecimal(row["THANHTIEN"])
                     });
                 }
 
@@ -107,20 +98,11 @@ namespace DAL
                 {
                     list.Add(new ChiTietNhap
                     {
-                        MAPHIEUNHAP = row["MAPHIEUNHAP"] == DBNull.Value ? ""
-                            : row["MAPHIEUNHAP"].ToString()?.Trim() ?? "",
-
-                        MASP = row["MASP"] == DBNull.Value ? ""
-                            : row["MASP"].ToString()?.Trim() ?? "",
-
-                        SOLUONG = row["SOLUONG"] == DBNull.Value  ? 0
-                            : Convert.ToInt32(row["SOLUONG"]),
-
-                        DONGIANHAP = row["DONGIANHAP"] == DBNull.Value ? 0
-                            : Convert.ToDecimal(row["DONGIANHAP"]),
-
-                        THANHTIEN = row["THANHTIEN"] == DBNull.Value ? 0
-                            : Convert.ToDecimal(row["THANHTIEN"])
+                        MAPHIEUNHAP = row["MAPHIEUNHAP"] == DBNull.Value ? ""  : row["MAPHIEUNHAP"].ToString()?.Trim() ?? "",
+                        MASP = row["MASP"] == DBNull.Value ? "" : row["MASP"].ToString()?.Trim() ?? "",
+                        SOLUONG = row["SOLUONG"] == DBNull.Value  ? 0   : Convert.ToInt32(row["SOLUONG"]),
+                        DONGIANHAP = row["DONGIANHAP"] == DBNull.Value ? 0  : Convert.ToDecimal(row["DONGIANHAP"]),
+                        THANHTIEN = row["THANHTIEN"] == DBNull.Value ? 0 : Convert.ToDecimal(row["THANHTIEN"])
                     });
                 }
 
@@ -156,20 +138,11 @@ namespace DAL
                 {
                     list.Add(new ChiTietNhap
                     {
-                        MAPHIEUNHAP = row["MAPHIEUNHAP"] == DBNull.Value ? ""
-                            : row["MAPHIEUNHAP"].ToString()?.Trim() ?? "",
-
-                        MASP = row["MASP"] == DBNull.Value  ? ""
-                            : row["MASP"].ToString()?.Trim() ?? "",
-
-                        SOLUONG = row["SOLUONG"] == DBNull.Value  ? 0
-                            : Convert.ToInt32(row["SOLUONG"]),
-
-                        DONGIANHAP = row["DONGIANHAP"] == DBNull.Value ? 0
-                            : Convert.ToDecimal(row["DONGIANHAP"]),
-
-                        THANHTIEN = row["THANHTIEN"] == DBNull.Value ? 0
-                            : Convert.ToDecimal(row["THANHTIEN"])
+                        MAPHIEUNHAP = row["MAPHIEUNHAP"] == DBNull.Value ? ""  : row["MAPHIEUNHAP"].ToString()?.Trim() ?? "",
+                        MASP = row["MASP"] == DBNull.Value  ? "" : row["MASP"].ToString()?.Trim() ?? "",
+                        SOLUONG = row["SOLUONG"] == DBNull.Value  ? 0: Convert.ToInt32(row["SOLUONG"]),
+                        DONGIANHAP = row["DONGIANHAP"] == DBNull.Value ? 0  : Convert.ToDecimal(row["DONGIANHAP"]),
+                        THANHTIEN = row["THANHTIEN"] == DBNull.Value ? 0 : Convert.ToDecimal(row["THANHTIEN"])
                     });
                 }
 
@@ -189,13 +162,10 @@ namespace DAL
             {
                 if (ctn == null)
                     return false;
-
                 if (string.IsNullOrWhiteSpace(ctn.MAPHIEUNHAP))
                     return false;
-
                 if (string.IsNullOrWhiteSpace(ctn.MASP))
                     return false;
-
                 string sql = @" INSERT INTO CHITIETNHAP  ( MAPHIEUNHAP, MASP, SOLUONG, DONGIANHAP,  THANHTIEN  )
                     VALUES ( @MAPHIEUNHAP, @MASP,  @SOLUONG, @DONGIANHAP,  (@SOLUONG * @DONGIANHAP) )";
 

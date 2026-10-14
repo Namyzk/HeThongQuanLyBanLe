@@ -24,9 +24,6 @@ namespace DAL
             }
         }
 
-
-
-
         public DataTable GetById(string ma)
         {
             try
@@ -44,10 +41,7 @@ namespace DAL
         {
             try
             {
-                SqlParameter[] parameters =
-                {
-                    new SqlParameter("@MAKM", ma)
-                };
+                SqlParameter[] parameters = {   new SqlParameter("@MAKM", ma) };
 
                 return Connect.ExecuteStoredProcedure( "dbo.SP_XOAKM",parameters);
             }

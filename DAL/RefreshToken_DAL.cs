@@ -7,10 +7,18 @@ namespace DAL
 {
     public sealed class RefreshToken_DAL
     {
+        public int RevokeAllActive()
+        {
+            const string sql = @"  UPDATE dbo.RefreshToken
+                SET RevokedAtUtc = SYSUTCDATETIME()
+                WHERE RevokedAtUtc IS NULL;";
+
+            return Connect.ExecuteNonQuery(sql);
+        }
+
         public bool Insert(string tokenHash, string accountId, DateTime expiresAtUtc)
         {
-            const string sql = @"
-                INSERT INTO dbo.RefreshToken (RefreshTokenHash, AccountId, ExpiresAtUtc)
+            const string sql = @"  INSERT INTO dbo.RefreshToken (RefreshTokenHash, AccountId, ExpiresAtUtc)
                 VALUES (@Hash, @AccountId, @ExpiresAtUtc);";
 
             return Connect.ExecuteNonQuery(sql, new[]
@@ -21,13 +29,12 @@ namespace DAL
             }) == 1;
         }
 
-        //Thu hồi token cũ và lưu token mới trong cùng transaction.</summary>
+        //Thu hồi token cũ và lưu token mới trong cùng transaction.
         public string? Rotate(string oldHash, string newHash, DateTime newExpiresAtUtc)
         {
             return Connect.ExecuteInTransaction<string?>((connection, transaction) =>
             {
-                const string updateSql = @"
-                    UPDATE dbo.RefreshToken
+                const string updateSql = @"  UPDATE dbo.RefreshToken
                     SET RevokedAtUtc = SYSUTCDATETIME(), ReplacedByHash = @NewHash
                     OUTPUT inserted.AccountId
                     WHERE RefreshTokenHash = @OldHash
@@ -40,8 +47,7 @@ namespace DAL
                 var accountId = update.ExecuteScalar()?.ToString()?.Trim();
                 if (string.IsNullOrWhiteSpace(accountId)) return null;
 
-                const string insertSql = @"
-                    INSERT INTO dbo.RefreshToken (RefreshTokenHash, AccountId, ExpiresAtUtc)
+                const string insertSql = @"  INSERT INTO dbo.RefreshToken (RefreshTokenHash, AccountId, ExpiresAtUtc)
                     VALUES (@Hash, @AccountId, @ExpiresAtUtc);";
                 using var insert = new SqlCommand(insertSql, connection, transaction);
                 insert.Parameters.Add("@Hash", SqlDbType.Char, 64).Value = newHash;
@@ -54,8 +60,7 @@ namespace DAL
 
         public bool Revoke(string tokenHash)
         {
-            const string sql = @"
-                UPDATE dbo.RefreshToken
+            const string sql = @"  UPDATE dbo.RefreshToken
                 SET RevokedAtUtc = SYSUTCDATETIME()
                 WHERE RefreshTokenHash = @Hash
                   AND RevokedAtUtc IS NULL;";

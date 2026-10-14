@@ -15,10 +15,8 @@ namespace BLL
         public List<DanhMuc> LayTatCa()
         {
             var list = dm_dal.GetAll();
-
             if (list == null || list.Count == 0)
                 return new List<DanhMuc>();
-
             return list;
         }
 
@@ -29,12 +27,9 @@ namespace BLL
                 return null;
 
             madanhmuc = madanhmuc.Trim();
-
-            // Ràng buộc độ dài
             if (madanhmuc.Length > 15)
                 return null;
 
-            // Kiểm tra mã có tồn tại không
             if (!dm_dal.KiemTraTonTai(madanhmuc))
                 return null;
 
@@ -121,11 +116,9 @@ namespace BLL
                     return "Mô tả không được vượt quá 1000 ký tự.";
             }
 
-            
             if (!dm_dal.KiemTraTonTai(danhmuc.MADANHMUC))
                 return "Danh mục không tồn tại.";
 
-            // Cập nhật
             bool result = dm_dal.Update(danhmuc);
 
             if (!result)
@@ -156,7 +149,6 @@ namespace BLL
                 return "Không thể xóa danh mục vì đang có sản phẩm thuộc danh mục này.";
             }
 
-            // Xóa
             bool result = dm_dal.Delete(maDanhMuc);
 
             if (!result)

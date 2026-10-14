@@ -33,6 +33,8 @@ builder.Services.AddAuthentication(Microsoft.AspNetCore.Authentication.JwtBearer
 builder.Services.AddAuthorization();
 builder.Services.Configure<PayOsOptions>(builder.Configuration.GetSection("PayOS"));
 builder.Services.AddScoped<PayOsService>();
+builder.Services.AddHttpClient<GoQrImageService>(client =>
+    client.Timeout = TimeSpan.FromSeconds(4));
 
 // ============ CORS DEV============
 const string PermissiveDevCors = "PermissiveDevCors";
@@ -142,13 +144,13 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-// ❶ CORS phải đứng TRƯỚC auth/authorization & MapControllers
+//  CORS phải đứng TRƯỚC auth/authorization & MapControllers
 app.UseCors(PermissiveDevCors);
 
 Connect.ConnectionString =
     builder.Configuration.GetConnectionString("DefaultConnection");
 
-// ❷ Xác thực và Ủy quyền
+//  Xác thực và Ủy quyền
 
 app.UseAuthentication();
 app.UseAuthorization();

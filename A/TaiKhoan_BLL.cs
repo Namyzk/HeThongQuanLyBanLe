@@ -101,7 +101,12 @@ namespace BLL
                 throw new ArgumentException("Mật khẩu không được vượt quá 128 ký tự.");
 
             var account = tk_dal.Login(username);
-            if (account == null || !VerifyPassword(password, account.PASS))
+            // Tên đăng nhập trong hệ thống được phân biệt chữ hoa/chữ thường.
+            // SQL Server thường dùng collation không phân biệt hoa thường, nên
+            // không thể chỉ dựa vào điều kiện WHERE trong DAL.
+            if (account == null ||
+                !string.Equals(username, account.USERNAME?.Trim(), StringComparison.Ordinal) ||
+                !VerifyPassword(password, account.PASS))
                 return new List<TaiKhoan>();
 
             // Chuyển tài khoản cũ đang lưu PBKDF2 về dạng văn bản sau khi xác thực thành công.

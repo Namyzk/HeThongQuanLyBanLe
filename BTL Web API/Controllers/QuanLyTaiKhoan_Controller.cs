@@ -35,8 +35,9 @@ namespace API_Admin.Controllers
             }
         };
 
-        // 1. Lấy tất cả tài khoản
-        [HttpGet("get-all-taikhoan")]
+
+        [Route("get-all-taikhoan")]
+        [HttpGet]
         public IActionResult GetAllTaiKhoan()
         {
             try
@@ -46,12 +47,12 @@ namespace API_Admin.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { success = false, message = "Lỗi hệ thống nội bộ." });
+                return StatusCode(500, new { success = false, message = "Lỗi hệ thống." });
             }
         }
 
-        // 2. Lấy tài khoản theo ID
-        [HttpGet("get-byid-taikhoan")]
+        [Route("get-byid-taikhoan")]
+        [HttpGet]
         public IActionResult GetByIdTaiKhoan([FromQuery] string mataikhoan)
         {
             if (string.IsNullOrWhiteSpace(mataikhoan))
@@ -72,12 +73,12 @@ namespace API_Admin.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { success = false, message = "Lỗi hệ thống nội bộ." });
+                return StatusCode(500, new { success = false, message = "Lỗi hệ thống." });
             }
         }
 
-        // 3. Thêm tài khoản
-        [HttpPost("create-taikhoan")]
+        [Route("create-taikhoan")]
+        [HttpPost]
         public IActionResult CreateTaiKhoan([FromBody] TaiKhoan tk)
         {
             if (tk == null || string.IsNullOrWhiteSpace(tk.MATAIKHOAN) ||
@@ -96,12 +97,12 @@ namespace API_Admin.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest(new { success = false, message = "Lỗi hệ thống nội bộ." });
+                return BadRequest(new { success = false, message = "Lỗi hệ thống." });
             }
         }
 
-        // 4. Cập nhật tài khoản
-        [HttpPost("update-byID-taikhoan")]
+        [Route("update-byID-taikhoan")]
+        [HttpPost]
         public IActionResult UpdateTaiKhoan([FromBody] TaiKhoan tk)
         {
             if (tk == null || string.IsNullOrWhiteSpace(tk.MATAIKHOAN) ||
@@ -120,12 +121,12 @@ namespace API_Admin.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest(new { success = false, message = "Lỗi hệ thống nội bộ." });
+                return BadRequest(new { success = false, message = "Lỗi hệ thống." });
             }
         }
 
-        // 5. Xóa tài khoản
-        [HttpDelete("del-byID-taikhoan")]
+        [Route("del-byID-taikhoan")]
+        [HttpDelete]
         public IActionResult DeleteTaiKhoan([FromQuery] string mataikhoan)
         {
             if (string.IsNullOrWhiteSpace(mataikhoan))
@@ -141,7 +142,7 @@ namespace API_Admin.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest(new { success = false, message = "Lỗi hệ thống nội bộ." });
+                return BadRequest(new { success = false, message = "Lỗi hệ thống." });
             }
         }
 

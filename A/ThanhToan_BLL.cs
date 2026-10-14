@@ -84,8 +84,7 @@ namespace BLL
             }
             catch (Exception ex)
             {
-                throw new Exception(
-                    "Lỗi khi cập nhật thanh toán: " + ex.Message);
+                throw new Exception(  "Lỗi khi cập nhật thanh toán: " + ex.Message);
             }
         }
 
@@ -117,9 +116,7 @@ namespace BLL
             }
             catch (Exception ex)
             {
-                throw new Exception(
-                    "Lỗi khi lấy danh sách hóa đơn chưa thanh toán: "
-                    + ex.Message);
+                throw new Exception(    "Lỗi khi lấy danh sách hóa đơn chưa thanh toán: " + ex.Message);
             }
         }
 
@@ -184,12 +181,11 @@ namespace BLL
             if (model.MaThanhToan.Length > 15)
                 throw new Exception("Mã thanh toán không được vượt quá 15 ký tự.");
 
-            // Kiểm tra trùng mã thanh toán
+          
             DataTable dt = TT_DAL.GetById(model.MaThanhToan);
 
             if (dt != null && dt.Rows.Count > 0)
                 throw new Exception("Mã thanh toán đã tồn tại.");
-
 
 
             if (string.IsNullOrWhiteSpace(model.MaHDBan))
@@ -200,7 +196,7 @@ namespace BLL
             if (model.MaHDBan.Length > 15)
                 throw new Exception("Mã hóa đơn bán không được vượt quá 15 ký tự.");
 
-            // Kiểm tra hóa đơn tồn tại
+           
             if (!TT_DAL.KiemTraHoaDonTonTai(model.MaHDBan))
                 throw new Exception("Hóa đơn bán không tồn tại.");
 

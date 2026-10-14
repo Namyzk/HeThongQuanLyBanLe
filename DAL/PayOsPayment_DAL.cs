@@ -9,8 +9,7 @@ public sealed class PayOsPayment_DAL
 {
     public decimal? GetInvoiceAmountDue(string maHoaDon)
     {
-        const string sql = @"
-            SELECT CAST(ROUND(
+        const string sql = @" SELECT CAST(ROUND(
                 SUM(CAST(ISNULL(CT.TONGTIEN, 0) AS DECIMAL(19, 2)))
                 + ISNULL(MAX(CAST(H.THUEVAT AS DECIMAL(19, 2))), 0)
                 - ISNULL(MAX(CAST(H.GIAMGIA AS DECIMAL(19, 2))), 0), 0
@@ -33,8 +32,7 @@ public sealed class PayOsPayment_DAL
 
     public DataTable GetLatestPayOsByInvoice(string maHoaDon)
     {
-        const string sql = @"
-            SELECT TOP (1) MATHANHTOAN, MAHDBAN, SOTIENTHANHTOAN, TRANGTHAI,
+        const string sql = @" SELECT TOP (1) MATHANHTOAN, MAHDBAN, SOTIENTHANHTOAN, TRANGTHAI,
                    PAYOS_ORDER_CODE, PAYOS_PAYMENT_LINK_ID, PAYOS_CHECKOUT_URL, PAYOS_QR_CODE,
                    PAYOS_TRANSACTION_REFERENCE, PAYOS_CREATED_AT_UTC
             FROM dbo.THANHTOAN
@@ -50,8 +48,7 @@ public sealed class PayOsPayment_DAL
 
     public bool CreatePendingPayment(string maThanhToan, string maHoaDon, decimal soTien, long orderCode)
     {
-        const string sql = @"
-            INSERT INTO dbo.THANHTOAN
+        const string sql = @" INSERT INTO dbo.THANHTOAN
                 (MATHANHTOAN, MAHDBAN, PHUONGTHUC, SOTIENTHANHTOAN, NGAYTHANHTOAN,
                  TRANGTHAI, PAYOS_ORDER_CODE, PAYOS_CREATED_AT_UTC)
             SELECT @MaThanhToan, H.MAHDBAN, N'PayOS', @SoTien, NULL,
@@ -61,8 +58,7 @@ public sealed class PayOsPayment_DAL
               AND NOT EXISTS (
                   SELECT 1 FROM dbo.THANHTOAN T
                   WHERE RTRIM(T.MAHDBAN) = RTRIM(H.MAHDBAN)
-                    AND T.TRANGTHAI = N'Đã thanh toán'
-              );";
+                    AND T.TRANGTHAI = N'Đã thanh toán'  );";
 
         int rows = Connect.ExecuteNonQuery(sql, new[]
         {
@@ -77,8 +73,7 @@ public sealed class PayOsPayment_DAL
 
     public bool SavePayOsLink(long orderCode, string paymentLinkId, string checkoutUrl, string qrCode)
     {
-        const string sql = @"
-            UPDATE dbo.THANHTOAN
+        const string sql = @"UPDATE dbo.THANHTOAN
             SET PAYOS_PAYMENT_LINK_ID = @PaymentLinkId,
                 PAYOS_CHECKOUT_URL = @CheckoutUrl,
                 PAYOS_QR_CODE = @QrCode
@@ -96,8 +91,7 @@ public sealed class PayOsPayment_DAL
 
     public void MarkPayOsLinkFailed(long orderCode)
     {
-        const string sql = @"
-            UPDATE dbo.THANHTOAN
+        const string sql = @"   UPDATE dbo.THANHTOAN
             SET TRANGTHAI = N'Tạo QR thất bại'
             WHERE PAYOS_ORDER_CODE = @OrderCode
               AND TRANGTHAI = N'Chưa thanh toán'
@@ -111,8 +105,7 @@ public sealed class PayOsPayment_DAL
 
     public bool ConfirmPayOsPayment(long orderCode, int amount, string reference, string paymentLinkId, DateTime paidAt)
     {
-        const string updateSql = @"
-            UPDATE dbo.THANHTOAN
+        const string updateSql = @"  UPDATE dbo.THANHTOAN
             SET TRANGTHAI = N'Đã thanh toán',
                 NGAYTHANHTOAN = @PaidAt,
                 PAYOS_TRANSACTION_REFERENCE = @Reference
@@ -133,9 +126,8 @@ public sealed class PayOsPayment_DAL
         if (changed == 1)
             return true;
 
-        // Webhook của PayOS có thể được gửi lặp lại; chấp nhận lặp đúng giao dịch đã ghi.
-        const string duplicateSql = @"
-            SELECT COUNT(*)
+        
+        const string duplicateSql = @" SELECT COUNT(*)
             FROM dbo.THANHTOAN
             WHERE PAYOS_ORDER_CODE = @OrderCode
               AND CAST(ROUND(SOTIENTHANHTOAN, 0) AS BIGINT) = @Amount

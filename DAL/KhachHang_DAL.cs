@@ -25,8 +25,6 @@ namespace DAL
         }
 
 
-
-
         public DataTable GetByIdKH(string makh)
         {
             try
@@ -45,8 +43,6 @@ namespace DAL
         }
 
 
-
-
         public DataTable CreateKH(Models.KhachHang kh)
         {
             try
@@ -57,11 +53,8 @@ namespace DAL
                 SqlParameter[] parameters =
                 {
                     new SqlParameter(  "@MAKH", kh.MaKH?.Trim() ?? ""),
-
                     new SqlParameter( "@TENKH", kh.TenKH?.Trim() ?? ""),
-
                     new SqlParameter( "@SDT", kh.SDT?.Trim() ?? ""),
-
                     new SqlParameter( "@DIACHI", kh.DiaChi?.Trim() ?? "")
                 };
 

@@ -20,7 +20,8 @@ namespace API_KeToan1.Controllers
         private readonly HoaDonBan_BLL _hdbBll;
         private readonly ChiTietBan_BLL _ctbBll;
 
-        public BaoCaoThongKe_Controller(DanhMuc_BLL _dmBll, SanPham_BLL _spBll, KhuyenMai_BLL _kmBll, PhieuNhapKho_BLL _pnkBll, ChiTietNhap_BLL _ctnBll, HoaDonBan_BLL _hdbBll, ChiTietBan_BLL _ctbBll)
+        public BaoCaoThongKe_Controller(DanhMuc_BLL _dmBll, SanPham_BLL _spBll,
+            KhuyenMai_BLL _kmBll, PhieuNhapKho_BLL _pnkBll, ChiTietNhap_BLL _ctnBll, HoaDonBan_BLL _hdbBll, ChiTietBan_BLL _ctbBll)
         {
             this._dmBll = _dmBll;
             this._spBll = _spBll;
@@ -45,8 +46,8 @@ namespace API_KeToan1.Controllers
             return null;
         }
 
-      
-        [HttpGet("get-all-danhmuc")]
+        [Route("get-all-danhmuc")]
+        [HttpGet]
         public IActionResult GetAll_DM()
         {
             try
@@ -56,11 +57,12 @@ namespace API_KeToan1.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { success = false, message = "Lỗi hệ thống nội bộ." });
+                return StatusCode(500, new { success = false, message = "Lỗi hệ thống." });
             }
         }
 
-        [HttpGet("get-byID-danhmuc")]
+        [Route("get-byID-danhmuc")] 
+        [HttpGet]
         public IActionResult Get_DM_ByID([FromQuery] string? madanhmuc)
         {
             if (ValidateMa(madanhmuc, "Mã danh mục", out string cleanMa) is IActionResult error)
@@ -76,11 +78,12 @@ namespace API_KeToan1.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { success = false, message = "Lỗi hệ thống nội bộ." });
+                return StatusCode(500, new { success = false, message = "Lỗi hệ thống ." });
             }
         }
 
-        [HttpGet("get-all-sanpham")]
+        [Route("get-all-sanpham")]
+        [HttpGet]
         public IActionResult GetAll_SP()
         {
             try
@@ -90,11 +93,12 @@ namespace API_KeToan1.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { success = false, message = "Lỗi hệ thống nội bộ." });
+                return StatusCode(500, new { success = false, message = "Lỗi hệ thống." });
             }
         }
-
-        [HttpGet("get-sanpham-by-id")]
+        
+        [Route("get-sanpham-by-id")]
+        [HttpGet]
         public IActionResult Get_SP_ByID([FromQuery] string? id)
         {
             if (ValidateMa(id, "Mã sản phẩm", out string cleanId) is IActionResult error)
@@ -110,12 +114,12 @@ namespace API_KeToan1.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { success = false, message = "Lỗi hệ thống nội bộ." });
+                return StatusCode(500, new { success = false, message = "Lỗi hệ thống." });
             }
         }
 
-       
-        [HttpGet("get-all-khuyenmai")]
+        [Route("get-all-khuyenmai")]
+        [HttpGet]
         public IActionResult GetAll_KM()
         {
             try
@@ -134,11 +138,13 @@ namespace API_KeToan1.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { success = false, message = "Lỗi hệ thống nội bộ." });
+                return StatusCode(500, new { success = false, message = "Lỗi hệ thống." });
             }
         }
 
-        [HttpGet("get-byid-khuyenmai")]
+
+        [Route("get-byid-khuyenmai")]
+        [HttpGet]
         public IActionResult Get_KM_ById([FromQuery] string? ma)
         {
             if (ValidateMa(ma, "Mã khuyến mại", out string cleanMa) is IActionResult error)
@@ -163,12 +169,12 @@ namespace API_KeToan1.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { success = false, message = "Lỗi hệ thống nội bộ." });
+                return StatusCode(500, new { success = false, message = "Lỗi hệ thống." });
             }
         }
 
-       
-        [HttpGet("get-all-phieunhapkho")]
+        [Route("get-all-phieunhapkho")]
+        [HttpGet]
         public IActionResult GetAllPhieuNhapKho()
         {
             try
@@ -178,11 +184,12 @@ namespace API_KeToan1.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { success = false, message = "Lỗi hệ thống nội bộ." });
+                return StatusCode(500, new { success = false, message = "Lỗi hệ thống" });
             }
         }
 
-        [HttpGet("get-byid-phieunhapkho")]
+        [Route("get-byid-phieunhapkho")]
+        [HttpGet]
         public IActionResult GetByIdPhieuNhapKho([FromQuery] string? maphieunhap)
         {
             if (ValidateMa(maphieunhap, "Mã phiếu nhập", out string cleanMa) is IActionResult error)
@@ -198,12 +205,12 @@ namespace API_KeToan1.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { success = false, message = "Lỗi hệ thống nội bộ." });
+                return StatusCode(500, new { success = false, message = "Lỗi hệ thống." });
             }
         }
 
-     
-        [HttpGet("get-all-chitietnhap")]
+        [Route("get-all-chitietnhap")]
+        [HttpGet]
         public IActionResult GetAll_CTN()
         {
             try
@@ -226,7 +233,8 @@ namespace API_KeToan1.Controllers
             }
         }
 
-        [HttpGet("get-byphieu-chitietnhap")]
+        [Route("get-byphieu-chitietnhap")]
+        [HttpGet]
         public IActionResult GetByPhieu([FromQuery] string? maphieunhap)
         {
             if (ValidateMa(maphieunhap, "Mã phiếu nhập", out string cleanMa) is IActionResult error)
@@ -255,8 +263,8 @@ namespace API_KeToan1.Controllers
             }
         }
 
-     
-        [HttpGet("get-all-hoadonban")]
+        [Route("get-all-hoadonban")]
+        [HttpGet]
         public IActionResult GetAll_HDB()
         {
             try
@@ -270,7 +278,8 @@ namespace API_KeToan1.Controllers
             }
         }
 
-        [HttpGet("get-hoadonban-by-id")]
+        [Route("get-hoadonban-by-id")]
+        [HttpGet]
         public IActionResult Get_HDB_ByID([FromQuery] string? maHoaDon)
         {
             if (ValidateMa(maHoaDon, "Mã hóa đơn", out string cleanMa) is IActionResult error)
@@ -290,7 +299,8 @@ namespace API_KeToan1.Controllers
             }
         }
 
-        [HttpGet("get-all-chitietban")]
+        [Route("get-all-chitietban")]
+        [HttpGet]
         public IActionResult GetAll_CTB()
         {
             try
@@ -304,7 +314,8 @@ namespace API_KeToan1.Controllers
             }
         }
 
-        [HttpGet("get-chitietban-by-IDhoadon")]
+        [Route("get-chitietban-by-IDhoadon")]
+        [HttpGet]
         public IActionResult Get_CTB_ByHoaDon([FromQuery] string? maHDB)
         {
             if (ValidateMa(maHDB, "Mã hóa đơn", out string cleanMa) is IActionResult error)

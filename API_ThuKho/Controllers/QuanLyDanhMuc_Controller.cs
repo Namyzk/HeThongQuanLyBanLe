@@ -20,7 +20,8 @@ namespace API_ThuKho.Controllers
             this._dmBll = _dmBll;
         }
 
-        [HttpGet("get-all-danhmuc")]
+        [Route("get-all-danhmuc")]
+        [HttpGet]
         public IActionResult GetAll()
         {
             try
@@ -35,11 +36,12 @@ namespace API_ThuKho.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { success = false, message = "Lỗi hệ thống nội bộ." });
+                return StatusCode(500, new { success = false, message = "Lỗi hệ thống." });
             }
         }
 
-        [HttpGet("get-byID-danhmuc")]
+        [Route("get-byID-danhmuc")]
+        [HttpGet]
         public IActionResult GetByID([FromQuery] string? madanhmuc)
         {
             if (string.IsNullOrWhiteSpace(madanhmuc))
@@ -60,11 +62,12 @@ namespace API_ThuKho.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { success = false, message = "Lỗi hệ thống nội bộ." });
+                return StatusCode(500, new { success = false, message = "Lỗi hệ thống." });
             }
         }
 
-        [HttpPost("insert-danhmuc")]
+        [Route("insert-danhmuc")]
+        [HttpPost]
         public IActionResult Create([FromBody] DanhMuc? model)
         {
             if (model == null)
@@ -80,11 +83,13 @@ namespace API_ThuKho.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { success = false, message = "Lỗi hệ thống nội bộ." });
+                return StatusCode(500, new { success = false, message = "Lỗi hệ thống." });
             }
         }
 
-        [HttpPut("update-danhmuc")]
+
+        [Route("update-danhmuc")]
+        [HttpPost]
         public IActionResult Update([FromBody] DanhMuc? model)
         {
             if (model == null)
@@ -100,11 +105,12 @@ namespace API_ThuKho.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { success = false, message = "Lỗi hệ thống nội bộ." });
+                return StatusCode(500, new { success = false, message = "Lỗi hệ thống." });
             }
         }
 
-        [HttpDelete("delete-danhmuc")]
+        [Route("delete-danhmuc")]
+        [HttpDelete]
         public IActionResult Delete([FromQuery] string? maDanhMuc)
         {
             if (string.IsNullOrWhiteSpace(maDanhMuc))
@@ -120,7 +126,7 @@ namespace API_ThuKho.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { success = false, message = "Lỗi hệ thống nội bộ." });
+                return StatusCode(500, new { success = false, message = "Lỗi hệ thống." });
             }
         }
     }

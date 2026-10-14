@@ -1,4 +1,5 @@
 using DAL.DataHelper;
+using DAL;
 using API_GateWay.Middleware;
 using Ocelot.DependencyInjection;
 using Ocelot.Middleware;
@@ -32,8 +33,10 @@ if (allowedOrigins == null || allowedOrigins.Length == 0)
         "https://localhost:5173",
         "http://localhost:5500",
         "http://localhost:5501",
+        "http://localhost:5502",
         "http://127.0.0.1:5500",
-        "http://127.0.0.1:5501"
+        "http://127.0.0.1:5501",
+        "http://127.0.0.1:5502"
     };
 }
 
@@ -78,30 +81,40 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     });
 builder.Services.AddAuthorization();
 builder.Services.AddOcelot(builder.Configuration);
+builder.Services.AddScoped<RefreshToken_DAL>();
 
 builder.Services.AddRateLimiter(options =>
 {
     options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
     options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(context =>
-        RateLimitPartition.GetFixedWindowLimiter(
+        RateLimitPartition.GetSlidingWindowLimiter(
             context.Connection.RemoteIpAddress?.ToString() ?? "anonymous",
-            _ => new FixedWindowRateLimiterOptions
+            _ => new SlidingWindowRateLimiterOptions
             {
                 AutoReplenishment = true,
                 PermitLimit = 100,
                 QueueLimit = 2,
                 QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
-                Window = TimeSpan.FromMinutes(1)
+                Window = TimeSpan.FromMinutes(1),
+                SegmentsPerWindow = 6
             }));
 });
 
 var app = builder.Build();
 
+// Chính sách phiên của ứng dụng: mỗi lần Gateway khởi động lại, thu hồi toàn bộ
+// refresh token để các phiên cũ không thể tự làm mới sau khi access token hết hạn.
+using (var scope = app.Services.CreateScope())
+{
+    var refreshTokenDal = scope.ServiceProvider.GetRequiredService<RefreshToken_DAL>();
+    refreshTokenDal.RevokeAllActive();
+}
+
 app.UseResponseCompression();
 app.UseCors("GatewayCors");
 app.UseMiddleware<GlobalExceptionMiddleware>();
 
-.
+
 app.Use(async (context, next) =>
 {
     string path = context.Request.Path.Value ?? string.Empty;

@@ -17,7 +17,7 @@ namespace API_ThuKho.Controllers
             this._spBll = _spBll;
         }
 
-     
+
         private IActionResult? ValidateMa(string? ma, out string cleanMa)
         {
             cleanMa = string.Empty;
@@ -30,8 +30,10 @@ namespace API_ThuKho.Controllers
 
             return null;
         }
+
+        [Route("get-all-sanpham-tonkho")]
         [Authorize(Roles = "Admin,ThuKho,ThuNgan")]
-        [HttpGet("get-all-sanpham-tonkho")]
+        [HttpGet]
         public IActionResult GetAll()
         {
             try
@@ -46,12 +48,15 @@ namespace API_ThuKho.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { success = false, message = "Lỗi hệ thống nội bộ." });
+                return StatusCode(500, new { success = false, message = "Lỗi hệ thống." });
             }
         }
 
+
+        
         [Authorize(Roles = "Admin,ThuKho")]
-        [HttpGet("get-sanpham-tonkho-by-id")]
+        [Route("get-sanpham-tonkho-by-id")]
+        [HttpGet]
         public IActionResult GetByID([FromQuery] string? id)
         {
             if (ValidateMa(id, out string cleanId) is IActionResult valErr)
@@ -72,11 +77,14 @@ namespace API_ThuKho.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { success = false, message = "Lỗi hệ thống nội bộ." });
+                return StatusCode(500, new { success = false, message = "Lỗi hệ thống." });
             }
         }
+
+
         [Authorize(Roles = "Admin,ThuKho")]
-        [HttpPost("update-soluong-sanpham-tonkho")]
+        [Route("update-soluong-sanpham-tonkho")]
+        [HttpPost]
         public IActionResult UpdateSoLuong([FromQuery] string? maSP, [FromQuery] int soLuongMoi)
         {
             if (ValidateMa(maSP, out string cleanMa) is IActionResult valErr)
@@ -92,7 +100,7 @@ namespace API_ThuKho.Controllers
                 if (!string.IsNullOrEmpty(result))
                 {
                     if (result.StartsWith("Lỗi hệ thống", StringComparison.OrdinalIgnoreCase))
-                        return StatusCode(500, new { success = false, message = "Lỗi hệ thống nội bộ." });
+                        return StatusCode(500, new { success = false, message = "Lỗi hệ thống." });
 
                     if (result.Contains("Không tìm thấy", StringComparison.OrdinalIgnoreCase))
                         return NotFound(new { success = false, message = result });
@@ -108,7 +116,7 @@ namespace API_ThuKho.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { success = false, message = "Lỗi hệ thống nội bộ." });
+                return StatusCode(500, new { success = false, message = "Lỗi hệ thống." });
             }
         }
     }

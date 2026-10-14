@@ -35,6 +35,8 @@ namespace API_Login.Controllers
             public string Pass { get; set; } = string.Empty;
         }
         [AllowAnonymous]
+
+        
         [HttpPost("login")]
         public IActionResult Login([FromBody] LoginRequest request)
         {
@@ -48,6 +50,10 @@ namespace API_Login.Controllers
                 var list = _bll.DangNhap(request.Username.Trim(), request.Pass);
                 if (list == null || list.Count == 0)
                 {
+                    // Nếu trình duyệt còn cookie từ phiên cũ, không để cookie đó
+                    // tiếp tục làm người dùng tưởng rằng thông tin sai vẫn đăng nhập được.
+                    XoaCookiePhien();
+                    Response.Headers["Cache-Control"] = "no-store";
                     return Unauthorized(new { success = false, message = "Sai tên đăng nhập hoặc mật khẩu!" });
                 }
 
@@ -66,7 +72,11 @@ namespace API_Login.Controllers
                 {
                     success = true,
                     message = "Đăng nhập thành công!",
-                    refreshTokenExpiresAtUtc = refreshExpiresAtUtc,
+                    refreshTokenExpiresAt = TimeZoneInfo.ConvertTimeFromUtc(
+                        DateTime.SpecifyKind(refreshExpiresAtUtc, DateTimeKind.Utc),
+                        TimeZoneInfo.FindSystemTimeZoneById(
+                            OperatingSystem.IsWindows() ? "SE Asia Standard Time" : "Asia/Ho_Chi_Minh"))
+                        .ToString("dd/MM/yyyy HH:mm:ss"),
                     data = new
                     {
                         MaTaiKhoan = user.MATAIKHOAN.Trim(),
@@ -115,7 +125,11 @@ namespace API_Login.Controllers
                 {
                     success = true,
                     message = "Làm mới phiên đăng nhập thành công.",
-                    refreshTokenExpiresAtUtc = refreshExpiresAtUtc,
+                    refreshTokenExpiresAt = TimeZoneInfo.ConvertTimeFromUtc(
+                        DateTime.SpecifyKind(refreshExpiresAtUtc, DateTimeKind.Utc),
+                        TimeZoneInfo.FindSystemTimeZoneById(
+                            OperatingSystem.IsWindows() ? "SE Asia Standard Time" : "Asia/Ho_Chi_Minh"))
+                        .ToString("dd/MM/yyyy HH:mm:ss"),
                     data = new
                     {
                         MaTaiKhoan = user.MATAIKHOAN.Trim(),
@@ -227,6 +241,7 @@ namespace API_Login.Controllers
                 new Claim(ClaimTypes.Name, user.USERNAME.Trim()),
                 new Claim(ClaimTypes.Role, roleName),
                 new Claim("QUYEN", user.QUYEN.ToString()),
+                new Claim(JwtRegisteredClaimNames.Iat, DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString(), ClaimValueTypes.Integer64),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
             }.Concat(LayScopes(user.QUYEN).Select(scope => new Claim("scope", scope))).ToArray();
 
@@ -241,7 +256,7 @@ namespace API_Login.Controllers
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
 
-        private DateTime LayThoiDiemHetHanAccessToken()
+        private DateTime LayThoiDiemHetHanAccessToken() //15
         {
             var jwtSettings = _config.GetSection("Jwt");
             double minutes = double.TryParse(jwtSettings["ExpiresInMinutes"], out double configured) && configured > 0

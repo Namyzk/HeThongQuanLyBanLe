@@ -54,11 +54,7 @@ namespace DAL
         {
             try
             {
-                SqlParameter[] parameters =
-                {
-                    new SqlParameter("@SDT", sdt)
-                };
-
+                SqlParameter[] parameters = {   new SqlParameter("@SDT", sdt)  };
                 DataTable dt = Connect.ExecuteStoredProcedure("dbo.SP_KIEMTRASDT",  parameters);
                 return dt.Rows.Count > 0;
             }
@@ -98,10 +94,6 @@ namespace DAL
         }
 
 
-       
-        // LẤY NHÂN VIÊN THEO MÃ
-        
-
         public List<NhanVien> GetByID(string manv)
         {
             try
@@ -135,9 +127,7 @@ namespace DAL
             }
         }
 
-        // THÊM NHÂN VIÊN
-       
-
+     
         public bool Insert(NhanVien nv)
         {
             try
@@ -162,10 +152,6 @@ namespace DAL
                 throw new Exception( "Lỗi khi thêm nhân viên: "   + ex.Message);
             }
         }
-
-       
-        // SỬA NHÂN VIÊN
-        
 
         public bool Update(NhanVien nv)
         {
@@ -205,10 +191,6 @@ namespace DAL
                 throw new Exception( "Lỗi khi sửa nhân viên: "   + ex.Message);
             }
         }
-
-       
-        // XOÁ NHÂN VIÊN
-       
 
         public bool Delete(string manv)
         {

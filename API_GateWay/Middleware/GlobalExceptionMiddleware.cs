@@ -34,11 +34,8 @@ public sealed class GlobalExceptionMiddleware
         catch (Exception exception)
         {
             _logger.LogError(
-                exception,
-                "Unhandled Gateway exception for {Method} {Path}. TraceId: {TraceId}",
-                context.Request.Method,
-                context.Request.Path,
-                context.TraceIdentifier);
+                exception,  "Unhandled Gateway exception for {Method} {Path}. TraceId: {TraceId}",
+                context.Request.Method,context.Request.Path, context.TraceIdentifier);
 
             if (context.Response.HasStarted)
                 throw;
@@ -71,10 +68,22 @@ public sealed class GlobalExceptionMiddleware
     {
         return exception switch
         {
-            KeyNotFoundException => ( StatusCodes.Status404NotFound, "Không tìm thấy tài nguyên",
-            "Không tìm thấy dữ liệu được yêu cầu."),
-            ArgumentException => (  StatusCodes.Status400BadRequest,  "Dữ liệu không hợp lệ", "Dữ liệu yêu cầu không hợp lệ."),
-            UnauthorizedAccessException => ( StatusCodes.Status403Forbidden, "Không có quyền truy cập",   "Bạn không có quyền thực hiện thao tác này."), => (
+            KeyNotFoundException => (
+                StatusCodes.Status404NotFound,
+                "Không tìm thấy tài nguyên",
+                "Không tìm thấy dữ liệu được yêu cầu."),
+
+            ArgumentException => (
+                StatusCodes.Status400BadRequest,
+                "Dữ liệu không hợp lệ",
+                "Dữ liệu yêu cầu không hợp lệ."),
+
+            UnauthorizedAccessException => (
+                StatusCodes.Status403Forbidden,
+                "Không có quyền truy cập",
+                "Bạn không có quyền thực hiện thao tác này."),
+
+            _ => (
                 StatusCodes.Status500InternalServerError,
                 "Lỗi hệ thống nội bộ",
                 "Đã xảy ra lỗi phía máy chủ. Vui lòng thử lại sau.")

@@ -28,7 +28,8 @@ namespace API_Admin.Controllers
             DIACHI = x.DIACHI?.Trim()
         };
 
-        [HttpGet("get-all-nhanvien")]
+        [Route("get-all-nhanvien")]
+        [HttpGet]
         public IActionResult GetAllNhanVien()
         {
             try
@@ -38,12 +39,12 @@ namespace API_Admin.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { success = false, message = "Lỗi hệ thống nội bộ." });
+                return StatusCode(500, new { success = false, message = "Lỗi hệ thống." });
             }
         }
 
-        
-        [HttpGet("get-byid-nhanvien")]
+        [Route("get-byid-nhanvien")]
+        [HttpGet]
         public IActionResult GetByIdNhanVien([FromQuery] string manv)
         {
             if (string.IsNullOrWhiteSpace(manv))
@@ -64,11 +65,12 @@ namespace API_Admin.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { success = false, message = "Lỗi hệ thống nội bộ." });
+                return StatusCode(500, new { success = false, message = "Lỗi hệ thống." });
             }
         }
 
-        [HttpPost("create-nhanvien")]
+        [Route("create-nhanvien")]
+        [HttpPost]
         public IActionResult CreateNhanVien([FromBody] NhanVien nv)
         {
             if (nv == null || string.IsNullOrWhiteSpace(nv.MANV))
@@ -84,11 +86,13 @@ namespace API_Admin.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest(new { success = false, message = "Lỗi hệ thống nội bộ." });
+                return BadRequest(new { success = false, message = "Lỗi hệ thống." });
             }
         }
 
-        [HttpPost("update-nhanvien")]
+
+        [Route("update-nhanvien")]
+        [HttpPost]
         public IActionResult UpdateNhanVien([FromBody] NhanVien nv)
         {
             if (nv == null || string.IsNullOrWhiteSpace(nv.MANV))
@@ -104,11 +108,13 @@ namespace API_Admin.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest(new { success = false, message = "Lỗi hệ thống nội bộ." });
+                return BadRequest(new { success = false, message = "Lỗi hệ thống." });
             }
         }
 
-        [HttpDelete("delete-nhanvien")]
+
+        [Route("delete-nhanvien")]
+        [HttpDelete]
         public IActionResult DeleteNhanVien([FromQuery] string manv)
         {
             if (string.IsNullOrWhiteSpace(manv))
@@ -129,12 +135,11 @@ namespace API_Admin.Controllers
                 {
                     return BadRequest(new
                     {
-                        success = false,
-                        message = "Không thể xóa nhân viên này vì đã có dữ liệu Phiếu nhập kho hoặc Hóa đơn bán hàng liên quan!"
+                        success = false, message = "Không thể xóa nhân viên này vì đã có dữ liệu Phiếu nhập kho hoặc Hóa đơn bán hàng liên quan!"
                     });
                 }
 
-                return StatusCode(500, new { success = false, message = "Lỗi hệ thống nội bộ." });
+                return StatusCode(500, new { success = false, message = "Lỗi hệ thống." });
             }
         }
     }

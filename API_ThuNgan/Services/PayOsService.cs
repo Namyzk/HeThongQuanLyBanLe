@@ -55,6 +55,14 @@ public sealed class PayOsService
         return client.Webhooks.VerifyAsync(webhook);
     }
 
+    public Task<PaymentLink> GetPaymentLinkAsync(long orderCode)
+    {
+        if (orderCode <= 0)
+            throw new ArgumentOutOfRangeException(nameof(orderCode));
+
+        return GetClient().PaymentRequests.GetAsync(orderCode, new PayOS.Models.RequestOptions());
+    }
+
     private PayOSClient GetClient() => _client ??
         throw new InvalidOperationException("Chưa cấu hình PayOS ClientId, ApiKey và ChecksumKey.");
 

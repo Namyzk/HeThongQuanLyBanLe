@@ -17,8 +17,7 @@ namespace DAL
                 if (string.IsNullOrWhiteSpace(maHDB))
                     return false;
 
-                const string sql = @"
-                    SELECT COUNT(*) AS SoLuong
+                const string sql = @" SELECT COUNT(*) AS SoLuong
                     FROM HOADONBAN
                     WHERE RTRIM(MAHDBAN) = @MAHDBAN";
 
@@ -68,11 +67,9 @@ namespace DAL
                 DataTable dt = Connect.ExecuteQuery(sql);
 
                 List<HoaDonBan> list = new List<HoaDonBan>();
-
                 foreach (DataRow row in dt.Rows)
                 {
                     string maHDB = row["MAHDBAN"]?.ToString()?.Trim() ?? "";
-
                     DateOnly? ngay = null;
                     if (row["NGAYLAP"] != DBNull.Value)
                     {
@@ -109,13 +106,10 @@ namespace DAL
 
                 SqlParameter[] parameters = { new SqlParameter("@MAHDBAN", maHDB) };
                 DataTable dt = Connect.ExecuteQuery(sql, parameters);
-
                 List<HoaDonBan> list = new List<HoaDonBan>();
-
                 foreach (DataRow row in dt.Rows)
                 {
                     string maHDBRow = row["MAHDBAN"]?.ToString()?.Trim() ?? "";
-
                     DateOnly? ngay = null;
                     if (row["NGAYLAP"] != DBNull.Value)
                     {
@@ -194,14 +188,11 @@ namespace DAL
                     }
                 }
 
-                string sqlHD = @"
-                    INSERT INTO HOADONBAN (MAHDBAN, MANV, MAKH, NGAYLAP, TONGTIENHANG, THUEVAT, GIAMGIA)
+                string sqlHD = @"INSERT INTO HOADONBAN (MAHDBAN, MANV, MAKH, NGAYLAP, TONGTIENHANG, THUEVAT, GIAMGIA)
                     VALUES (@MAHDBAN, @MANV, @MAKH, @NGAYLAP, @TONGTIENHANG, @THUEVAT, @GIAMGIA)";
 
               
-                object ngayLapValue = hd.NGAYLAP.HasValue
-                    ? hd.NGAYLAP.Value.ToDateTime(TimeOnly.MinValue)
-                    : DateTime.Today;
+                object ngayLapValue = hd.NGAYLAP.HasValue   ? hd.NGAYLAP.Value.ToDateTime(TimeOnly.MinValue)    : DateTime.Today;
 
                 SqlParameter[] pHD =
                 {
@@ -269,9 +260,7 @@ namespace DAL
                                    GIAMGIA = @GIAMGIA
                                WHERE MAHDBAN = @MAHDBAN";
 
-                object ngayLapValue = hd.NGAYLAP.HasValue
-                    ? hd.NGAYLAP.Value.ToDateTime(TimeOnly.MinValue)
-                    : DateTime.Today;
+                object ngayLapValue = hd.NGAYLAP.HasValue  ? hd.NGAYLAP.Value.ToDateTime(TimeOnly.MinValue)     : DateTime.Today;
 
                 SqlParameter[] parameters =
                 {

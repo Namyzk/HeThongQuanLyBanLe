@@ -92,8 +92,8 @@ namespace API_ThuNgan.Controllers
             return StatusCode(500, new { success = false, message = "Lỗi hệ thống nội bộ." });
         }
 
-    
-        [HttpGet("get-all-hoadonban")]
+        [Route("get-all-hoadonban")]    
+        [HttpGet]
         public IActionResult GetAll_HoaDon()
         {
             try
@@ -103,11 +103,13 @@ namespace API_ThuNgan.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { success = false, message = "Lỗi hệ thống nội bộ." });
+                return StatusCode(500, new { success = false, message = "Lỗi hệ thống." });
             }
         }
 
-        [HttpGet("get-hoadonban-by-id")]
+
+        [Route("get-hoadonban-by-id")]
+        [HttpGet]
         public IActionResult GetByID_HoaDon([FromQuery] string? maHoaDon)
         {
             if (ValidateMa(maHoaDon, "Mã hóa đơn", 15, out string cleanMa) is IActionResult valErr)
@@ -123,11 +125,13 @@ namespace API_ThuNgan.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { success = false, message = "Lỗi hệ thống nội bộ." });
+                return StatusCode(500, new { success = false, message = "Lỗi hệ thống." });
             }
         }
 
-        [HttpPut("update-hoadonban")]
+
+        [Route("update-hoadonban")]
+        [HttpPut]
         public IActionResult UpdateHoaDon([FromBody] HoaDonBan? model)
         {
             if (model == null)
@@ -171,11 +175,13 @@ namespace API_ThuNgan.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { success = false, message = "Lỗi hệ thống nội bộ." });
+                return StatusCode(500, new { success = false, message = "Lỗi hệ thống." });
             }
         }
 
-        [HttpDelete("delete-hoadonban")]
+
+        [Route("delete-hoadonban")]
+        [HttpDelete]
         public IActionResult DeleteHoaDon([FromQuery] string? maHoaDon)
         {
             if (ValidateMa(maHoaDon, "Mã hóa đơn", 15, out string cleanMa) is IActionResult valErr)
@@ -191,11 +197,12 @@ namespace API_ThuNgan.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { success = false, message = "Lỗi hệ thống nội bộ." });
+                return StatusCode(500, new { success = false, message = "Lỗi hệ thống." });
             }
         }
 
-        [HttpPost("reset-tongtienhang-by-mahdban")]
+        [Route("reset-tongtienhang-by-mahdban")]
+        [HttpPost]
         public IActionResult ResetTongTienHangByHoaDon([FromQuery] string? maHDBan, [FromQuery] decimal tongTienMoi)
         {
             if (ValidateMa(maHDBan, "Mã hóa đơn bán", 15, out string cleanMa) is IActionResult valErr)
@@ -214,13 +221,12 @@ namespace API_ThuNgan.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { success = false, message = "Lỗi hệ thống nội bộ." });
+                return StatusCode(500, new { success = false, message = "Lỗi hệ thống." });
             }
         }
 
-     
-
-        [HttpGet("get-all-chitietban")]
+        [Route("get-all-chitietban")]
+        [HttpGet]
         public IActionResult GetAll_ChiTiet()
         {
             try
@@ -230,11 +236,13 @@ namespace API_ThuNgan.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { success = false, message = "Lỗi hệ thống nội bộ." });
+                return StatusCode(500, new { success = false, message = "Lỗi hệ thống." });
             }
         }
 
-        [HttpGet("get-chitietban-by-IDhoadon")]
+
+        [Route("get-chitietban-by-IDhoadon")]
+        [HttpGet]
         public IActionResult GetByHoaDon([FromQuery] string? maHDB)
         {
             if (ValidateMa(maHDB, "Mã hóa đơn", 15, out string cleanMa) is IActionResult valErr)
@@ -250,11 +258,14 @@ namespace API_ThuNgan.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { success = false, message = "Lỗi hệ thống nội bộ." });
+                return StatusCode(500, new { success = false, message = "Lỗi hệ thống." });
             }
         }
+        
 
-        [HttpPost("insert-chitietban")]
+
+        [Route("insert-chitietban")]        
+        [HttpPost]
         public IActionResult CreateChiTiet([FromBody] ChiTietBan model)
         {
             if (ValidateChiTietBan(model) is IActionResult valErr)
@@ -274,7 +285,9 @@ namespace API_ThuNgan.Controllers
             }
         }
 
-        [HttpPut("update-chitietban")]
+
+        [Route("update-chitietban")]
+        [HttpPut]
         public IActionResult UpdateChiTiet([FromBody] ChiTietBan model)
         {
             if (ValidateChiTietBan(model) is IActionResult valErr)
@@ -290,11 +303,12 @@ namespace API_ThuNgan.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { success = false, message = "Lỗi hệ thống nội bộ." });
+                return StatusCode(500, new { success = false, message = "Lỗi hệ thống." });
             }
         }
 
-        [HttpDelete("delete-chitietban")]
+        [Route("delete-chitietban")]
+        [HttpDelete]
         public IActionResult DeleteChiTiet([FromQuery] string? maHDB, [FromQuery] string? maSP)
         {
             if (ValidateMa(maHDB, "Mã hóa đơn", 15, out string cleanHD) is IActionResult errHD) return errHD;
@@ -310,13 +324,12 @@ namespace API_ThuNgan.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { success = false, message = "Lỗi hệ thống nội bộ." });
+                return StatusCode(500, new { success = false, message = "Lỗi hệ thống." });
             }
         }
 
-       
-
-        [HttpGet("get-all-thanhtoan")]
+        [Route("get-all-thanhtoan")]
+        [HttpGet]
         public IActionResult GetAll_ThanhToan()
         {
             try
@@ -327,11 +340,13 @@ namespace API_ThuNgan.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { success = false, message = "Lỗi hệ thống nội bộ." });
+                return StatusCode(500, new { success = false, message = "Lỗi hệ thống." });
             }
         }
 
-        [HttpGet("get-byId-thanhtoan")]
+
+        [Route("get-byId-thanhtoan")]
+        [HttpGet]
         public IActionResult Get_ThanhToan_ById([FromQuery] string? ma)
         {
             if (ValidateMa(ma, "Mã thanh toán", 15, out string cleanMa) is IActionResult valErr)
@@ -349,11 +364,12 @@ namespace API_ThuNgan.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { success = false, message = "Lỗi hệ thống nội bộ." });
+                return StatusCode(500, new { success = false, message = "Lỗi hệ thống." });
             }
         }
 
-        [HttpPost("insert-thanhtoan")]
+        [Route("insert-thanhtoan")]
+        [HttpPost]
         public IActionResult CreateThanhToan([FromBody] ThanhToan? model)
         {
             if (model == null)
@@ -385,11 +401,12 @@ namespace API_ThuNgan.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { success = false, message = "Lỗi hệ thống nội bộ." });
+                return StatusCode(500, new { success = false, message = "Lỗi hệ thống." });
             }
         }
 
-        [HttpPut("update-thanhtoan")]
+        [Route("update-thanhtoan")]
+        [HttpPut]
         public IActionResult UpdateThanhToan([FromBody] ThanhToan? model)
         {
             if (model == null)
@@ -421,11 +438,12 @@ namespace API_ThuNgan.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { success = false, message = "Lỗi hệ thống nội bộ." });
+                return StatusCode(500, new { success = false, message = "Lỗi hệ thống." });
             }
         }
 
-        [HttpDelete("del-thanhtoan")]
+        [Route("del-thanhtoan")]
+        [HttpDelete]
         public IActionResult DeleteThanhToan([FromQuery] string? ma)
         {
             if (ValidateMa(ma, "Mã thanh toán", 15, out string cleanMa) is IActionResult valErr)
@@ -442,11 +460,12 @@ namespace API_ThuNgan.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { success = false, message = "Lỗi hệ thống nội bộ." });
+                return StatusCode(500, new { success = false, message = "Lỗi hệ thống." });
             }
         }
 
-        [HttpPost("reset-sotienthanhtoan-by-mahdban")]
+        [Route("reset-sotienthanhtoan-by-mahdban")]
+        [HttpPost]
         public IActionResult ResetSoTienThanhToanByHoaDon([FromQuery] string? maHDBan, [FromQuery] decimal soTienMoi)
         {
             if (ValidateMa(maHDBan, "Mã hóa đơn bán", 15, out string cleanMa) is IActionResult valErr)
@@ -476,7 +495,7 @@ namespace API_ThuNgan.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { success = false, message = "Lỗi hệ thống nội bộ." });
+                return StatusCode(500, new { success = false, message = "Lỗi hệ thống." });
             }
         }
     }

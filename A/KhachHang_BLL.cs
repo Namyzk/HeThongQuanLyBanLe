@@ -30,7 +30,6 @@ namespace BLL
 
             makh = makh.Trim();
 
-            // MAKH CHAR(15)
             if (makh.Length > 15)
             {
                 throw new Exception( "Mã khách hàng không được vượt quá 15 ký tự.");
@@ -60,7 +59,6 @@ namespace BLL
         public DataTable UpdateByIdKH(Models.KhachHang kh)
         {
             ValidateKhachHang(kh);
-
             return KH_DAL.UpdateByIdKH(kh);
         }
 
@@ -69,14 +67,11 @@ namespace BLL
         {
             ValidateKhachHang(kh);
 
-            // Kiểm tra mã khách hàng đã tồn tại
             DataTable dt = KH_DAL.GetByIdKH(kh.MaKH!);
-
             if (dt != null && dt.Rows.Count > 0)
             {
                 throw new Exception(  "Mã khách hàng đã tồn tại.");
             }
-
             return KH_DAL.CreateKH(kh);
         }
 
@@ -101,8 +96,6 @@ namespace BLL
             {
                 throw new Exception("Mã khách hàng không được vượt quá 15 ký tự.");
             }
-
-
 
             if (string.IsNullOrWhiteSpace(kh.TenKH))
             {
@@ -130,8 +123,6 @@ namespace BLL
                     throw new Exception( "Số điện thoại chỉ được chứa chữ số.");
                 }
             }
-
-
 
             if (!string.IsNullOrWhiteSpace(kh.DiaChi))
             {

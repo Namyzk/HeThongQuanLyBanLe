@@ -13,8 +13,7 @@ public sealed class AuditLog_DAL
         const string sql = @"INSERT INTO dbo.AuditLog
         (ServiceName, HttpMethod, RequestPath, StatusCode, UserId, UserName, RoleName,
          ClientIp, TraceId, ElapsedMilliseconds, OperationType, EntityName, RecordKey, Result)
-    VALUES
-        (@ServiceName, @HttpMethod, @RequestPath, @StatusCode, @UserId, @UserName, @RoleName,
+         VALUES (@ServiceName, @HttpMethod, @RequestPath, @StatusCode, @UserId, @UserName, @RoleName,
          @ClientIp, @TraceId, @ElapsedMilliseconds, @OperationType, @EntityName, @RecordKey, @Result);";
 
         await using var connection = Connect.GetConnection();

@@ -20,9 +20,7 @@ namespace DAL
             {
                 List<SanPham> list = new List<SanPham>();
                 string sql = "SELECT MASP, TENSP, MAVACH, MOTA, MADANHMUC, DONGIA, THUOCTINH, THUEVAT, SOLUONGTON FROM SANPHAM";
-
                 var dt = Connect.ExecuteQuery(sql);
-
                 foreach (System.Data.DataRow row in dt.Rows)
                 {
                     list.Add(new SanPham
@@ -118,7 +116,8 @@ namespace DAL
                 if (KiemTraTonTai(sp.MASP))
                     return false;
 
-                string sql = @"INSERT INTO SANPHAM (MASP, TENSP, MAVACH, MOTA, MADANHMUC, DONGIA, THUOCTINH, THUEVAT, SOLUONGTON) VALUES (@MASP, @TENSP, @MAVACH, @MOTA, @MADANHMUC, @DONGIA, @THUOCTINH, @THUEVAT, @SOLUONGTON)";
+                string sql = @"INSERT INTO SANPHAM (MASP, TENSP, MAVACH, MOTA, MADANHMUC, DONGIA, THUOCTINH, THUEVAT, SOLUONGTON) 
+                VALUES (@MASP, @TENSP, @MAVACH, @MOTA, @MADANHMUC, @DONGIA, @THUOCTINH, @THUEVAT, @SOLUONGTON)";
 
                 SqlParameter[] parameters = new SqlParameter[]
                 {
