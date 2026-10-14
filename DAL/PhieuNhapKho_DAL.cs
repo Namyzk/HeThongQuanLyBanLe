@@ -33,120 +33,360 @@ namespace DAL
                     return count > 0;
                 }
 
-                return falsnøÒÚ$z{-®éÜj×•Ôİš[™Ê
-OÈ•š[J
-HÏÈˆÃBƒBˆ\İY
-™]ÈY]Sš\ÚÃBˆÃBˆPTQUS’THXKBƒBˆPSĞÈH›İÖÈ“PSĞÈ—OÈ•Ôİš[™Ê
-OË•š[J
-KBƒBˆPS•ˆH›İÖÈ“PS•ˆ—OÈ•Ôİš[™Ê
-OÈ•š[J
-KBƒBˆ‘ĞVSTH›İÖÈ“‘ĞVST—HOH“[•˜[YHÈ]SÛ›K“Z[•˜[YHˆ]SÛ›K‘œ›ÛQ]U[YJÛÛ™\•Ñ]U[YJ›İÖÈ“‘ĞVST—JJKBƒBˆ\İœÛÛ—ØÚ]Y]š\HÙ]ÚUY]SXJXJCBˆJNÃBˆCBƒBˆ™]\›ˆ\İÃBˆCBˆØ]Ú
-^Ù\[Ûˆ^
-CBˆÃBˆ›İÈ™]È^Ù\[ÛŠ“8nåÚH8n©^Hxn¯İHš8n«\[ÈpèÎˆˆ
-È^“Y\ÜØYÙJNÃBˆCBˆCBƒBƒBˆš]˜]H\İÚUY]š\ˆÙ]ÚUY]SXJİš[™ÈXTŠCBˆÃBˆCBˆÃBˆİš[™ÈÜ[HˆÑSPÕPTQUS’TPTÔÓÓSÓ‘ËÓ‘ÒPS’TS’QSƒBˆ”“ÓHÒUQU’TBˆÒT‘HPTQUS’THPTQUS’TÃBƒBˆÜ[\˜[Y]\–×H\˜[Y]\œÈCBˆÃBˆ™]ÈÜ[\˜[Y]\ŠPTQUS’T‹
-Øš™XİÊ[XTË•š[J
-HÏÈ“[•˜[YJCBˆNÃBƒBˆ]UX›HHÛÛ›™Xİ‘^Xİ]T]Y\JÜ[\˜[Y]\œÊNÃBƒBˆ\İÚUY]š\ˆ\İH™]È\İÚUY]š\Š
-NÃBƒBˆ›Ü™XXÚ
-]T›İÈ›İÈ[ˆ”›İÜÊCBˆÃBˆ\İY
-™]ÈÚUY]š\BˆÃBˆPTQUS’TH›İÖÈ“PTQUS’T—OÈ•Ôİš[™Ê
-OÈ•š[J
-KBˆPTÔH›İÖÈ“PTÔ—OÈ•Ôİš[™Ê
-OÈ•š[J
-KBˆÓÓSÓ‘ÈH›İÖÈ”ÓÓSÓ‘È—HOH“[•˜[YHÈˆÛÛ™\•Ò[ÌŠ›İÖÈ”ÓÓSÓ‘È—JKBˆÓ‘ÒPS’TH›İÖÈ‘Ó‘ÒPS’T—HOH“[•˜[YHÈˆÛÛ™\•ÑXÚ[X[
-›İÖÈ‘Ó‘ÒPS’T—JKBˆS’QSˆH›İÖÈ•S’QSˆ—HOH“[•˜[YHÈˆÛÛ™\•ÑXÚ[X[
-›İÖÈ•S’QSˆ—JCBˆJNÃBˆCBƒBˆ™]\›ˆ\İÃBˆCBˆØ]Ú
-^Ù\[Ûˆ^
-CBˆÃBˆ›İÈ™]È^Ù\[ÛŠ“8nåÚH8n©^HÚHxn¯İxn¯İHš8n«\ˆˆ
-È^“Y\ÜØYÙJNÃBˆCBˆCBƒBˆX›XÈ›ÛÛ[œÙ\
-Y]Sš\ÚÈšÊCBˆÃBˆCBˆÃBˆYˆ
-šÈOH[
-CBˆ™]\›ˆ˜[ÙNÃBƒBˆYˆ
-ÚY[U˜UÛ•ZJšË“PTQUS’T
-JCBˆ™]\›ˆ˜[ÙNÃBƒBˆXÚ[X[Û™ÕY[’[™ÈHÃBƒBˆYˆ
-šË›\İœÛÛ—ØÚ]Y]š\OH[	‰ˆšË›\İœÛÛ—ØÚ]Y]š\Ûİ[ˆ
-CBˆÃBˆ›Ü™XXÚ
-˜\ˆİ[ˆšË›\İœÛÛ—ØÚ]Y]š\
-CBˆÃBˆİ•S’QSˆHİ”ÓÓSÓ‘È
-ˆİ‘Ó‘ÒPS’TÃBˆÛ™ÕY[’[™È
-ÏHİ•S’QSÃBˆCBˆCBƒBˆİš[™ÈÜ[HˆS”ÑT•S•ÈQUS’TÒÈ
-PTQUS’TPSĞËPS•‹‘ĞVST
-CBˆSQTÈ
-PTQUS’TPSĞËPS•‹‘ĞVST
-HÃBƒBˆËÈ8nëH0ïHÚ^xnàÛˆ1$xnåZH]SÛ›HØ[™È]U[YH[ˆğèˆÚÈÔSÙ\™\ƒBˆØš™Xİ™Ø^S\˜[YHHšË“‘ĞVST•Ñ]U[YJ[YSÛ›K“Z[•˜[YJNÃBƒBˆÜ[\˜[Y]\–×H\˜[Y]\œÈCBˆÃBˆ™]ÈÜ[\˜[Y]\ŠPTQUS’T‹
-Øš™XİÊ\šË“PTQUS’TË•š[J
-HÏÈ“[•˜[YJKBˆ™]ÈÜ[\˜[Y]\ŠPSĞÈ‹
-Øš™XİÊ\šË“PSĞÈÏÈ“[•˜[YJKBˆ™]ÈÜ[\˜[Y]\ŠPS•ˆ‹
-Øš™XİÊ\šË“PS•ˆÏÈ“[•˜[YJKBˆ™]ÈÜ[\˜[Y]\Š‘ĞVST‹™Ø^S\˜[YJCBˆNÃBƒBˆ™]\›ˆÛÛ›™Xİ‘^Xİ]R[•˜[œØXİ[ÛŠ
-ÛÛ›™Xİ[Û‹˜[œØXİ[ÛŠHOƒBˆÃBˆ[›İÜÈH^Xİ]S›Û”]Y\JÛÛ›™Xİ[Û‹˜[œØXİ[Û‹Ü[\˜[Y]\œÊNÃBˆYˆ
-›İÜÈOH
-H™]\›ˆ˜[ÙNÃBƒBˆ›Ü™XXÚ
-˜\ˆİ[ˆšË›\İœÛÛ—ØÚ]Y]š\ÏÈ™]È\İÚUY]š\Š
-JCBˆÃBˆÛÛœİİš[™ÈÜ[ÕH’S”ÑT•S•ÈÒUQU’T
-PTQUS’TPTÔÓÓSÓ‘ËÓ‘ÒPS’TS’QSŠCBˆSQTÈ
-PTQUS’TPTÔÓÓSÓ‘ËÓ‘ÒPS’TS’QSŠHÃBˆÜ[\˜[Y]\–×H\˜[Y]\œĞÕCBˆÃBˆ™]ÈÜ[\˜[Y]\ŠPTQUS’T‹šË“PTQUS’T
-KBˆ™]ÈÜ[\˜[Y]\ŠPTÔ‹İ“PTÔ
-KBˆ™]ÈÜ[\˜[Y]\ŠÓÓSÓ‘È‹İ”ÓÓSÓ‘ÊKBˆ™]ÈÜ[\˜[Y]\ŠÓ‘ÒPS’T‹İ‘Ó‘ÒPS’T
-KBˆ™]ÈÜ[\˜[Y]\ŠS’QSˆ‹İ•S’QSŠCBˆNÃBˆ^Xİ]S›Û”]Y\JÛÛ›™Xİ[Û‹˜[œØXİ[Û‹Ü[Õ\˜[Y]\œĞÕ
-NÃBˆCBˆ™]\›ˆYNÃBˆJNÃBˆCBˆØ]Ú
-^Ù\[Ûˆ^
-CBˆÃBˆ›İÈ™]È^Ù\[ÛŠ“8nåÚH0ê›Hxn¯İHš8n«\ˆˆ
-È^“Y\ÜØYÙJNÃBˆCBˆCBƒBˆX›XÈ›ÛÛ\]JY]Sš\ÚÈšÊCBˆÃBˆCBˆÃBˆYˆ
-šÈOH[
-CBˆ™]\›ˆ˜[ÙNÃBƒBˆYˆ
-RÚY[U˜UÛ•ZJšË“PTQUS’T
-JCBˆ™]\›ˆ˜[ÙNÃBƒBƒBˆXÚ[X[Û™ÕY[’[™ÈHÃBƒBˆYˆ
-šË›\İœÛÛ—ØÚ]Y]š\OH[	‰ˆšË›\İœÛÛ—ØÚ]Y]š\Ûİ[ˆ
-CBˆÃBˆ›Ü™XXÚ
-˜\ˆİ[ˆšË›\İœÛÛ—ØÚ]Y]š\
-CBˆÃBˆİ•S’QSˆHİ”ÓÓSÓ‘È
-˜İ‘Ó‘ÒPS’TÃBƒBˆÛ™ÕY[’[™È
-ÏHİ•S’QSÃBˆCBˆCBƒBˆXÚ[X[Û™ÔØ]U[šHÛ™ÕY[’[™ÎÃBƒBˆYˆ
-Û™ÔØ]U[š
-]Û™ÔØ]U[šHÃBƒBƒBˆİš[™ÈÜ[HˆTUHQUS’TÒÃBˆÑUBˆPSĞÈHPSĞËBˆPS•ˆHPS•‹Bˆ‘ĞVSTH‘ĞVSTBˆÒT‘HPTQUS’THPTQUS’TÃBƒBˆÜ[\˜[Y]\–×H\˜[Y]\œÈCBˆÃBˆ™]ÈÜ[\˜[Y]\ŠPSĞÈ‹
-Øš™XİÊ\šË“PSĞÈÏÈ“[•˜[YJKBˆ™]ÈÜ[\˜[Y]\ŠPS•ˆ‹
-Øš™XİÊ\šË“PS•ˆÏÈ“[•˜[YJKBˆ™]ÈÜ[\˜[Y]\Š‘ĞVST‹šË“‘ĞVST
-KBˆ™]ÈÜ[\˜[Y]\ŠPTQUS’T‹
-Øš™XİÊ\šË“PTQUS’TË•š[J
-HÏÈ“[•˜[YJCBˆNÃBƒBˆ™]\›ˆÛÛ›™Xİ‘^Xİ]R[•˜[œØXİ[ÛŠ
-ÛÛ›™Xİ[Û‹˜[œØXİ[ÛŠHOƒBˆÃBˆ[›İÜÈH^Xİ]S›Û”]Y\JÛÛ›™Xİ[Û‹˜[œØXİ[Û‹Ü[\˜[Y]\œÊNÃBˆYˆ
-›İÜÈOH
-H™]\›ˆ˜[ÙNÃBƒBˆ^Xİ]S›Û”]Y\JÛÛ›™Xİ[Û‹˜[œØXİ[Û‹Bˆ‘SUH”“ÓHÒUQU’TÒT‘HPTQUS’THPTQUS’T‹Bˆ™]ÈÜ[\˜[Y]\ŠPTQUS’T‹šË“PTQUS’T
-JNÃBƒBˆ›Ü™XXÚ
-˜\ˆİ[ˆšË›\İœÛÛ—ØÚ]Y]š\ÏÈ™]È\İÚUY]š\Š
-JCBˆÃBˆÛÛœİİš[™ÈÜ[ÕH’S”ÑT•S•ÈÒUQU’T
-PTQUS’TPTÔÓÓSÓ‘ËÓ‘ÒPS’TS’QSŠCBˆSQTÈ
-PTQUS’TPTÔÓÓSÓ‘ËÓ‘ÒPS’TS’QSŠHÃBˆÜ[\˜[Y]\–×H\˜[Y]\œĞÕCBˆÃBˆ™]ÈÜ[\˜[Y]\ŠPTQUS’T‹šË“PTQUS’T
-KBˆ™]ÈÜ[\˜[Y]\ŠPTÔ‹İ“PTÔ
-KBˆ™]ÈÜ[\˜[Y]\ŠÓÓSÓ‘È‹İ”ÓÓSÓ‘ÊKBˆ™]ÈÜ[\˜[Y]\ŠÓ‘ÒPS’T‹İ‘Ó‘ÒPS’T
-KBˆ™]ÈÜ[\˜[Y]\ŠS’QSˆ‹İ•S’QSŠCBˆNÃBˆ^Xİ]S›Û”]Y\JÛÛ›™Xİ[Û‹˜[œØXİ[Û‹Ü[Õ\˜[Y]\œĞÕ
-NÃBˆCBˆ™]\›ˆYNÃBˆJNÃBˆCBˆØ]Ú
-^Ù\[Ûˆ^
-CBˆÃBˆ›İÈ™]È^Ù\[ÛŠ“8nåÚHøn«\š8n«]xn¯İHš8n«\ˆŠÈ^“Y\ÜØYÙJNÃBˆCBˆCBƒBˆX›XÈ›ÛÛ[]Jİš[™ÈXTŠCBˆÃBˆCBˆÃBˆYˆ
-İš[™Ë’\Ó[Ü•Ú]TÜXÙJXTŠJCBˆ™]\›ˆ˜[ÙNÃBˆXTˆHXT‹•š[J
-NÃBƒBˆYˆ
-RÚY[U˜UÛ•ZJXTŠJCBˆ™]\›ˆ˜[ÙNÃBƒBˆ™]\›ˆÛÛ›™Xİ‘^Xİ]R[•˜[œØXİ[ÛŠ
-ÛÛ›™Xİ[Û‹˜[œØXİ[ÛŠHOƒBˆÃBˆ^Xİ]S›Û”]Y\JÛÛ›™Xİ[Û‹˜[œØXİ[Û‹Bˆ‘SUH”“ÓHÒUQU’TÒT‘HPTQUS’THPTQUS’T‹Bˆ™]ÈÜ[\˜[Y]\ŠPTQUS’T‹XTŠJNÃBˆ[›İÜÈH^Xİ]S›Û”]Y\JÛÛ›™Xİ[Û‹˜[œØXİ[Û‹Bˆ‘SUH”“ÓHQUS’TÒÈÒT‘HPTQUS’THPTQUS’T‹Bˆ™]ÈÜ[\˜[Y]\ŠPTQUS’T‹XTŠJNÃBˆ™]\›ˆ›İÜÈˆÃBˆJNÃBˆCBˆØ]Ú
-^Ù\[Ûˆ^
-CBˆÃBˆ›İÈ™]È^Ù\[ÛŠ“8nåÚHğèHxn¯İHš8n«\ˆˆ
-È^“Y\ÜØYÙJNÃBˆCBˆCBƒBƒBƒBˆX›XÈ›ÛÛÚY[U˜SšPİ[™ĞØ\Û•ZJİš[™ÈX[˜ØÊCBˆÃBˆCBˆÃBˆİš[™ÈÜ[H”ÑSPÕÓÕS•
+                return false;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(  "Lá»—i kiá»ƒm tra tá»“n táº¡i phiáº¿u nháº­p: "  + ex.Message);
+            }
+        }
 
-ŠCBˆ”“ÓH’PÕS‘ĞĞTBˆÒT‘HPSĞÈHPSĞÈÃBƒBˆÜ[\˜[Y]\–×H\˜[Y]\œÈCBˆÈ™]ÈÜ[\˜[Y]\ŠPSĞÈ‹X[˜ØË•š[J
-JHNÃBƒBˆ]UX›HHÛÛ›™Xİ‘^Xİ]T]Y\JÜ[\˜[Y]\œÊNÃBƒBˆ™]\›ˆ”›İÜËÛİ[ˆ	‰ˆÛÛ™\•Ò[ÌŠ”›İÜÖÌVÌJHˆÃBˆCBˆØ]Ú
-^Ù\[Ûˆ^
-CBˆÃBˆ›İÈ™]È^Ù\[ÛŠ“8nåÚHÚxnàÛH˜Hš0èİ[™Èøn©\ˆˆ
-È^“Y\ÜØYÙJNÃBˆCBˆCBƒBƒBƒBˆX›XÈ›ÛÛÚY[U˜Sš[•šY[•Û•ZJİš[™ÈX[ŠCBˆÃBˆCBˆÃBˆİš[™ÈÜ[HˆÑSPÕÓÕS•
 
-ŠCBˆ”“ÓH’S•’QSƒBˆÒT‘HPS•ˆHPS•ˆÃBˆÜ[\˜[Y]\–×H\˜[Y]\œÈHÈ™]ÈÜ[\˜[Y]\ŠPS•ˆ‹X[‹•š[J
-JHNÃBˆ]UX›HHÛÛ›™Xİ‘^Xİ]T]Y\JÜ[\˜[Y]\œÊNÃBˆ™]\›ˆ”›İÜËÛİ[ˆ	‰ˆÛÛ™\•Ò[ÌŠ”›İÜÖÌVÌJHˆÃBˆCBˆØ]Ú
-^Ù\[Ûˆ^
-CBˆÃBˆ›İÈ™]È^Ù\[ÛŠ“8nåÚHÚxnàÛH˜Hš0è›ˆšpê›ˆˆ
-È^“Y\ÜØYÙJNÃBˆCBˆCBƒBƒBˆX›XÈ›ÛÛÚY[U˜TØ[”[UÛ•ZJİš[™ÈX\Ü
-CBˆÃBˆCBˆÃBˆİš[™ÈÜ[HˆÑSPÕÓÕS•
 
-ŠCBˆ”“ÓHĞS”SCBˆÒT‘HPTÔHPTÔÃBƒBˆÜ[\˜[Y]\–×H\˜[Y]\œÈHÈ™]ÈÜ[\˜[Y]\ŠPTÔ‹X\Ü•š[J
-JHNÃBˆ]UX›HHÛÛ›™Xİ‘^Xİ]T]Y\JÜ[\˜[Y]\œÊNÃBˆ™]\›ˆ”›İÜËÛİ[ˆ	‰ˆÛÛ™\•Ò[ÌŠ”›İÜÖÌVÌJHˆÃBˆCBˆØ]Ú
-^Ù\[Ûˆ^
-CBˆÃBˆ›İÈ™]È^Ù\[ÛŠ“8nåÚHÚxnàÛH˜Høn¨Ûˆ8nª[Nˆˆ
-È^“Y\ÜØYÙJNÃBˆCBˆCBƒBˆš]˜]Hİ]XÈ[^Xİ]S›Û”]Y\JÜ[ÛÛ›™Xİ[ÛˆÛÛ›™Xİ[Û‹Ü[˜[œØXİ[Ûˆ˜[œØXİ[Û‹İš[™ÈÜ[\˜[\ÈÜ[\˜[Y]\–×H\˜[Y]\œÊCBˆÃBˆ\Ú[™ÈÜ[ÛÛ[X[™ÛÛ[X[™H™]ÈÜ[ÛÛ[X[™
-Ü[ÛÛ›™Xİ[Û‹˜[œØXİ[ÛŠNÃBˆÛÛ[X[™”\˜[Y]\œËY˜[™ÙJ\˜[Y]\œÊNÃBˆ™]\›ˆÛÛ[X[™‘^Xİ]S›Û”]Y\J
-NÃBˆCBˆCBŸCB
+        public List<PhieuNhapKho> GetAll()
+        {
+            try
+            {
+                string sql = @" SELECT  MAPHIEUNHAP,    MANCC,     MANV,
+                        NGAYLAP
+                    FROM PHIEUNHAPKHO";
+
+                DataTable dt = Connect.ExecuteQuery(sql);
+                List<PhieuNhapKho> list =   new List<PhieuNhapKho>();
+                foreach (DataRow row in dt.Rows)
+                {
+                    string maPN = row["MAPHIEUNHAP"]? .ToString()? .Trim() ?? "";
+
+                    list.Add(new PhieuNhapKho
+                    {
+                        MAPHIEUNHAP = maPN,
+                        MANCC =   row["MANCC"]? .ToString()? .Trim(),
+                        MANV =  row["MANV"]? .ToString()? .Trim(),
+                        NGAYLAP = row["NGAYLAP"] == DBNull.Value  ? DateOnly.MinValue
+                        : DateOnly.FromDateTime(Convert.ToDateTime(   row["NGAYLAP"])),
+                        listjson_chitietnhap =  GetChiTietByMa(maPN)
+                    });
+                }
+
+                return list;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Lá»—i láº¥y danh sÃ¡ch phiáº¿u nháº­p: "   + ex.Message);
+            }
+        }
+
+        public List<PhieuNhapKho> GetByID(string maPN)
+        {
+            try
+            {
+                string sql = @" SELECT  MAPHIEUNHAP, MANCC,     MANV,       NGAYLAP
+                    FROM PHIEUNHAPKHO
+                    WHERE MAPHIEUNHAP = @MAPHIEUNHAP";
+
+                SqlParameter[] parameters =
+                {
+                    new SqlParameter(   "@MAPHIEUNHAP",   (object?)maPN?.Trim() ?? DBNull.Value)
+                };
+
+                DataTable dt = Connect.ExecuteQuery(  sql,  parameters);
+                List<PhieuNhapKho> list =   new List<PhieuNhapKho>();
+                foreach (DataRow row in dt.Rows)
+                {
+                    string ma =  row["MAPHIEUNHAP"]?   .ToString()?  .Trim() ?? "";
+
+                    list.Add(new PhieuNhapKho
+                    {
+                        MAPHIEUNHAP = ma,
+
+                        MANCC = row["MANCC"]?  .ToString()?.Trim(),
+
+                        MANV =  row["MANV"]?   .ToString()? .Trim(),
+
+                        NGAYLAP = row["NGAYLAP"] == DBNull.Value ? DateOnly.MinValue : DateOnly.FromDateTime(Convert.ToDateTime( row["NGAYLAP"])),
+
+                        listjson_chitietnhap =   GetChiTietByMa(ma)
+                    });
+                }
+
+                return list;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception( "Lá»—i láº¥y phiáº¿u nháº­p theo mÃ£: "   + ex.Message);
+            }
+        }
+
+
+        private List<ChiTietNhap> GetChiTietByMa( string maPN)
+        {
+            try
+            {
+                string sql = @" SELECT   MAPHIEUNHAP, MASP,  SOLUONG,    DONGIANHAP,  THANHTIEN
+                    FROM CHITIETNHAP
+                    WHERE MAPHIEUNHAP = @MAPHIEUNHAP";
+
+                SqlParameter[] parameters =
+                {
+                    new SqlParameter(  "@MAPHIEUNHAP",   (object?)maPN?.Trim() ?? DBNull.Value)
+                };
+
+                DataTable dt = Connect.ExecuteQuery(  sql,  parameters);
+
+                List<ChiTietNhap> list =  new List<ChiTietNhap>();
+
+                foreach (DataRow row in dt.Rows)
+                {
+                    list.Add(new ChiTietNhap
+                    {
+                        MAPHIEUNHAP =   row["MAPHIEUNHAP"]?  .ToString()?  .Trim(),
+                        MASP =  row["MASP"]? .ToString()?  .Trim(),
+                        SOLUONG =  row["SOLUONG"] == DBNull.Value   ? 0  : Convert.ToInt32(  row["SOLUONG"]),
+                        DONGIANHAP =  row["DONGIANHAP"] == DBNull.Value   ? 0   : Convert.ToDecimal(  row["DONGIANHAP"]),
+                        THANHTIEN =   row["THANHTIEN"] == DBNull.Value      ? 0    : Convert.ToDecimal(   row["THANHTIEN"])
+                    });
+                }
+
+                return list;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Lá»—i láº¥y chi tiáº¿t phiáº¿u nháº­p: " + ex.Message);
+            }
+        }
+
+        public bool Insert(PhieuNhapKho pnk)
+        {
+            try
+            {
+                if (pnk == null)
+                    return false;
+
+                if (KiemTraTonTai(pnk.MAPHIEUNHAP))
+                    return false;
+
+                decimal tongTienHang = 0;
+
+                if (pnk.listjson_chitietnhap != null && pnk.listjson_chitietnhap.Count > 0)
+                {
+                    foreach (var ct in pnk.listjson_chitietnhap)
+                    {
+                        ct.THANHTIEN = ct.SOLUONG * ct.DONGIANHAP;
+                        tongTienHang += ct.THANHTIEN;
+                    }
+                }
+
+                string sql = @" INSERT INTO PHIEUNHAPKHO (MAPHIEUNHAP, MANCC, MANV, NGAYLAP)
+                VALUES (@MAPHIEUNHAP, @MANCC, @MANV, @NGAYLAP)";
+
+                // Xá»­ lÃ½ chuyá»ƒn Ä‘á»•i DateOnly sang DateTime an toÃ n cho SQL Server
+                object ngayLapValue = pnk.NGAYLAP.ToDateTime(TimeOnly.MinValue);
+
+                SqlParameter[] parameters =
+                {
+                    new SqlParameter("@MAPHIEUNHAP", (object?)pnk.MAPHIEUNHAP?.Trim() ?? DBNull.Value),
+                    new SqlParameter("@MANCC", (object?)pnk.MANCC ?? DBNull.Value),
+                    new SqlParameter("@MANV", (object?)pnk.MANV ?? DBNull.Value),
+                    new SqlParameter("@NGAYLAP", ngayLapValue)
+                };
+
+                return Connect.ExecuteInTransaction((connection, transaction) =>
+                {
+                    int rows = ExecuteNonQuery(connection, transaction, sql, parameters);
+                    if (rows == 0) return false;
+
+                    foreach (var ct in pnk.listjson_chitietnhap ?? new List<ChiTietNhap>())
+                    {
+                        const string sqlCT = @"INSERT INTO CHITIETNHAP (MAPHIEUNHAP, MASP, SOLUONG, DONGIANHAP, THANHTIEN)
+                                               VALUES (@MAPHIEUNHAP, @MASP, @SOLUONG, @DONGIANHAP, @THANHTIEN)";
+                        SqlParameter[] parametersCT =
+                        {
+                            new SqlParameter("@MAPHIEUNHAP", pnk.MAPHIEUNHAP),
+                            new SqlParameter("@MASP", ct.MASP),
+                            new SqlParameter("@SOLUONG", ct.SOLUONG),
+                            new SqlParameter("@DONGIANHAP", ct.DONGIANHAP),
+                            new SqlParameter("@THANHTIEN", ct.THANHTIEN)
+                        };
+                        ExecuteNonQuery(connection, transaction, sqlCT, parametersCT);
+                    }
+                    return true;
+                });
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Lá»—i thÃªm phiáº¿u nháº­p: " + ex.Message);
+            }
+        }
+
+        public bool Update(PhieuNhapKho pnk)
+        {
+            try
+            {
+                if (pnk == null)
+                    return false;
+
+                if (!KiemTraTonTai(pnk.MAPHIEUNHAP))
+                    return false;
+
+
+                decimal tongTienHang = 0;
+
+                if (pnk.listjson_chitietnhap != null && pnk.listjson_chitietnhap.Count > 0)
+                {
+                    foreach ( var ct in pnk.listjson_chitietnhap)
+                    {
+                        ct.THANHTIEN  = ct.SOLUONG *ct.DONGIANHAP;
+
+                        tongTienHang += ct.THANHTIEN;
+                    }
+                }
+
+                decimal tongSauTinh = tongTienHang;
+
+                if (tongSauTinh < 0)tongSauTinh = 0;
+
+
+                string sql = @" UPDATE PHIEUNHAPKHO
+                    SET
+                        MANCC = @MANCC,
+                        MANV = @MANV,
+                        NGAYLAP = @NGAYLAP
+                    WHERE MAPHIEUNHAP = @MAPHIEUNHAP";
+
+                SqlParameter[] parameters =
+                {
+                    new SqlParameter( "@MANCC",(object?)pnk.MANCC ?? DBNull.Value),
+                    new SqlParameter( "@MANV",(object?)pnk.MANV ?? DBNull.Value),
+                    new SqlParameter( "@NGAYLAP",  pnk.NGAYLAP),
+                    new SqlParameter( "@MAPHIEUNHAP", (object?)pnk.MAPHIEUNHAP?.Trim()    ?? DBNull.Value)
+                };
+
+                return Connect.ExecuteInTransaction((connection, transaction) =>
+                {
+                    int rows = ExecuteNonQuery(connection, transaction, sql, parameters);
+                    if (rows == 0) return false;
+
+                    ExecuteNonQuery(connection, transaction,
+                        "DELETE FROM CHITIETNHAP WHERE MAPHIEUNHAP = @MAPHIEUNHAP",
+                        new SqlParameter("@MAPHIEUNHAP", pnk.MAPHIEUNHAP));
+
+                    foreach (var ct in pnk.listjson_chitietnhap ?? new List<ChiTietNhap>())
+                    {
+                        const string sqlCT = @"INSERT INTO CHITIETNHAP (MAPHIEUNHAP, MASP, SOLUONG, DONGIANHAP, THANHTIEN)
+                                               VALUES (@MAPHIEUNHAP, @MASP, @SOLUONG, @DONGIANHAP, @THANHTIEN)";
+                        SqlParameter[] parametersCT =
+                        {
+                            new SqlParameter("@MAPHIEUNHAP", pnk.MAPHIEUNHAP),
+                            new SqlParameter("@MASP", ct.MASP),
+                            new SqlParameter("@SOLUONG", ct.SOLUONG),
+                            new SqlParameter("@DONGIANHAP", ct.DONGIANHAP),
+                            new SqlParameter("@THANHTIEN", ct.THANHTIEN)
+                        };
+                        ExecuteNonQuery(connection, transaction, sqlCT, parametersCT);
+                    }
+                    return true;
+                });
+            }
+            catch (Exception ex)
+            {
+                throw new Exception( "Lá»—i cáº­p nháº­t phiáº¿u nháº­p: "+ ex.Message);
+            }
+        }
+
+        public bool Delete(string maPN)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(maPN))
+                    return false;
+                maPN = maPN.Trim();
+
+                if (!KiemTraTonTai(maPN))
+                    return false;
+
+                return Connect.ExecuteInTransaction((connection, transaction) =>
+                {
+                    ExecuteNonQuery(connection, transaction,
+                        "DELETE FROM CHITIETNHAP WHERE MAPHIEUNHAP = @MAPHIEUNHAP",
+                        new SqlParameter("@MAPHIEUNHAP", maPN));
+                    int rows = ExecuteNonQuery(connection, transaction,
+                        "DELETE FROM PHIEUNHAPKHO WHERE MAPHIEUNHAP = @MAPHIEUNHAP",
+                        new SqlParameter("@MAPHIEUNHAP", maPN));
+                    return rows > 0;
+                });
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(  "Lá»—i xoÃ¡ phiáº¿u nháº­p: "  + ex.Message);
+            }
+        }
+
+
+
+        public bool KiemTraNhaCungCapTonTai(string mancc)
+        {
+            try
+            {
+                string sql = @"SELECT COUNT(*)
+                FROM NHACUNGCAP
+                WHERE MANCC = @MANCC";
+
+                SqlParameter[] parameters =
+                { new SqlParameter("@MANCC", mancc.Trim()) };
+
+                DataTable dt = Connect.ExecuteQuery(sql, parameters);
+
+                return dt.Rows.Count > 0 &&   Convert.ToInt32(dt.Rows[0][0]) > 0;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(  "Lá»—i kiá»ƒm tra nhÃ  cung cáº¥p: " + ex.Message);
+            }
+        }
+
+
+
+        public bool KiemTraNhanVienTonTai(string manv)
+        {
+            try
+            {
+                string sql = @" SELECT COUNT(*)
+                FROM NHANVIEN
+                WHERE MANV = @MANV";
+                SqlParameter[] parameters =  {    new SqlParameter("@MANV", manv.Trim())  };
+                DataTable dt = Connect.ExecuteQuery(sql, parameters);
+                return dt.Rows.Count > 0 &&   Convert.ToInt32(dt.Rows[0][0]) > 0;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Lá»—i kiá»ƒm tra nhÃ¢n viÃªn: " + ex.Message);
+            }
+        }
+
+
+        public bool KiemTraSanPhamTonTai(string masp)
+        {
+            try
+            {
+                string sql = @"  SELECT COUNT(*)
+                    FROM SANPHAM
+                    WHERE MASP = @MASP";
+
+                SqlParameter[] parameters = {     new SqlParameter("@MASP", masp.Trim())   };
+                DataTable dt = Connect.ExecuteQuery(sql, parameters);
+                return dt.Rows.Count > 0 &&   Convert.ToInt32(dt.Rows[0][0]) > 0;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception( "Lá»—i kiá»ƒm tra sáº£n pháº©m: " + ex.Message);
+            }
+        }
+
+        private static int ExecuteNonQuery(SqlConnection connection, SqlTransaction transaction, string sql, params SqlParameter[] parameters)
+        {
+            using SqlCommand command = new SqlCommand(sql, connection, transaction);
+            command.Parameters.AddRange(parameters);
+            return command.ExecuteNonQuery();
+        }
+    }
+}

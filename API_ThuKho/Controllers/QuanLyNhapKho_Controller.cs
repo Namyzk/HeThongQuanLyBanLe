@@ -260,7 +260,43 @@ namespace API_ThuKho.Controllers
 
                 return StatusCode(201, new { success = true, message = "Thêm chi tiết nhập thành công." });
             }
-            catch �N-�G����ƭy�rr);
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { success = false, message = "Lỗi hệ thống." });
+            }
+        }
+
+        [Route("update-chitietnhap")]
+        [HttpPost]
+        public IActionResult Update([FromBody] ChiTietNhap ct)
+        {
+            if (ct == null)
+                return BadRequest(new { success = false, message = "Dữ liệu chi tiết nhập không được để trống." });
+
+            try
+            {
+                string? bllErr = _ctnBll.CapNhat(ct);
+                if (bllErr != null) return HandleBllError(bllErr);
+
+                return Ok(new { success = true, message = "Cập nhật chi tiết nhập thành công." });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { success = false, message = "Lỗi hệ thống nội bộ." });
+            }
+        }
+
+        [Route("delete-chitietnhap")]
+        [HttpDelete]
+        public IActionResult Delete([FromQuery] string? maphieunhap, [FromQuery] string? masp)
+        {
+            if (ValidateMa(maphieunhap, "Mã phiếu nhập", 15, out string cleanPhieu) is IActionResult valErr1) return valErr1;
+            if (ValidateMa(masp, "Mã sản phẩm", 15, out string cleanSp) is IActionResult valErr2) return valErr2;
+
+            try
+            {
+                string? bllErr = _ctnBll.Xoa(cleanPhieu, cleanSp);
+                if (bllErr != null) return HandleBllError(bllErr);
 
                 return Ok(new { success = true, message = "Xoá chi tiết nhập thành công." });
             }
