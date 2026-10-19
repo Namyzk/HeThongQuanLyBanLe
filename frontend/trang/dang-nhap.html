@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="vi" ng-app="qlblApp">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Trang đăng nhập Hệ thống Quản lý Bán lẻ & POS" />
+  <title>Đăng nhập - Hệ thống Quản lý Bán lẻ</title>
+
+  <!-- Favicon -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%234f46e5'><path d='M2.97 1.35A1 1 0 0 1 3.73 1h8.54a1 1 0 0 1 .76.35l2.609 3.044A1.5 1.5 0 0 1 16 5.37v.255a2.375 2.375 0 0 1-4.25 1.458A2.371 2.371 0 0 1 9.875 8 2.37 2.37 0 0 1 8 7.083 2.37 2.37 0 0 1 6.125 8a2.37 2.37 0 0 1-1.875-.917A2.375 2.375 0 0 1 0 5.625V5.37a1.5 1.5 0 0 1 .361-.976l2.61-3.045zm1.78 4.275a1.375 1.375 0 0 0 2.75 0 .5.5 0 0 1 1 0 1.375 1.375 0 0 0 2.75 0 .5.5 0 0 1 1 0 1.375 1.375 0 1 0 2.75 0V5.37a.5.5 0 0 0-.12-.325L12.27 2H3.73L1.12 5.045A.5.5 0 0 0 1 5.37v.255a1.375 1.375 0 0 0 2.75 0 .5.5 0 0 1 1 0zM1.5 8.5A.5.5 0 0 1 2 9v6h12V9a.5.5 0 0 1 1 0v6h.5a.5.5 0 0 1 0 1H.5a.5.5 0 0 1 0-1H1V9a.5.5 0 0 1 .5-.5zM4 15h8v-4.5a.5.5 0 0 0-.5-.5h-7a.5.5 0 0 0-.5.5V15z'/></svg>" />
+
+  <!-- Google Fonts: Montserrat & Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Bootstrap Icons -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="../css/chung.css" />
+  <link rel="stylesheet" href="../css/trang/dang-nhap.css" />
+</head>
+<body class="trang-dang-nhap-body" ng-controller="DangNhapController as vm">
+
+  <!-- Các quả cầu ánh sáng trang trí nền -->
+  <div class="nen-trang-tri" aria-hidden="true">
+    <div class="qua-cau-sang qua-cau-1"></div>
+    <div class="qua-cau-sang qua-cau-2"></div>
+  </div>
+
+  <main class="container" id="container" ng-class="{'active': vm.xemPhanQuyen}" role="main">
+
+    <!-- Panel 1: Form Đăng Nhập (Sign In) -->
+    <section class="form-container sign-in" aria-labelledby="tieu-de-dang-nhap">
+      <form ng-submit="vm.xuLyDangNhap()" novalidate>
+        <div class="logo-dang-nhap" aria-hidden="true">
+          <i class="bi bi-shop"></i>
+        </div>
+        <h1 id="tieu-de-dang-nhap">Đăng Nhập</h1>
+        <p class="phu-de-form">Hệ thống Quản lý Bán lẻ & POS Bán hàng</p>
+
+        <div class="o-nhap-group">
+          <div class="o-nhap-hop">
+            <i class="bi bi-person bieu-tuong-input" aria-hidden="true"></i>
+            <input
+              type="text"
+              id="dn-username"
+              name="username"
+              placeholder="Tên đăng nhập"
+              autocomplete="username"
+              ng-model="vm.username"
+              required
+            />
+          </div>
+
+          <div class="o-nhap-hop">
+            <i class="bi bi-lock bieu-tuong-input" aria-hidden="true"></i>
+            <input
+              type="{{ vm.hienMatKhau ? 'text' : 'password' }}"
+              id="dn-pass"
+              name="pass"
+              placeholder="Mật khẩu"
+              autocomplete="current-password"
+              ng-model="vm.pass"
+              required
+            />
+            <button
+              type="button"
+              class="nut-hien-mk"
+              ng-click="vm.toggleMatKhau()"
+              aria-label="Hiện hoặc ẩn mật khẩu"
+              title="Hiện hoặc ẩn mật khẩu"
+            >
+              <i class="bi" ng-class="vm.hienMatKhau ? 'bi-eye-slash' : 'bi-eye'" aria-hidden="true"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Vùng thông báo lỗi -->
+        <div class="dang-nhap-loi" role="alert" aria-live="polite" ng-show="vm.thongBaoLoi">
+          <i class="bi bi-exclamation-circle-fill" aria-hidden="true"></i>
+          <span>{{ vm.thongBaoLoi }}</span>
+        </div>
+
+        <button type="submit" id="nut-dang-nhap" class="nut-chinh-submit" ng-disabled="vm.dangXuLy">
+          <span class="quay-vong quay-vong-nho" ng-show="vm.dangXuLy"></span>
+          <i class="bi bi-box-arrow-in-right" ng-hide="vm.dangXuLy" aria-hidden="true"></i>
+          <span>{{ vm.dangXuLy ? 'Đang xác thực...' : 'Đăng Nhập Hệ Thống' }}</span>
+        </button>
+
+        <div class="lien-ket-phu">
+          <a href="#" ng-click="vm.moPhanQuyen(); $event.preventDefault();">
+            <i class="bi bi-question-circle"></i> Chưa có tài khoản hoặc quên mật khẩu?
+          </a>
+        </div>
+      </form>
+    </section>
+
+    <!-- Panel 2: Thông tin Phân quyền & Hỗ trợ (Sign Up / Info) -->
+    <section class="form-container sign-up" aria-labelledby="tieu-de-phan-quyen">
+      <div class="thong-tin-noi-dung">
+        <header class="thong-tin-header">
+          <div class="badge-icon-header" aria-hidden="true">
+            <i class="bi bi-shield-check"></i>
+          </div>
+          <h1 id="tieu-de-phan-quyen">Phân Quyền Vai Trò</h1>
+          <p class="phu-de-form">Hệ thống phân quyền làm việc theo 4 nhóm chuyên trách</p>
+        </header>
+
+        <div class="danh-sach-vai-tro">
+          <article class="the-vai-tro vai-tro-admin">
+            <div class="icon-vt"><i class="bi bi-shield-lock-fill"></i></div>
+            <div class="text-vt">
+              <strong>Quản trị viên (Admin)</strong>
+              <span>Toàn quyền quản trị tài khoản, nhân viên, phân quyền và doanh thu.</span>
+            </div>
+          </article>
+
+          <article class="the-vai-tro vai-tro-thukho">
+            <div class="icon-vt"><i class="bi bi-boxes"></i></div>
+            <div class="text-vt">
+              <strong>Thủ kho (ThuKho)</strong>
+              <span>Quản lý danh mục, sản phẩm, phiếu nhập kho và kiểm kê tồn kho.</span>
+            </div>
+          </article>
+
+          <article class="the-vai-tro vai-tro-thungan">
+            <div class="icon-vt"><i class="bi bi-cash-coin"></i></div>
+            <div class="text-vt">
+              <strong>Thu ngân (ThuNgan)</strong>
+              <span>Giao dịch bán hàng tại quầy POS, xuất hóa đơn, quản lý đổi trả.</span>
+            </div>
+          </article>
+
+          <article class="the-vai-tro vai-tro-ketoan">
+            <div class="icon-vt"><i class="bi bi-graph-up-arrow"></i></div>
+            <div class="text-vt">
+              <strong>Kế toán (KeToan)</strong>
+              <span>Theo dõi công nợ, phiếu thu chi thanh toán và báo cáo thống kê.</span>
+            </div>
+          </article>
+        </div>
+
+        <footer class="lien-ket-phu">
+          <small><i class="bi bi-info-circle"></i> Để cấp tài khoản mới hoặc đặt lại mật khẩu, vui lòng liên hệ Ban Quản Trị IT.</small>
+        </footer>
+      </div>
+    </section>
+
+    <!-- Sliding Curved Overlay Panel -->
+    <aside class="toggle-container" aria-label="Bảng chuyển đổi chức năng">
+      <div class="toggle">
+        <!-- Panel bên trái (hiển thị khi active) -->
+        <div class="toggle-panel toggle-left">
+          <div class="toggle-icon-wrap"><i class="bi bi-person-check-fill"></i></div>
+          <h1>Chào mừng trở lại!</h1>
+          <p>Nhập thông tin tài khoản và mật khẩu của bạn để bắt đầu ca làm việc.</p>
+          <button type="button" class="ghost-btn" ng-click="vm.veDangNhap()">
+            <i class="bi bi-arrow-left-circle"></i> Đăng Nhập Ngay
+          </button>
+        </div>
+
+        <!-- Panel bên phải (hiển thị mặc định) -->
+        <div class="toggle-panel toggle-right">
+          <div class="toggle-icon-wrap"><i class="bi bi-stars"></i></div>
+          <h1>Quản Lý Bán Lẻ</h1>
+          <p>Giải pháp quản trị bán hàng, tồn kho và tài chính toàn diện, bảo mật cao.</p>
+          <button type="button" class="ghost-btn" ng-click="vm.moPhanQuyen()">
+            Xem Phân Quyền <i class="bi bi-arrow-right-circle"></i>
+          </button>
+        </div>
+      </div>
+    </aside>
+
+  </main>
+
+  <!-- Thư viện AngularJS & Script ứng dụng -->
+  <script src="../angular.min.js"></script>
+  <script src="../js/angular-app.js"></script>
+  <script src="../js/trang/dang-nhap.js"></script>
+</body>
+</html>
+

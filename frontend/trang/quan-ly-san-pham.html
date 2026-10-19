@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="vi" ng-app="qlblApp">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Quản lý Sản phẩm - Hệ thống Quản lý Bán lẻ" />
+  <title>Quản lý Sản phẩm - Hệ thống Quản lý Bán lẻ</title>
+
+  <!-- Favicon -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%232563eb'><path d='M2.97 1.35A1 1 0 0 1 3.73 1h8.54a1 1 0 0 1 .76.35l2.609 3.044A1.5 1.5 0 0 1 16 5.37v.255a2.375 2.375 0 0 1-4.25 1.458A2.371 2.371 0 0 1 9.875 8 2.37 2.37 0 0 1 8 7.083 2.37 2.37 0 0 1 6.125 8a2.37 2.37 0 0 1-1.875-.917A2.375 2.375 0 0 1 0 5.625V5.37a1.5 1.5 0 0 1 .361-.976l2.61-3.045zm1.78 4.275a1.375 1.375 0 0 0 2.75 0 .5.5 0 0 1 1 0 1.375 1.375 0 0 0 2.75 0 .5.5 0 0 1 1 0 1.375 1.375 0 1 0 2.75 0V5.37a.5.5 0 0 0-.12-.325L12.27 2H3.73L1.12 5.045A.5.5 0 0 0 1 5.37v.255a1.375 1.375 0 0 0 2.75 0 .5.5 0 0 1 1 0zM1.5 8.5A.5.5 0 0 1 2 9v6h12V9a.5.5 0 0 1 1 0v6h.5a.5.5 0 0 1 0 1H.5a.5.5 0 0 1 0-1H1V9a.5.5 0 0 1 .5-.5zM4 15h8v-4.5a.5.5 0 0 0-.5-.5h-7a.5.5 0 0 0-.5.5V15z'/></svg>" />
+
+  <!-- Bootstrap Icons -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+
+  <!-- Modular CSS -->
+  <link rel="stylesheet" href="../css/chung.css" />
+  <link rel="stylesheet" href="../css/bo-cuc.css" />
+  <link rel="stylesheet" href="../css/thanh-phan.css" />
+  <link rel="stylesheet" href="../css/bieu-mau.css" />
+  <link rel="stylesheet" href="../css/hien-thi-di-dong.css" />
+  <link rel="stylesheet" href="../css/trang/quan-ly-san-pham.css" />
+</head>
+<body ng-controller="SanPhamController as vm">
+
+  <div id="ung-dung">
+    <div id="overlay-sidebar"></div>
+
+    <aside id="sidebar" aria-label="Thanh bên điều hướng">
+      <div class="sidebar-logo">
+        <div class="sidebar-logo-icon" aria-hidden="true">
+          <i class="bi bi-shop"></i>
+        </div>
+        <div class="sidebar-logo-ten">Quản lý Bán lẻ</div>
+        <button id="nut-thu-gon-sidebar" type="button" class="nut nut-vien nut-nho" title="Thu gọn / Mở rộng menu" aria-label="Thu gọn hoặc mở rộng menu">
+          <i class="bi bi-chevron-left" aria-hidden="true"></i>
+        </button>
+      </div>
+      <nav class="sidebar-noi-dung" aria-label="Menu điều hướng chính"></nav>
+      <div class="sidebar-footer"></div>
+    </aside>
+
+    <div id="vung-chinh">
+      <header id="header">
+        <button id="nut-mo-menu" type="button" class="header-btn-menu nut" aria-label="Mở Menu điều hướng">
+          <i class="bi bi-list" aria-hidden="true"></i>
+        </button>
+
+        <div class="header-tieu-de">
+          <h1 id="header-tieu-de-trang">Quản lý Sản phẩm</h1>
+          <div class="duong-dan" id="header-duong-dan">Trang chủ / Quản lý Sản phẩm</div>
+        </div>
+
+        <div class="header-hành-dong">
+          <div id="canh-bao-token" class="canh-bao-phien" title="Thời gian còn lại của phiên đăng nhập"></div>
+          <div class="header-thong-tin-user">
+            <div class="header-user-avatar" id="header-user-avatar" aria-hidden="true">U</div>
+            <div>
+              <div class="header-user-ten" id="header-user-ten">Người dùng</div>
+              <div class="header-user-vai-tro" id="header-user-vai-tro">Vai trò</div>
+            </div>
+          </div>
+          <!-- Bỏ hộp thoại xác nhận khi đăng xuất -->
+          <button id="nut-dang-xuat" type="button" class="nut nut-vien nut-nho nut-nguy-hiem" title="Đăng xuất khỏi hệ thống">
+            <i class="bi bi-box-arrow-right" aria-hidden="true"></i>
+            <span class="van-ban-an-mobile">Đăng xuất</span>
+          </button>
+        </div>
+      </header>
+
+      <main id="noi-dung-trang" role="main">
+        <div class="san-pham-khung">
+          <section class="the fade-in">
+            <header class="the-dau">
+              <div>
+                <h2 class="the-tieu-de">
+                  Quản lý Sản phẩm <span class="sp-tong-so">({{ vm.layDanhSachLoc().length }})</span>
+                </h2>
+              </div>
+              <div class="thanh-cong-cu">
+                <div class="o-tim-kiem">
+                  <i class="bi bi-search" aria-hidden="true"></i>
+                  <input
+                    type="search"
+                    placeholder="Tìm theo tên, mã sản phẩm, mã vạch..."
+                    ng-model="vm.tuKhoa"
+                    ng-change="vm.trangHienTai = 1"
+                    aria-label="Tìm kiếm sản phẩm"
+                  />
+                </div>
+
+                <select
+                  class="o-chon sp-select-danhmuc"
+                  ng-model="vm.danhMucLoc"
+                  ng-change="vm.trangHienTai = 1"
+                  ng-options="dm.MADANHMUC as dm.TENDANHMUC for dm in vm.danhSachDM"
+                  aria-label="Lọc theo danh mục"
+                >
+                  <option value="">-- Tất cả danh mục --</option>
+                </select>
+
+                <button type="button" class="nut nut-chinh" ng-click="vm.moFormThem()">
+                  <i class="bi bi-plus-lg" aria-hidden="true"></i> Thêm sản phẩm
+                </button>
+                <button type="button" class="nut nut-xam" title="Tải lại dữ liệu" ng-click="vm.taiDuLieu()" aria-label="Tải lại dữ liệu">
+                  <i class="bi bi-arrow-clockwise" aria-hidden="true"></i>
+                </button>
+              </div>
+            </header>
+
+            <div class="the-noi-dung khong-padding">
+              <!-- Trạng thái đang tải -->
+              <div ng-show="vm.dangTai" class="khung-dang-tai van-ban-trung sp-dang-tai">
+                <div class="quay-vong can-giua sp-dang-tai-icon"></div>
+                <p class="sp-dang-tai-text">Đang tải danh sách sản phẩm...</p>
+              </div>
+
+              <!-- Bảng dữ liệu sản phẩm -->
+              <div class="bang-bao-ngoai" ng-hide="vm.dangTai">
+                <table class="bang sp-bang">
+                  <thead>
+                    <tr>
+                      <th class="col-masp">MÃ SP</th>
+                      <th>TÊN SẢN PHẨM</th>
+                      <th>DANH MỤC</th>
+                      <th class="van-ban-phai col-dongia">ĐƠN GIÁ</th>
+                      <th class="van-ban-trung col-tonkho">TỒN KHO</th>
+                      <th class="col-mavach">MÃ VẠCH</th>
+                      <th class="van-ban-trung col-thue">THUẾ (%)</th>
+                      <th class="van-ban-trung col-thaotac">THAO TÁC</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr ng-repeat="sp in vm.layDanhSachPhanTrang()">
+                      <!-- Cột Mã SP -->
+                      <td>
+                        <span class="badge badge-lam sp-badge-masp">{{ sp.MASP }}</span>
+                      </td>
+
+                      <!-- Cột Tên sản phẩm kèm avatar và mô tả nhỏ -->
+                      <td>
+                        <div class="sp-ten-khoi">
+                          <img
+                            ng-if="sp.HINHANH"
+                            ng-src="{{ vm.layAnh(sp.MASP) }}"
+                            alt="{{ sp.TENSP }}"
+                            class="sp-avatar-vong"
+                          />
+                          <div
+                            class="sp-avatar-vong"
+                            ng-style="{'background-color': vm.layMauAvatar(sp.TENSP)}"
+                            ng-hide="sp.HINHANH"
+                          >
+                            {{ vm.layChuCaiDau(sp.TENSP) }}
+                          </div>
+                          <div>
+                            <div class="sp-ten-tieu-de">{{ sp.TENSP }}</div>
+                            <div class="sp-ten-phu" ng-if="sp.MOTA || sp.THUOCTINH">{{ sp.MOTA || sp.THUOCTINH }}</div>
+                          </div>
+                        </div>
+                      </td>
+
+                      <!-- Cột Danh mục -->
+                      <td>{{ vm.layTenDanhMuc(sp.MADANHMUC) }}</td>
+
+                      <!-- Cột Đơn giá -->
+                      <td class="van-ban-phai sp-dongia-so">
+                        {{ sp.DONGIA | vnd }}
+                      </td>
+
+                      <!-- Cột Tồn kho -->
+                      <td class="van-ban-trung">
+                        <span class="badge" ng-class="{'badge-do': sp.SOLUONGTON <= 0, 'badge-vang': sp.SOLUONGTON > 0 && sp.SOLUONGTON <= 5, 'badge-xanh': sp.SOLUONGTON > 5}">
+                          {{ sp.SOLUONGTON > 0 ? (sp.SOLUONGTON | so) + ' cái' : 'Hết hàng (0)' }}
+                        </span>
+                      </td>
+
+                      <!-- Cột Mã vạch -->
+                      <td>
+                        <span class="sp-mavach-text">
+                          {{ sp.MAVACH || '—' }}
+                        </span>
+                      </td>
+
+                      <!-- Cột Thuế (%) -->
+                      <td class="van-ban-trung">
+                        <span class="sp-thue-text">{{ sp.THUE || 8 }}%</span>
+                      </td>
+
+                      <!-- Cột Thao tác: 4 nút màu sắc chuẩn ảnh -->
+                      <td class="van-ban-trung">
+                        <div class="sp-thao-tac-nhom">
+                          <!-- 1. Nút Xem chi tiết: màu xanh lam -->
+                          <button
+                            type="button"
+                            class="nut nut-vien nut-nho nut-sp-xem"
+                            title="Xem chi tiết"
+                            ng-click="vm.xemChiTiet(sp)"
+                            aria-label="Xem chi tiết sản phẩm"
+                          >
+                            <i class="bi bi-eye" aria-hidden="true"></i>
+                          </button>
+
+                          <!-- 2. Nút Sửa: màu vàng cam -->
+                          <button
+                            type="button"
+                            class="nut nut-vien nut-nho nut-sp-sua"
+                            title="Sửa sản phẩm"
+                            ng-click="vm.moFormSua(sp)"
+                            aria-label="Sửa sản phẩm"
+                          >
+                            <i class="bi bi-pencil" aria-hidden="true"></i>
+                          </button>
+
+                          <!-- 3. Nút Điều chỉnh tồn kho: màu xanh lá (hình hộp kho) -->
+                          <button
+                            type="button"
+                            class="nut nut-vien nut-nho nut-sp-kho"
+                            title="Điều chỉnh tồn kho"
+                            ng-click="vm.moDieuChinhTonKho(sp)"
+                            aria-label="Điều chỉnh tồn kho"
+                          >
+                            <i class="bi bi-box-seam" aria-hidden="true"></i>
+                          </button>
+
+                          <!-- 4. Nút Xóa: màu đỏ -->
+                          <button
+                            type="button"
+                            class="nut nut-vien nut-nho nut-sp-xoa"
+                            title="Xóa sản phẩm"
+                            ng-click="vm.xoaSanPham(sp)"
+                            aria-label="Xóa sản phẩm"
+                          >
+                            <i class="bi bi-trash" aria-hidden="true"></i>
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                    <tr ng-if="vm.layDanhSachLoc().length === 0 && !vm.dangTai">
+                      <td colspan="8" class="van-ban-trung sp-trong-hop">
+                        <i class="bi bi-inbox sp-trong-icon" aria-hidden="true"></i>
+                        Không tìm thấy sản phẩm nào phù hợp.
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+
+                <!-- Phân trang -->
+                <footer class="phan-trang sp-phan-trang" ng-if="vm.layTongSoTrang() > 1">
+                  <span class="sp-phan-trang-thong-tin">
+                    Trang {{ vm.trangHienTai }} / {{ vm.layTongSoTrang() }} (Tổng {{ vm.layDanhSachLoc().length }} sản phẩm)
+                  </span>
+                  <div class="sp-phan-trang-nut-nhom">
+                    <button type="button" class="nut nut-vien nut-nho" ng-disabled="vm.trangHienTai <= 1" ng-click="vm.trangHienTai = vm.trangHienTai - 1">
+                      <i class="bi bi-chevron-left" aria-hidden="true"></i> Trước
+                    </button>
+                    <button type="button" class="nut nut-vien nut-nho" ng-disabled="vm.trangHienTai >= vm.layTongSoTrang()" ng-click="vm.trangHienTai = vm.trangHienTai + 1">
+                      Sau <i class="bi bi-chevron-right" aria-hidden="true"></i>
+                    </button>
+                  </div>
+                </footer>
+              </div>
+            </div>
+          </section>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- Modal Thêm / Sửa Sản Phẩm Chuẩn Ảnh 3 & 4 (Bố cục 2 cột) -->
+  <div class="modal-nen" ng-class="{'hien': vm.modalForm.hienThi}" aria-hidden="{{ !vm.modalForm.hienThi }}">
+    <div class="modal-hop modal-hop-sp" role="dialog" aria-modal="true" aria-labelledby="modal-form-sp-tieu-de">
+      <div class="modal-dau">
+        <h3 class="modal-tieu-de" id="modal-form-sp-tieu-de">{{ vm.modalForm.tieuDe }}</h3>
+        <button class="modal-nut-dong" type="button" ng-click="vm.dongModalForm()" aria-label="Đóng cửa sổ"><i class="bi bi-x-lg" aria-hidden="true"></i></button>
+      </div>
+      <div class="modal-noi-dung">
+        <form ng-submit="vm.luuSanPham()" id="form-san-pham">
+          <div class="modal-sp-bo-cuc">
+            <!-- Cột trái: Ảnh đại diện sản phẩm & Upload -->
+            <div class="modal-sp-anh-cot">
+              <div class="modal-sp-khung-preview">
+                <img
+                  ng-if="vm.modalForm.anhPreview || vm.modalForm.duLieu.urlAnh"
+                  ng-src="{{ vm.modalForm.anhPreview || vm.modalForm.duLieu.urlAnh }}"
+                  alt="Ảnh xem trước"
+                />
+                <div ng-if="!vm.modalForm.anhPreview && !vm.modalForm.duLieu.urlAnh" class="modal-sp-chua-co-anh">
+                  <i class="bi bi-camera modal-sp-camera-icon" aria-hidden="true"></i>
+                  <span class="modal-sp-camera-chu">Chưa có ảnh</span>
+                </div>
+              </div>
+              <input
+                type="text"
+                class="o-nhap modal-sp-url-input"
+                placeholder="Dán URL ảnh..."
+                ng-model="vm.modalForm.duLieu.urlAnh"
+                aria-label="Đường dẫn URL ảnh sản phẩm"
+              />
+              <label class="nut nut-vien nut-nho modal-sp-btn-upload">
+                <i class="bi bi-upload" aria-hidden="true"></i> Chọn ảnh từ máy
+                <input
+                  type="file"
+                  id="sp-file-input"
+                  accept="image/*"
+                  class="an-tap-tin-input"
+                  onchange="angular.element(this).scope().vm.chonFileAnh(this)"
+                  aria-label="Tải tệp ảnh từ thiết bị"
+                />
+              </label>
+            </div>
+
+            <!-- Cột phải: Trường thông tin sản phẩm -->
+            <div class="modal-sp-form-cot">
+              <!-- Mã SP -->
+              <div>
+                <label class="nhan-truong" for="sp-masp-input">Mã sản phẩm <span class="dau-sao">*</span></label>
+                <input
+                  type="text"
+                  id="sp-masp-input"
+                  class="o-nhap"
+                  ng-model="vm.modalForm.duLieu.MASP"
+                  ng-disabled="vm.modalForm.laSua"
+                  required
+                  placeholder="VD: SP001"
+                />
+              </div>
+
+              <!-- Tên SP -->
+              <div>
+                <label class="nhan-truong" for="sp-tensp-input">Tên sản phẩm <span class="dau-sao">*</span></label>
+                <input
+                  type="text"
+                  id="sp-tensp-input"
+                  class="o-nhap"
+                  ng-model="vm.modalForm.duLieu.TENSP"
+                  required
+                  placeholder="VD: Bếp gas mini Namilux"
+                />
+              </div>
+
+              <!-- Danh mục -->
+              <div>
+                <label class="nhan-truong" for="sp-danhmuc-select">Danh mục <span class="dau-sao">*</span></label>
+                <select
+                  id="sp-danhmuc-select"
+                  class="o-chon"
+                  ng-model="vm.modalForm.duLieu.MADANHMUC"
+                  required
+                  ng-options="dm.MADANHMUC as dm.TENDANHMUC for dm in vm.danhSachDM"
+                >
+                  <option value="">-- Chọn danh mục --</option>
+                </select>
+              </div>
+
+              <!-- Đơn giá -->
+              <div>
+                <label class="nhan-truong" for="sp-dongia-input">Đơn giá bán (VNĐ) <span class="dau-sao">*</span></label>
+                <input
+                  type="number"
+                  id="sp-dongia-input"
+                  min="0"
+                  step="1000"
+                  class="o-nhap"
+                  ng-model="vm.modalForm.duLieu.DONGIA"
+                  required
+                  placeholder="VD: 250000"
+                />
+              </div>
+
+              <!-- Số lượng tồn ban đầu -->
+              <div>
+                <label class="nhan-truong" for="sp-soluongton-input">Số lượng tồn kho</label>
+                <input
+                  type="number"
+                  id="sp-soluongton-input"
+                  min="0"
+                  class="o-nhap"
+                  ng-model="vm.modalForm.duLieu.SOLUONGTON"
+                  placeholder="0"
+                />
+              </div>
+
+              <!-- Thuế VAT (%) -->
+              <div>
+                <label class="nhan-truong" for="sp-thue-input">Thuế VAT (%)</label>
+                <input
+                  type="number"
+                  id="sp-thue-input"
+                  min="0"
+                  max="100"
+                  class="o-nhap"
+                  ng-model="vm.modalForm.duLieu.THUE"
+                  placeholder="8"
+                />
+              </div>
+
+              <!-- Mã vạch -->
+              <div>
+                <label class="nhan-truong" for="sp-mavach-input">Mã vạch (Barcode)</label>
+                <input
+                  type="text"
+                  id="sp-mavach-input"
+                  class="o-nhap"
+                  ng-model="vm.modalForm.duLieu.MAVACH"
+                  placeholder="VD: 8931234567890"
+                />
+              </div>
+
+              <!-- Thuộc tính -->
+              <div>
+                <label class="nhan-truong" for="sp-thuoctinh-input">Thuộc tính</label>
+                <input
+                  type="text"
+                  id="sp-thuoctinh-input"
+                  class="o-nhap"
+                  ng-model="vm.modalForm.duLieu.THUOCTINH"
+                  placeholder="VD: Đỏ, Inox, Size L..."
+                />
+              </div>
+
+              <!-- Mô tả sản phẩm -->
+              <div class="modal-sp-full-col">
+                <label class="nhan-truong" for="sp-mota-input">Mô tả sản phẩm</label>
+                <textarea
+                  id="sp-mota-input"
+                  class="o-nhap modal-sp-mo-ta"
+                  rows="3"
+                  ng-model="vm.modalForm.duLieu.MOTA"
+                  placeholder="Nhập mô tả ngắn gọn về sản phẩm..."
+                ></textarea>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-chan">
+        <button type="button" class="nut nut-vien" ng-click="vm.dongModalForm()">Hủy</button>
+        <button type="submit" form="form-san-pham" class="nut nut-chinh" ng-disabled="vm.modalForm.dangLuu">
+          <i class="bi bi-floppy" aria-hidden="true"></i> {{ vm.modalForm.dangLuu ? 'Đang lưu...' : (vm.modalForm.laSua ? 'Cập nhật' : '+ Thêm sản phẩm') }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Điều Chỉnh Tồn Kho Nhanh (Nút hình hộp xanh lá ở ảnh 2) -->
+  <div class="modal-nen" ng-class="{'hien': vm.modalTonKho.hienThi}" aria-hidden="{{ !vm.modalTonKho.hienThi }}">
+    <div class="modal-hop modal-hop-ton-kho" role="dialog" aria-modal="true" aria-labelledby="modal-ton-kho-tieu-de">
+      <div class="modal-dau">
+        <h3 class="modal-tieu-de" id="modal-ton-kho-tieu-de">Điều chỉnh tồn kho — {{ vm.modalTonKho.sp.MASP }}</h3>
+        <button class="modal-nut-dong" type="button" ng-click="vm.dongModalTonKho()" aria-label="Đóng cửa sổ"><i class="bi bi-x-lg" aria-hidden="true"></i></button>
+      </div>
+      <div class="modal-noi-dung" ng-if="vm.modalTonKho.sp">
+        <div class="modal-ton-kho-thong-tin">
+          <strong class="modal-ton-kho-ten">{{ vm.modalTonKho.sp.TENSP }}</strong>
+          <span class="modal-ton-kho-hien-tai">Tồn kho hiện tại: <strong class="modal-ton-kho-so-luong">{{ vm.modalTonKho.sp.SOLUONGTON | so }} cái</strong></span>
+        </div>
+        <div class="bieu-mau-dong">
+          <div class="bieu-mau-cot">
+            <label class="nhan-truong" for="ton-kho-moi-input">Số lượng tồn kho mới <span class="dau-sao">*</span></label>
+            <input
+              type="number"
+              id="ton-kho-moi-input"
+              min="0"
+              class="o-nhap modal-ton-kho-input"
+              ng-model="vm.modalTonKho.soLuongMoi"
+              required
+            />
+          </div>
+        </div>
+      </div>
+      <div class="modal-chan">
+        <button type="button" class="nut nut-vien" ng-click="vm.dongModalTonKho()">Hủy</button>
+        <button type="button" class="nut nut-chinh" ng-click="vm.luuDieuChinhTonKho()" ng-disabled="vm.modalTonKho.dangLuu">
+          <i class="bi bi-check-lg" aria-hidden="true"></i> {{ vm.modalTonKho.dangLuu ? 'Đang lưu...' : 'Cập nhật tồn kho' }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Xem Chi Tiết Sản Phẩm -->
+  <div class="modal-nen" ng-class="{'hien': vm.modalChiTiet.hienThi}" aria-hidden="{{ !vm.modalChiTiet.hienThi }}">
+    <div class="modal-hop modal-hop-chi-tiet" role="dialog" aria-modal="true" aria-labelledby="modal-chi-tiet-sp-tieu-de">
+      <div class="modal-dau">
+        <h3 class="modal-tieu-de" id="modal-chi-tiet-sp-tieu-de">Chi tiết sản phẩm — {{ vm.modalChiTiet.sanPham.MASP }}</h3>
+        <button class="modal-nut-dong" type="button" ng-click="vm.modalChiTiet.hienThi = false" aria-label="Đóng cửa sổ"><i class="bi bi-x-lg" aria-hidden="true"></i></button>
+      </div>
+      <div class="modal-noi-dung" ng-if="vm.modalChiTiet.sanPham">
+        <div class="modal-chi-tiet-dau">
+          <div
+            class="sp-avatar-vong sp-avatar-vong-lon"
+            ng-style="{'background-color': vm.layMauAvatar(vm.modalChiTiet.sanPham.TENSP)}"
+          >
+            {{ vm.layChuCaiDau(vm.modalChiTiet.sanPham.TENSP) }}
+          </div>
+          <div>
+            <h4 class="modal-chi-tiet-ten">{{ vm.modalChiTiet.sanPham.TENSP }}</h4>
+            <div class="modal-chi-tiet-masp">Mã SP: <strong>{{ vm.modalChiTiet.sanPham.MASP }}</strong></div>
+            <div class="modal-chi-tiet-danh-muc">
+              <span class="badge badge-lam">{{ vm.layTenDanhMuc(vm.modalChiTiet.sanPham.MADANHMUC) }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-chi-tiet-luoi">
+          <div>
+            <span class="modal-chi-tiet-nhan">Đơn giá:</span>
+            <strong class="modal-chi-tiet-dongia">{{ vm.modalChiTiet.sanPham.DONGIA | vnd }}</strong>
+          </div>
+          <div>
+            <span class="modal-chi-tiet-nhan">Tồn kho:</span>
+            <strong class="modal-chi-tiet-tonkho">{{ vm.modalChiTiet.sanPham.SOLUONGTON | so }} cái</strong>
+          </div>
+          <div>
+            <span class="modal-chi-tiet-nhan">Mã vạch:</span>
+            <code>{{ vm.modalChiTiet.sanPham.MAVACH || '—' }}</code>
+          </div>
+          <div>
+            <span class="modal-chi-tiet-nhan">Thuế VAT:</span>
+            <strong>{{ vm.modalChiTiet.sanPham.THUE || 8 }}%</strong>
+          </div>
+          <div class="modal-chi-tiet-toan-hang" ng-if="vm.modalChiTiet.sanPham.THUOCTINH">
+            <span class="modal-chi-tiet-nhan">Thuộc tính:</span>
+            <span>{{ vm.modalChiTiet.sanPham.THUOCTINH }}</span>
+          </div>
+          <div class="modal-chi-tiet-toan-hang" ng-if="vm.modalChiTiet.sanPham.MOTA">
+            <span class="modal-chi-tiet-nhan">Mô tả:</span>
+            <span>{{ vm.modalChiTiet.sanPham.MOTA }}</span>
+          </div>
+        </div>
+      </div>
+      <div class="modal-chan">
+        <button type="button" class="nut nut-vien" ng-click="vm.modalChiTiet.hienThi = false">Đóng</button>
+        <button type="button" class="nut nut-chinh" ng-click="vm.chuyenSangSua(vm.modalChiTiet.sanPham)">
+          <i class="bi bi-pencil" aria-hidden="true"></i> Sửa sản phẩm
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Vùng Toast thông báo -->
+  <div id="vung-toast" aria-live="polite"></div>
+
+  <!-- AngularJS và Scripts -->
+  <script src="../angular.min.js"></script>
+  <script src="../js/angular-app.js"></script>
+  <script src="../js/trang/quan-ly-san-pham.js"></script>
+</body>
+</html>

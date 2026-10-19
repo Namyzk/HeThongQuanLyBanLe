@@ -1,0 +1,150 @@
+/**
+ * bao-cao-thong-ke.css — CSS riêng trang Báo cáo & Thống kê
+ */
+
+.bao-cao-khung {
+  display: flex;
+  flex-direction: column;
+  gap: var(--kc-l);
+}
+
+.bao-cao-thanh-cong-cu {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--kc-m);
+}
+
+.bao-cao-bo-loc {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--kc-s);
+}
+
+.bao-cao-nhom-ngay {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--font-nho);
+  color: var(--van-ban-phu);
+}
+
+.bao-cao-nhom-ngay .o-nhap {
+  width: auto;
+  padding: 6px 10px;
+  font-size: var(--font-nho);
+}
+
+.luoi-san-pham-thong-ke {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--kc-l);
+  margin-top: var(--kc-m);
+}
+
+.the-xep-hang {
+  background: var(--nen-the);
+  border: 1px solid var(--duong-vien);
+  border-radius: var(--bo-goc-lon);
+  overflow: hidden;
+}
+
+.the-xep-hang-dau {
+  padding: var(--kc-m) var(--kc-l);
+  border-bottom: 1px solid var(--duong-vien);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.the-xep-hang-tieu-de {
+  font-weight: 700;
+  font-size: var(--font-binh);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.bieu-tuong-vang {
+  color: var(--mau-canh-bao);
+}
+
+.bieu-tuong-do {
+  color: var(--mau-nguy-hiem);
+}
+
+
+.the-xep-hang-noi-dung {
+  padding: var(--kc-m);
+  max-height: 380px;
+  overflow-y: auto;
+}
+
+.bang-xep-hang-sp {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--font-nho);
+}
+
+.bang-xep-hang-sp th,
+.bang-xep-hang-sp td {
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--duong-vien);
+}
+
+.bang-xep-hang-sp th {
+  color: var(--van-ban-phu);
+  font-weight: 600;
+  text-align: left;
+}
+
+.bang-xep-hang-sp th.so,
+.bang-xep-hang-sp td.so {
+  text-align: right;
+}
+
+.bang-xep-hang-sp th.trung,
+.bang-xep-hang-sp td.trung {
+  text-align: center;
+}
+
+.thanh-tien-do-sp {
+  height: 6px;
+  background: var(--xam-200);
+  border-radius: 3px;
+  overflow: hidden;
+  margin-top: 4px;
+}
+
+.thanh-tien-do-ruot {
+  height: 100%;
+  background: var(--mau-chinh);
+  border-radius: 3px;
+}
+
+.thanh-tien-do-ruot.cam {
+  background: var(--mau-canh-bao);
+}
+
+@media (max-width: 900px) {
+  .luoi-san-pham-thong-ke {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ── Màu sắc KPI & Kích thước cột bảng xếp hạng ── */
+.bg-luc-nhat { background: #ecfdf5; }
+.chu-mau-luc { color: #10b981; }
+.bg-hong-nhat { background: #fff1f2; }
+.chu-mau-hong { color: #f43f5e; }
+.bg-lam-nhat { background: #eff6ff; }
+.chu-mau-lam { color: #3b82f6; }
+.bg-vang-nhat { background: #fef3c7; }
+.chu-mau-vang { color: #f59e0b; }
+
+.col-hang { width: 40px; }
+.col-sl-ban { width: 85px; }
+.col-doanh-thu { width: 115px; }
+

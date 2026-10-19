@@ -1,0 +1,44 @@
+/**
+ * quan-ly-khach-hang.css — CSS riêng trang Quản lý Khách hàng
+ */
+.khach-hang-khung {
+  width: 100%;
+}
+
+.chi-tiet-kh-hop {
+  display: flex;
+  flex-direction: column;
+  gap: var(--kc-m);
+  padding: var(--kc-xs);
+}
+
+.chi-tiet-kh-dau {
+  display: flex;
+  align-items: center;
+  gap: var(--kc-m);
+  margin-bottom: var(--kc-s);
+}
+
+.chi-tiet-kh-avatar {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background-color: var(--mau-chinh);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.chi-tiet-kh-thong-tin {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--kc-s);
+  background: var(--xam-50);
+  padding: var(--kc-m);
+  border-radius: var(--bo-goc-vua);
+  border: 1px solid var(--duong-vien);
+  font-size: var(--font-binh);
+}

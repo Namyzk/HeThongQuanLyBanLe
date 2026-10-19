@@ -1,0 +1,161 @@
+/**
+ * quan-ly-hoa-don.css — CSS riêng trang Quản lý Hóa đơn & In hóa đơn đúng 1 trang
+ */
+
+.hoa-don-khung {
+  width: 100%;
+}
+
+/* Khối xem chi tiết và in hóa đơn */
+.hoa-don-chi-tiet-hop {
+  display: flex;
+  flex-direction: column;
+  gap: var(--kc-m);
+}
+
+.hoa-don-thong-tin-chung {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--kc-s) var(--kc-m);
+  background: var(--xam-50);
+  padding: var(--kc-m);
+  border-radius: var(--bo-goc-vua);
+  border: 1px solid var(--duong-vien);
+  font-size: var(--font-binh);
+}
+
+.hoa-don-bang-sp-hop {
+  max-height: 260px;
+  overflow-y: auto;
+  border: 1px solid var(--duong-vien);
+  border-radius: var(--bo-goc-vua);
+}
+
+.hoa-don-tong-ket {
+  background: var(--xam-50);
+  padding: var(--kc-m);
+  border-radius: var(--bo-goc-vua);
+  border: 1px solid var(--duong-vien);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: var(--font-binh);
+}
+
+.hoa-don-tong-dong {
+  display: flex;
+  justify-content: space-between;
+}
+
+.hoa-don-tong-dong.tong-cong {
+  font-weight: 800;
+  font-size: var(--font-lon);
+  color: var(--mau-chinh);
+  border-top: 1px dashed var(--xam-300);
+  padding-top: 8px;
+  margin-top: 2px;
+}
+
+/* CSS In hóa đơn đúng 1 trang duy nhất */
+@page {
+  size: portrait;
+  margin: 6mm 8mm;
+}
+
+@media print {
+  html, body {
+    background: #ffffff !important;
+    color: #000000 !important;
+    font-size: 11px !important;
+    line-height: 1.3 !important;
+    height: auto !important;
+    overflow: visible !important;
+  }
+
+  /* Ẩn toàn bộ giao diện cha */
+  body * {
+    visibility: hidden !important;
+  }
+
+  /* Chỉ hiển thị khu vực hóa đơn in */
+  #vung-xem-in-hd,
+  #vung-xem-in-hd * {
+    visibility: visible !important;
+  }
+
+  #vung-xem-in-hd {
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+    width: 100% !important;
+    max-width: 480px !important;
+    margin: 0 auto !important;
+    padding: 0 !important;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    page-break-inside: avoid !important;
+  }
+
+  /* Bỏ cuộn và giới hạn chiều cao bảng khi in */
+  .hoa-don-bang-sp-hop {
+    max-height: none !important;
+    overflow: visible !important;
+    border: 1px solid #000000 !important;
+  }
+
+  .bang-khung {
+    max-height: none !important;
+    overflow: visible !important;
+  }
+
+  .bang th,
+  .bang td {
+    padding: 4px 6px !important;
+    font-size: 10.5px !important;
+    border-bottom: 1px solid #ddd !important;
+  }
+
+  .hoa-don-thong-tin-chung,
+  .hoa-don-tong-ket {
+    background: transparent !important;
+    border: 1px solid #ccc !important;
+    padding: 6px 8px !important;
+    font-size: 11px !important;
+    gap: 4px !important;
+  }
+
+  .hoa-don-tong-dong.tong-cong {
+    font-size: 13px !important;
+    color: #000000 !important;
+  }
+
+  /* Ẩn triệt để modal controls, header, sidebar, toast */
+  .modal-dau,
+  .modal-chan,
+  .modal-nut-dong,
+  .nut,
+  #header,
+  #sidebar,
+  #overlay-sidebar,
+  #vung-toast,
+  .thanh-cong-cu,
+  .the-dau {
+    display: none !important;
+  }
+
+  .modal-hop {
+    box-shadow: none !important;
+    border: none !important;
+    padding: 0 !important;
+    background: transparent !important;
+    max-width: 100% !important;
+  }
+
+  .modal-nen {
+    position: static !important;
+    background: transparent !important;
+    padding: 0 !important;
+    display: block !important;
+  }
+}

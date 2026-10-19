@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="vi" ng-app="qlblApp">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Đổi trả hàng hóa - Hệ thống Quản lý Bán lẻ" />
+  <title>Đổi trả hàng hóa - Hệ thống Quản lý Bán lẻ</title>
+
+  <!-- Favicon -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%232563eb'><path d='M2.97 1.35A1 1 0 0 1 3.73 1h8.54a1 1 0 0 1 .76.35l2.609 3.044A1.5 1.5 0 0 1 16 5.37v.255a2.375 2.375 0 0 1-4.25 1.458A2.371 2.371 0 0 1 9.875 8 2.37 2.37 0 0 1 8 7.083 2.37 2.37 0 0 1 6.125 8a2.37 2.37 0 0 1-1.875-.917A2.375 2.375 0 0 1 0 5.625V5.37a1.5 1.5 0 0 1 .361-.976l2.61-3.045zm1.78 4.275a1.375 1.375 0 0 0 2.75 0 .5.5 0 0 1 1 0 1.375 1.375 0 0 0 2.75 0 .5.5 0 0 1 1 0 1.375 1.375 0 1 0 2.75 0V5.37a.5.5 0 0 0-.12-.325L12.27 2H3.73L1.12 5.045A.5.5 0 0 0 1 5.37v.255a1.375 1.375 0 0 0 2.75 0 .5.5 0 0 1 1 0zM1.5 8.5A.5.5 0 0 1 2 9v6h12V9a.5.5 0 0 1 1 0v6h.5a.5.5 0 0 1 0 1H.5a.5.5 0 0 1 0-1H1V9a.5.5 0 0 1 .5-.5zM4 15h8v-4.5a.5.5 0 0 0-.5-.5h-7a.5.5 0 0 0-.5.5V15z'/></svg>" />
+
+  <!-- Bootstrap Icons -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+
+  <!-- Modular CSS -->
+  <link rel="stylesheet" href="../css/chung.css" />
+  <link rel="stylesheet" href="../css/bo-cuc.css" />
+  <link rel="stylesheet" href="../css/thanh-phan.css" />
+  <link rel="stylesheet" href="../css/bieu-mau.css" />
+  <link rel="stylesheet" href="../css/hien-thi-di-dong.css" />
+  <link rel="stylesheet" href="../css/trang/doi-tra.css" />
+</head>
+<body ng-controller="DoiTraController as vm">
+
+  <div id="ung-dung">
+    <div id="overlay-sidebar"></div>
+
+    <aside id="sidebar" aria-label="Thanh bên điều hướng">
+      <div class="sidebar-logo">
+        <div class="sidebar-logo-icon" aria-hidden="true">
+          <i class="bi bi-shop"></i>
+        </div>
+        <div class="sidebar-logo-ten">Quản lý Bán lẻ</div>
+        <button id="nut-thu-gon-sidebar" type="button" class="nut nut-vien nut-nho" title="Thu gọn / Mở rộng menu" aria-label="Thu gọn hoặc mở rộng menu">
+          <i class="bi bi-chevron-left" aria-hidden="true"></i>
+        </button>
+      </div>
+      <nav class="sidebar-noi-dung" aria-label="Menu điều hướng chính"></nav>
+      <div class="sidebar-footer"></div>
+    </aside>
+
+    <div id="vung-chinh">
+      <header id="header">
+        <button id="nut-mo-menu" type="button" class="header-btn-menu nut" aria-label="Mở Menu điều hướng">
+          <i class="bi bi-list" aria-hidden="true"></i>
+        </button>
+
+        <div class="header-tieu-de">
+          <h1 id="header-tieu-de-trang">Đổi trả hàng hóa</h1>
+          <div class="duong-dan" id="header-duong-dan">Trang chủ / Đổi trả hàng hóa</div>
+        </div>
+
+        <div class="header-hành-dong">
+          <div id="canh-bao-token" class="canh-bao-phien" title="Thời gian còn lại của phiên đăng nhập"></div>
+          <div class="header-thong-tin-user">
+            <div class="header-user-avatar" id="header-user-avatar" aria-hidden="true">U</div>
+            <div>
+              <div class="header-user-ten" id="header-user-ten">Người dùng</div>
+              <div class="header-user-vai-tro" id="header-user-vai-tro">Vai trò</div>
+            </div>
+          </div>
+          <button id="nut-dang-xuat" type="button" class="nut nut-vien nut-nho nut-nguy-hiem" title="Đăng xuất khỏi hệ thống">
+            <i class="bi bi-box-arrow-right" aria-hidden="true"></i>
+            <span class="van-ban-an-mobile">Đăng xuất</span>
+          </button>
+        </div>
+      </header>
+
+      <main id="noi-dung-trang" role="main">
+        <div class="doi-tra-khung">
+          <section class="doi-tra-the-tim" aria-labelledby="tieu-de-tra-cuu">
+            <div class="doi-tra-dau-muc">
+              <div class="doi-tra-bieu-tuong" aria-hidden="true">
+                <i class="bi bi-arrow-left-right"></i>
+              </div>
+              <div>
+                <h2 id="tieu-de-tra-cuu" class="doi-tra-tieu-de-the">Xử lý Đổi trả sản phẩm</h2>
+                <p class="doi-tra-mo-ta-the">Tra cứu hóa đơn gốc để hoàn trả hoặc đổi sang mặt hàng khác</p>
+              </div>
+            </div>
+
+            <form id="form-tra-cuu-hd" class="doi-tra-tim-hop" ng-submit="vm.timHoaDon()">
+              <div class="doi-tra-input-wrap">
+                <i class="bi bi-receipt" aria-hidden="true"></i>
+                <input
+                  type="text"
+                  id="dt-tim-ma-hd"
+                  class="o-nhap"
+                  ng-model="vm.maHDTim"
+                  placeholder="Nhập mã hóa đơn cần đổi/trả (ví dụ: HD12345)..."
+                  aria-label="Mã hóa đơn cần đổi trả"
+                />
+              </div>
+              <button type="submit" class="nut nut-chinh" id="dt-nut-tim-hd" ng-disabled="vm.dangTai">
+                <i class="bi bi-search" aria-hidden="true"></i> {{ vm.dangTai ? 'Đang tra cứu...' : 'Tra cứu' }}
+              </button>
+            </form>
+          </section>
+
+          <section id="dt-vung-ket-qua" aria-label="Kết quả tra cứu hóa đơn">
+            <!-- Đang tải -->
+            <div class="doi-tra-tai-hop" ng-if="vm.dangTai">
+              <div class="quay-vong"></div>
+            </div>
+
+            <!-- Chưa tìm -->
+            <div class="doi-tra-trong" ng-if="!vm.dangTai && !vm.daTim">
+              <i class="bi bi-box-arrow-in-down-left" aria-hidden="true"></i>
+              <div class="doi-tra-trong-tieu-de">Chưa có hóa đơn nào được chọn</div>
+              <p class="doi-tra-trong-mo-ta">Nhập mã hóa đơn vào ô tra cứu phía trên để bắt đầu quy trình đổi trả hàng.</p>
+            </div>
+
+            <!-- Báo lỗi không tìm thấy -->
+            <div class="doi-tra-trong" ng-if="!vm.dangTai && vm.daTim && vm.loi">
+              <i class="bi bi-exclamation-triangle mau-nguy-hiem" aria-hidden="true"></i>
+              <div class="doi-tra-trong-tieu-de">{{ vm.loi }}</div>
+              <p class="doi-tra-trong-mo-ta">Vui lòng kiểm tra lại mã hóa đơn bán hàng.</p>
+            </div>
+
+            <!-- Hiển thị hóa đơn tìm thấy -->
+            <div class="doi-tra-ket-qua-hop fade-in" ng-if="!vm.dangTai && vm.hoaDonHienTai">
+              <div class="doi-tra-thong-tin-hd">
+                <div>
+                  <h3 class="van-ban-chinh dam-lon">Hóa đơn: {{ vm.hoaDonHienTai.MAHDBAN }}</h3>
+                  <div class="doi-tra-hd-meta">
+                    <span>Ngày lập: <strong>{{ vm.hoaDonHienTai.NGAYLAP | ngayVn }}</strong></span>
+                    <span>Thu ngân: <strong>{{ vm.hoaDonHienTai.MANV || '—' }}</strong></span>
+                    <span>Khách: <strong>{{ vm.hoaDonHienTai.MAKH || 'Khách vãng lai' }}</strong></span>
+                  </div>
+                </div>
+                <div class="doi-tra-nut-nhom">
+                  <button type="button" class="nut nut-phu nut-nho" ng-click="vm.moModalDoiSP()">
+                    <i class="bi bi-plus-circle" aria-hidden="true"></i> Đổi lấy sản phẩm khác
+                  </button>
+                  <button type="button" class="nut nut-chinh nut-nho" ng-click="vm.capNhatTongTienHangHoaDon()">
+                    <i class="bi bi-check2-circle" aria-hidden="true"></i> Đồng bộ tổng tiền hóa đơn
+                  </button>
+                </div>
+              </div>
+
+              <!-- Bảng sản phẩm đổi trả -->
+              <div class="vung-bang">
+                <table class="bang-du-lieu">
+                  <thead>
+                    <tr>
+                      <th scope="col">Mã SP</th>
+                      <th scope="col">Tên sản phẩm</th>
+                      <th scope="col" class="van-ban-phai">Số lượng</th>
+                      <th scope="col" class="van-ban-phai">Đơn giá</th>
+                      <th scope="col" class="van-ban-phai">Thành tiền</th>
+                      <th scope="col" class="van-ban-trung">Hành động đổi trả</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr ng-if="vm.chiTietHienTai.length === 0">
+                      <td colspan="6" class="van-ban-trung pad-l van-ban-mo">Hóa đơn không còn sản phẩm nào</td>
+                    </tr>
+                    <tr ng-repeat="item in vm.chiTietHienTai">
+                      <td><span class="badge badge-lam">{{ item.MASP }}</span></td>
+                      <td><strong>{{ item.TenSP || item.TENSP || '—' }}</strong></td>
+                      <td class="van-ban-phai font-dam">{{ item.SOLUONG | so }}</td>
+                      <td class="van-ban-phai">{{ item.DONGIA | vnd }}</td>
+                      <td class="van-ban-phai font-dam chu-mau-chinh">{{ (item.TONGTIEN || (item.SOLUONG * item.DONGIA)) | vnd }}</td>
+                      <td class="van-ban-trung">
+                        <div class="cum-nut-hanh-dong">
+                          <button
+                            type="button"
+                            class="nut nut-vien nut-nho"
+                            ng-click="vm.giamSoLuong($index)"
+                            title="Trả bớt 1 món"
+                            aria-label="Trả 1 món"
+                          >
+                            <i class="bi bi-dash" aria-hidden="true"></i> Trả 1
+                          </button>
+                          <button
+                            type="button"
+                            class="nut nut-vien nut-nguy-hiem nut-nho"
+                            ng-click="vm.xoaItem($index)"
+                            title="Trả toàn bộ món này"
+                            aria-label="Trả hết"
+                          >
+                            <i class="bi bi-arrow-return-left" aria-hidden="true"></i> Trả hết
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  </tbody>
+                  <tfoot>
+                    <tr class="nen-xam-nhe">
+                      <td colspan="4" class="van-ban-phai dam-lon">Tổng tiền hàng hiện tại:</td>
+                      <td class="van-ban-phai dam-lon chu-mau-chinh">{{ vm.tinhTongTienHangMoi() | vnd }}</td>
+                      <td></td>
+                    </tr>
+                    <tr class="nen-xam-nhe">
+                      <td colspan="4" class="van-ban-phai dam-lon">Khách cần thanh toán lại (thuế VAT & giảm giá):</td>
+                      <td class="van-ban-phai dam-lon mau-nguy-hiem">{{ vm.tinhTongPhaiTra() | vnd }}</td>
+                      <td></td>
+                    </tr>
+                  </tfoot>
+                </table>
+              </div>
+            </div>
+          </section>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- Modal Đổi sang sản phẩm khác -->
+  <div id="modal-doi-sp" class="modal-nen" ng-class="{'hien': vm.modalDoiSP.hienThi}" aria-hidden="{{ !vm.modalDoiSP.hienThi }}">
+    <div class="modal-hop" role="dialog" aria-modal="true" aria-labelledby="modal-doi-tieu-de">
+      <div class="modal-dau">
+        <h3 class="modal-tieu-de" id="modal-doi-tieu-de">Thêm sản phẩm đổi vào hóa đơn</h3>
+        <button class="modal-nut-dong" type="button" aria-label="Đóng" ng-click="vm.dongModalDoiSP()">
+          <i class="bi bi-x-lg" aria-hidden="true"></i>
+        </button>
+      </div>
+      <form class="bieu-mau" ng-submit="vm.xacNhanDoiSP()" novalidate>
+        <div class="modal-noi-dung">
+          <div class="nhom-truong">
+            <label for="chon-sp-doi" class="nhan-truong">Chọn sản phẩm đổi mới <span class="bat-buoc">*</span></label>
+            <select
+              id="chon-sp-doi"
+              class="o-chon"
+              ng-model="vm.modalDoiSP.data.masp"
+              ng-change="vm.thayDoiSanPhamDoi()"
+              ng-options="s.MASP as (s.TENSP + ' (' + s.MASP + ') — ' + (s.DONGIA | vnd)) for s in vm.danhSachSP"
+              required
+            >
+              <option value="">-- Chọn sản phẩm thay thế --</option>
+            </select>
+          </div>
+          <div class="nhom-truong">
+            <label for="doi-sp-sl" class="nhan-truong">Số lượng <span class="bat-buoc">*</span></label>
+            <input
+              type="number"
+              id="doi-sp-sl"
+              class="o-nhap"
+              min="1"
+              ng-model="vm.modalDoiSP.data.soluong"
+              required
+            />
+          </div>
+          <div class="nhom-truong">
+            <label for="gia-sp-doi" class="nhan-truong">Đơn giá bán</label>
+            <input
+              type="number"
+              id="gia-sp-doi"
+              class="o-nhap"
+              min="0"
+              ng-model="vm.modalDoiSP.data.dongia"
+              required
+            />
+          </div>
+        </div>
+        <div class="modal-chan">
+          <button type="button" class="nut nut-vien" ng-click="vm.dongModalDoiSP()">Hủy</button>
+          <button type="submit" class="nut nut-chinh" ng-disabled="vm.modalDoiSP.dangLuu">
+            <i class="bi bi-plus-circle" aria-hidden="true"></i> Thêm vào hóa đơn
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal chung cho hộp thoại xác nhận của ModalService -->
+  <div id="modal-chung" class="modal-nen" aria-hidden="true">
+    <div class="modal-hop" role="dialog" aria-modal="true">
+      <div class="modal-dau">
+        <h3 class="modal-tieu-de">Tiêu đề modal</h3>
+        <button class="modal-nut-dong" type="button" aria-label="Đóng"><i class="bi bi-x-lg" aria-hidden="true"></i></button>
+      </div>
+      <div class="modal-noi-dung"></div>
+      <div class="modal-chan"></div>
+    </div>
+  </div>
+
+  <!-- Vùng Toast thông báo -->
+  <div id="vung-toast" aria-live="polite"></div>
+
+  <!-- AngularJS và Scripts -->
+  <script src="../angular.min.js"></script>
+  <script src="../js/angular-app.js"></script>
+  <script src="../js/trang/doi-tra.js"></script>
+</body>
+</html>

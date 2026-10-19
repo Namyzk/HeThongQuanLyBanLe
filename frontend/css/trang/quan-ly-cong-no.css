@@ -1,0 +1,83 @@
+/**
+ * quan-ly-cong-no.css — CSS riêng trang Quản lý Công nợ
+ */
+.cong-no-khung {
+  display: flex;
+  flex-direction: column;
+  gap: var(--kc-l);
+}
+
+.cong-no-luoi-kpi {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: var(--kc-l);
+}
+
+.cong-no-the-kpi {
+  container-type: inline-size;
+  padding: var(--kc-l);
+  background: var(--nen-the);
+  border: 1px solid var(--duong-vien);
+  border-radius: var(--bo-goc-lon);
+  min-width: 0;
+  overflow: hidden;
+}
+
+.cong-no-the-kpi.the-do {
+  border-left: 4px solid var(--mau-nguy-hiem);
+}
+
+.cong-no-the-kpi.the-xanh {
+  border-left: 4px solid var(--mau-thanh-cong);
+}
+
+.cong-no-the-kpi.the-lam {
+  border-left: 4px solid var(--mau-chinh);
+}
+
+.cong-no-kpi-dau {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.cong-no-kpi-nhan {
+  font-size: var(--font-xs);
+  color: var(--van-ban-mo);
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.cong-no-kpi-so {
+  font-size: clamp(1.25rem, 5.5cqw, 1.75rem);
+  font-weight: 800;
+  margin-top: 6px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  letter-spacing: -0.02em;
+}
+
+.cong-no-kpi-so.mau-do {
+  color: var(--mau-nguy-hiem);
+}
+
+.cong-no-kpi-so.mau-xanh {
+  color: var(--mau-thanh-cong);
+}
+
+.cong-no-kpi-so.mau-chinh {
+  color: var(--mau-chinh);
+}
+
+.cong-no-kpi-mota {
+  font-size: var(--font-xs);
+  color: var(--van-ban-phu);
+  margin-top: 4px;
+}
+
+.cong-no-tabs {
+  display: flex;
+  gap: var(--kc-s);
+  flex-wrap: wrap;
+}

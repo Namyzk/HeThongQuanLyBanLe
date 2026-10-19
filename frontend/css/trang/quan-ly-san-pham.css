@@ -1,0 +1,379 @@
+/**
+ * quan-ly-san-pham.css — CSS riêng trang Quản lý Sản phẩm
+ * Hoàn toàn tách biệt CSS bên ngoài, chuẩn BEM / ngữ nghĩa tiếng Việt
+ */
+
+.san-pham-khung {
+  width: 100%;
+}
+
+.sp-tong-so {
+  font-size: 14px;
+  color: var(--van-ban-mo);
+  font-weight: normal;
+}
+
+.sp-select-danhmuc {
+  width: 200px;
+  height: 38px;
+  padding: 0 12px;
+  border: 1px solid var(--duong-vien);
+  border-radius: var(--bo-goc-vua);
+  background: #ffffff;
+  font-size: var(--font-binh);
+}
+
+.sp-dang-tai {
+  padding: 48px;
+}
+
+.sp-dang-tai-icon {
+  margin-bottom: 12px;
+}
+
+.sp-dang-tai-text {
+  color: var(--van-ban-mo);
+}
+
+/* Styling bảng sản phẩm */
+.sp-bang th {
+  font-size: 11px;
+  font-weight: 700;
+  color: #64748b;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  padding: 12px 14px;
+  background: #f8fafc;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.sp-bang td {
+  padding: 12px 14px;
+  vertical-align: middle;
+  border-bottom: 1px solid #f1f5f9;
+  font-size: 13px;
+}
+
+/* Kích thước cột bảng */
+.col-masp { width: 100px; }
+.col-dongia { width: 130px; }
+.col-tonkho { width: 110px; }
+.col-mavach { width: 120px; }
+.col-thue { width: 90px; }
+.col-thaotac { width: 165px; }
+
+.sp-badge-masp {
+  font-weight: 700;
+  font-size: 12px;
+}
+
+.sp-avatar-vong {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 700;
+  flex-shrink: 0;
+  object-fit: cover;
+}
+
+.sp-avatar-vong-lon {
+  width: 64px;
+  height: 64px;
+  font-size: 26px;
+}
+
+.sp-ten-khoi {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.sp-ten-tieu-de {
+  font-weight: 600;
+  color: #0f172a;
+  line-height: 1.3;
+}
+
+.sp-ten-phu {
+  font-size: 11px;
+  color: #94a3b8;
+  margin-top: 2px;
+}
+
+.sp-dongia-so {
+  font-weight: 700;
+  color: #0f172a;
+  font-size: 14px;
+}
+
+.sp-mavach-text {
+  font-size: 12px;
+  font-family: monospace;
+  color: #64748b;
+}
+
+.sp-thue-text {
+  font-weight: 600;
+  color: #64748b;
+}
+
+.sp-thao-tac-nhom {
+  display: flex;
+  gap: 6px;
+  justify-content: center;
+}
+
+/* Các nút màu thao tác */
+.nut-sp-xem {
+  color: #2563eb;
+  border-color: #bfdbfe;
+  background: #eff6ff;
+}
+.nut-sp-xem:hover {
+  background: #dbeafe;
+  border-color: #93c5fd;
+  color: #1d4ed8;
+}
+
+.nut-sp-sua {
+  color: #d97706;
+  border-color: #fde68a;
+  background: #fffbeb;
+}
+.nut-sp-sua:hover {
+  background: #fef3c7;
+  border-color: #fcd34d;
+  color: #b45309;
+}
+
+.nut-sp-kho {
+  color: #059669;
+  border-color: #a7f3d0;
+  background: #ecfdf5;
+}
+.nut-sp-kho:hover {
+  background: #d1fae5;
+  border-color: #6ee7b7;
+  color: #047857;
+}
+
+.nut-sp-xoa {
+  color: #dc2626;
+  border-color: #fecaca;
+  background: #fef2f2;
+}
+.nut-sp-xoa:hover {
+  background: #fee2e2;
+  border-color: #fca5a5;
+  color: #b91c1c;
+}
+
+.sp-trong-hop {
+  padding: 48px;
+  color: var(--van-ban-mo);
+}
+
+.sp-trong-icon {
+  font-size: 32px;
+  display: block;
+  margin-bottom: 8px;
+}
+
+.sp-phan-trang {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 20px;
+  border-top: 1px solid var(--duong-vien);
+}
+
+.sp-phan-trang-thong-tin {
+  font-size: var(--font-nho);
+  color: var(--van-ban-mo);
+}
+
+.sp-phan-trang-nut-nhom {
+  display: flex;
+  gap: 6px;
+}
+
+/* Modal Form Thêm/Sửa Sản Phẩm (Bố cục 2 cột) */
+.modal-hop-sp {
+  max-width: 780px;
+}
+
+.modal-sp-bo-cuc {
+  display: grid;
+  grid-template-columns: 200px 1fr;
+  gap: 20px;
+  align-items: start;
+}
+
+@media (max-width: 768px) {
+  .modal-sp-bo-cuc {
+    grid-template-columns: 1fr;
+  }
+}
+
+.modal-sp-anh-cot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.modal-sp-khung-preview {
+  width: 180px;
+  height: 180px;
+  border: 2px dashed #cbd5e1;
+  border-radius: 12px;
+  background: #f8fafc;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  position: relative;
+}
+
+.modal-sp-khung-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.modal-sp-chua-co-anh {
+  text-align: center;
+  color: #94a3b8;
+  padding: 12px;
+}
+
+.modal-sp-camera-icon {
+  font-size: 36px;
+  display: block;
+  margin-bottom: 6px;
+}
+
+.modal-sp-camera-chu {
+  font-size: 12px;
+}
+
+.modal-sp-url-input {
+  font-size: 12px;
+}
+
+.modal-sp-btn-upload {
+  cursor: pointer;
+  width: 100%;
+  text-align: center;
+}
+
+.an-tap-tin-input {
+  display: none;
+}
+
+.modal-sp-form-cot {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.modal-sp-full-col {
+  grid-column: 1 / -1;
+}
+
+.modal-sp-mo-ta {
+  resize: vertical;
+}
+
+/* Modal Điều chỉnh Tồn kho */
+.modal-hop-ton-kho {
+  max-width: 440px;
+}
+
+.modal-ton-kho-thong-tin {
+  margin-bottom: 14px;
+}
+
+.modal-ton-kho-ten {
+  font-size: 15px;
+  color: #0f172a;
+  display: block;
+}
+
+.modal-ton-kho-hien-tai {
+  font-size: 12px;
+  color: #64748b;
+}
+
+.modal-ton-kho-so-luong {
+  color: #059669;
+}
+
+.modal-ton-kho-input {
+  font-size: 16px;
+  font-weight: 700;
+  padding: 10px;
+}
+
+/* Modal Xem Chi Tiết */
+.modal-hop-chi-tiet {
+  max-width: 540px;
+}
+
+.modal-chi-tiet-dau {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+  margin-bottom: 16px;
+}
+
+.modal-chi-tiet-ten {
+  font-size: 17px;
+  margin: 0 0 4px 0;
+  color: #0f172a;
+}
+
+.modal-chi-tiet-masp {
+  color: #64748b;
+  font-size: 13px;
+}
+
+.modal-chi-tiet-danh-muc {
+  margin-top: 6px;
+}
+
+.modal-chi-tiet-luoi {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  background: #f8fafc;
+  padding: 14px;
+  border-radius: 10px;
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+.modal-chi-tiet-nhan {
+  color: #64748b;
+  display: block;
+}
+
+.modal-chi-tiet-dongia {
+  font-size: 16px;
+  color: #4f46e5;
+}
+
+.modal-chi-tiet-tonkho {
+  color: #059669;
+  font-size: 15px;
+}
+
+.modal-chi-tiet-toan-hang {
+  grid-column: 1 / -1;
+}

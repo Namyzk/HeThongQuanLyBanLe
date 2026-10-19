@@ -1,0 +1,57 @@
+/**
+ * quan-ly-tai-khoan.css — CSS riêng trang Quản lý Tài khoản
+ */
+
+.tai-khoan-khung {
+  width: 100%;
+}
+
+.form-mat-khau-hop {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.form-mat-khau-hop .o-nhap {
+  padding-right: 42px;
+}
+
+.nut-toggle-mat-khau {
+  position: absolute;
+  right: 8px;
+  background: transparent;
+  border: none;
+  color: var(--van-ban-mo);
+  cursor: pointer;
+  padding: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--bo-goc-nho);
+  transition: color 0.15s ease;
+}
+
+.nut-toggle-mat-khau:hover {
+  color: var(--van-ban-chinh);
+}
+
+.nut-toggle-mat-khau:focus-visible {
+  outline: 2px solid var(--mau-chinh);
+}
+
+.loi-hop-tai-khoan {
+  display: none;
+  background-color: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: var(--bo-goc-vua);
+  padding: var(--kc-s) var(--kc-m);
+  color: var(--mau-nguy-hiem);
+  font-size: var(--font-nho);
+  margin-top: var(--kc-s);
+}
+
+@media (max-width: 640px) {
+  .luoi-bieu-mau.hai-cot {
+    grid-template-columns: 1fr;
+  }
+}

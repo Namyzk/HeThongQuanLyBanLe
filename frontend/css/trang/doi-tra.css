@@ -1,0 +1,181 @@
+/**
+ * doi-tra.css — CSS riêng trang Đổi trả hàng hóa
+ */
+.doi-tra-khung {
+  display: flex;
+  flex-direction: column;
+  gap: var(--kc-l);
+}
+
+.doi-tra-the-tim {
+  padding: var(--kc-xl);
+  background: var(--nen-the);
+  border: 1px solid var(--duong-vien);
+  border-radius: var(--bo-goc-lon);
+}
+
+.doi-tra-dau-muc {
+  display: flex;
+  align-items: center;
+  gap: var(--kc-s);
+  margin-bottom: var(--kc-s);
+}
+
+.doi-tra-bieu-tuong {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--bo-goc-vua);
+  background: var(--mau-chinh-sang);
+  color: var(--mau-chinh);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+}
+
+.doi-tra-tieu-de-the {
+  margin: 0;
+  font-size: var(--font-lon);
+  font-weight: 700;
+}
+
+.doi-tra-mo-ta-the {
+  margin: 0;
+  font-size: var(--font-nho);
+  color: var(--van-ban-phu);
+}
+
+.doi-tra-tim-hop {
+  display: flex;
+  gap: var(--kc-m);
+  max-width: 620px;
+  margin-top: var(--kc-m);
+}
+
+.doi-tra-input-wrap {
+  flex: 1;
+  position: relative;
+}
+
+.doi-tra-input-wrap i {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--xam-400);
+}
+
+.doi-tra-input-wrap input {
+  padding-left: 40px;
+  width: 100%;
+}
+
+.doi-tra-trong {
+  padding: var(--kc-xxl);
+  color: var(--van-ban-phu);
+  text-align: center;
+  background: var(--nen-the);
+  border: 1px dashed var(--duong-vien);
+  border-radius: var(--bo-goc-lon);
+}
+
+.doi-tra-trong i {
+  font-size: 3rem;
+  color: var(--xam-300);
+}
+
+.doi-tra-trong-tieu-de {
+  margin-top: var(--kc-m);
+  font-weight: 600;
+  font-size: var(--font-lon);
+  color: var(--van-ban-chinh);
+}
+
+.doi-tra-trong-mo-ta {
+  color: var(--van-ban-mo);
+  margin-top: 4px;
+}
+
+.doi-tra-ket-qua-hop {
+  background: var(--nen-the);
+  border: 1px solid var(--duong-vien);
+  border-radius: var(--bo-goc-lon);
+  padding: var(--kc-xl);
+  display: flex;
+  flex-direction: column;
+  gap: var(--kc-l);
+}
+
+.doi-tra-thong-tin-hd {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: var(--kc-m);
+  border-bottom: 1px solid var(--duong-vien);
+  padding-bottom: var(--kc-l);
+}
+
+.doi-tra-hd-meta {
+  display: flex;
+  gap: var(--kc-l);
+  margin-top: 8px;
+  font-size: var(--font-binh);
+  color: var(--van-ban-phu);
+  flex-wrap: wrap;
+}
+
+.doi-tra-hd-tong-tien {
+  text-align: right;
+}
+
+.doi-tra-hd-tong-nhan {
+  font-size: var(--font-nho);
+  color: var(--van-ban-mo);
+  text-transform: uppercase;
+  font-weight: 700;
+}
+
+.doi-tra-hd-tong-so {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: var(--mau-chinh);
+}
+
+.doi-tra-bang-dau {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--kc-m);
+}
+
+.doi-tra-nut-nhom {
+  display: inline-flex;
+  gap: 4px;
+}
+
+.doi-tra-chan-hanh-dong {
+  display: flex;
+  justify-content: flex-end;
+  border-top: 1px solid var(--duong-vien);
+  padding-top: var(--kc-l);
+}
+
+.doi-tra-tai-hop {
+  display: flex;
+  justify-content: center;
+  padding: var(--kc-xxl);
+}
+
+@media (max-width: 768px) {
+  .doi-tra-tim-hop {
+    flex-direction: column;
+    max-width: 100%;
+  }
+  .doi-tra-thong-tin-hd {
+    flex-direction: column;
+  }
+  .doi-tra-hd-tong-tien {
+    text-align: left;
+  }
+}

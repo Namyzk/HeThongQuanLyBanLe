@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="vi" ng-app="qlblApp">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Quản lý Phiếu nhập kho - Hệ thống Quản lý Bán lẻ" />
+  <title>Phiếu nhập kho - Hệ thống Quản lý Bán lẻ</title>
+
+  <!-- Favicon -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%232563eb'><path d='M2.97 1.35A1 1 0 0 1 3.73 1h8.54a1 1 0 0 1 .76.35l2.609 3.044A1.5 1.5 0 0 1 16 5.37v.255a2.375 2.375 0 0 1-4.25 1.458A2.371 2.371 0 0 1 9.875 8 2.37 2.37 0 0 1 8 7.083 2.37 2.37 0 0 1 6.125 8a2.37 2.37 0 0 1-1.875-.917A2.375 2.375 0 0 1 0 5.625V5.37a1.5 1.5 0 0 1 .361-.976l2.61-3.045zm1.78 4.275a1.375 1.375 0 0 0 2.75 0 .5.5 0 0 1 1 0 1.375 1.375 0 0 0 2.75 0 .5.5 0 0 1 1 0 1.375 1.375 0 1 0 2.75 0V5.37a.5.5 0 0 0-.12-.325L12.27 2H3.73L1.12 5.045A.5.5 0 0 0 1 5.37v.255a1.375 1.375 0 0 0 2.75 0 .5.5 0 0 1 1 0zM1.5 8.5A.5.5 0 0 1 2 9v6h12V9a.5.5 0 0 1 1 0v6h.5a.5.5 0 0 1 0 1H.5a.5.5 0 0 1 0-1H1V9a.5.5 0 0 1 .5-.5zM4 15h8v-4.5a.5.5 0 0 0-.5-.5h-7a.5.5 0 0 0-.5.5V15z'/></svg>" />
+
+  <!-- Bootstrap Icons -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+
+  <!-- Modular CSS -->
+  <link rel="stylesheet" href="../css/chung.css" />
+  <link rel="stylesheet" href="../css/bo-cuc.css" />
+  <link rel="stylesheet" href="../css/thanh-phan.css" />
+  <link rel="stylesheet" href="../css/bieu-mau.css" />
+  <link rel="stylesheet" href="../css/hien-thi-di-dong.css" />
+  <link rel="stylesheet" href="../css/trang/quan-ly-phieu-nhap.css" />
+</head>
+<body ng-controller="PhieuNhapController as vm">
+
+  <div id="ung-dung">
+    <div id="overlay-sidebar"></div>
+
+    <aside id="sidebar" aria-label="Thanh bên điều hướng">
+      <div class="sidebar-logo">
+        <div class="sidebar-logo-icon" aria-hidden="true">
+          <i class="bi bi-shop"></i>
+        </div>
+        <div class="sidebar-logo-ten">Quản lý Bán lẻ</div>
+        <button id="nut-thu-gon-sidebar" type="button" class="nut nut-vien nut-nho" title="Thu gọn / Mở rộng menu" aria-label="Thu gọn hoặc mở rộng menu">
+          <i class="bi bi-chevron-left" aria-hidden="true"></i>
+        </button>
+      </div>
+      <nav class="sidebar-noi-dung" aria-label="Menu điều hướng chính"></nav>
+      <div class="sidebar-footer"></div>
+    </aside>
+
+    <div id="vung-chinh">
+      <header id="header">
+        <button id="nut-mo-menu" type="button" class="header-btn-menu nut" aria-label="Mở Menu điều hướng">
+          <i class="bi bi-list" aria-hidden="true"></i>
+        </button>
+
+        <div class="header-tieu-de">
+          <h1 id="header-tieu-de-trang">Phiếu nhập kho</h1>
+          <div class="duong-dan" id="header-duong-dan">Trang chủ / Phiếu nhập kho</div>
+        </div>
+
+        <div class="header-hành-dong">
+          <div id="canh-bao-token" class="canh-bao-phien" title="Thời gian còn lại của phiên đăng nhập"></div>
+          <div class="header-thong-tin-user">
+            <div class="header-user-avatar" id="header-user-avatar" aria-hidden="true">U</div>
+            <div>
+              <div class="header-user-ten" id="header-user-ten">Người dùng</div>
+              <div class="header-user-vai-tro" id="header-user-vai-tro">Vai trò</div>
+            </div>
+          </div>
+          <button id="nut-dang-xuat" type="button" class="nut nut-vien nut-nho nut-nguy-hiem" title="Đăng xuất khỏi hệ thống">
+            <i class="bi bi-box-arrow-right" aria-hidden="true"></i>
+            <span class="van-ban-an-mobile">Đăng xuất</span>
+          </button>
+        </div>
+      </header>
+
+      <main id="noi-dung-trang" role="main">
+        <div class="phieu-nhap-khung">
+          <section class="the fade-in">
+            <header class="the-dau">
+              <div>
+                <h2 class="the-tieu-de">
+                  Quản lý Phiếu nhập kho <span class="pn-tong-so">({{ vm.layDanhSachLoc().length }})</span>
+                </h2>
+              </div>
+              <div class="thanh-cong-cu">
+                <div class="o-tim-kiem">
+                  <i class="bi bi-search" aria-hidden="true"></i>
+                  <input
+                    type="search"
+                    placeholder="Tìm theo mã phiếu, nhà cung cấp, nhân viên..."
+                    ng-model="vm.tuKhoa"
+                    ng-change="vm.trangHienTai = 1"
+                    aria-label="Tìm kiếm phiếu nhập kho"
+                  />
+                </div>
+
+                <button type="button" class="nut nut-chinh" ng-click="vm.moFormThem()">
+                  <i class="bi bi-plus-lg" aria-hidden="true"></i> Tạo phiếu nhập mới
+                </button>
+                <button type="button" class="nut nut-xam" title="Tải lại dữ liệu" ng-click="vm.taiDuLieu()" aria-label="Tải lại dữ liệu">
+                  <i class="bi bi-arrow-clockwise" aria-hidden="true"></i>
+                </button>
+              </div>
+            </header>
+
+            <div class="the-noi-dung khong-padding">
+              <!-- Đang tải -->
+              <div ng-show="vm.dangTai" class="khung-dang-tai van-ban-trung pn-dang-tai">
+                <div class="quay-vong can-giua pn-dang-tai-icon"></div>
+                <p class="pn-dang-tai-text">Đang tải danh sách phiếu nhập kho...</p>
+              </div>
+
+              <!-- Bảng dữ liệu phiếu nhập -->
+              <div class="bang-bao-ngoai" ng-hide="vm.dangTai">
+                <table class="bang">
+                  <thead>
+                    <tr>
+                      <th class="col-maphieu">MÃ PHIẾU</th>
+                      <th>NHÀ CUNG CẤP</th>
+                      <th>NHÂN VIÊN NHẬP</th>
+                      <th class="col-ngaynhap">NGÀY NHẬP</th>
+                      <th class="van-ban-phai col-tonggiatri">TỔNG GIÁ TRỊ</th>
+                      <th class="van-ban-trung col-somathang">SỐ MẶT HÀNG</th>
+                      <th class="van-ban-trung col-thaotac-pn">THAO TÁC</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr ng-repeat="pn in vm.layDanhSachPhanTrang()">
+                      <td><span class="badge badge-lam pn-badge-maphieu">{{ pn.MAPHIEUNHAP }}</span></td>
+                      <td>
+                        <strong>{{ pn.TENNCC }}</strong>
+                        <span class="pn-sub-info" ng-if="pn.MANCC">Mã NCC: {{ pn.MANCC }}</span>
+                      </td>
+                      <td>
+                        <!-- Hiển thị tên nhân viên thay vì mã nhân viên -->
+                        <div class="pn-ten-nv">{{ pn.TENNV }}</div>
+                        <span class="pn-sub-info" ng-if="pn.MANV">Mã NV: {{ pn.MANV }}</span>
+                      </td>
+                      <td>{{ pn.NGAYLAP | ngayVn }}</td>
+                      <td class="van-ban-phai pn-tong-gia-tri">
+                        {{ pn.TONG_TIEN | vnd }}
+                      </td>
+                      <td class="van-ban-trung">
+                        <span class="badge pn-badge-mathang">
+                          {{ pn.SO_LUONG_SP }} mặt hàng
+                        </span>
+                      </td>
+                      <td class="van-ban-trung">
+                        <div class="pn-thao-tac-nhom">
+                          <button type="button" class="nut nut-vien nut-nho nut-pn-in" title="In phiếu nhập kho" ng-click="vm.xemInPhieu(pn)" aria-label="In phiếu nhập kho">
+                            <i class="bi bi-printer" aria-hidden="true"></i>
+                          </button>
+                          <button type="button" class="nut nut-vien nut-nho nut-pn-xem" title="Xem chi tiết" ng-click="vm.xemInPhieu(pn)" aria-label="Xem chi tiết phiếu nhập">
+                            <i class="bi bi-eye" aria-hidden="true"></i>
+                          </button>
+                          <button type="button" class="nut nut-vien nut-nho nut-pn-sua" title="Sửa phiếu nhập" ng-click="vm.moFormSua(pn)" aria-label="Sửa phiếu nhập">
+                            <i class="bi bi-pencil" aria-hidden="true"></i>
+                          </button>
+                          <button type="button" class="nut nut-vien nut-nho nut-pn-xoa" title="Xóa phiếu nhập" ng-click="vm.xoaPhieuNhap(pn)" aria-label="Xóa phiếu nhập">
+                            <i class="bi bi-trash" aria-hidden="true"></i>
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                    <tr ng-if="vm.layDanhSachLoc().length === 0 && !vm.dangTai">
+                      <td colspan="8" class="van-ban-trung pn-trong-hop">
+                        <i class="bi bi-inbox pn-trong-icon" aria-hidden="true"></i>
+                        Không tìm thấy phiếu nhập kho nào.
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+
+                <!-- Phân trang chuẩn -->
+                <footer class="phan-trang pn-phan-trang" ng-if="vm.layTongSoTrang() > 1">
+                  <span class="pn-phan-trang-thong-tin">
+                    Trang {{ vm.trangHienTai }} / {{ vm.layTongSoTrang() }} (Tổng {{ vm.layDanhSachLoc().length }} phiếu)
+                  </span>
+                  <div class="pn-phan-trang-nut-nhom">
+                    <button type="button" class="nut nut-vien nut-nho" ng-disabled="vm.trangHienTai <= 1" ng-click="vm.trangHienTai = vm.trangHienTai - 1">
+                      <i class="bi bi-chevron-left" aria-hidden="true"></i> Trước
+                    </button>
+                    <button type="button" class="nut nut-vien nut-nho" ng-disabled="vm.trangHienTai >= vm.layTongSoTrang()" ng-click="vm.trangHienTai = vm.trangHienTai + 1">
+                      Sau <i class="bi bi-chevron-right" aria-hidden="true"></i>
+                    </button>
+                  </div>
+                </footer>
+              </div>
+            </div>
+          </section>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- Modal Xem & In Phiếu Nhập Kho Chuẩn Kế Toán / Kho -->
+  <div class="modal-nen" ng-class="{'hien': vm.modalIn.hienThi}" aria-hidden="{{ !vm.modalIn.hienThi }}">
+    <div class="modal-hop modal-hop-in" role="dialog" aria-modal="true" aria-labelledby="modal-in-phieu-tieu-de">
+      <div class="modal-dau">
+        <h3 class="modal-tieu-de" id="modal-in-phieu-tieu-de">In Phiếu nhập kho — {{ vm.modalIn.phieu.MAPHIEUNHAP }}</h3>
+        <button class="modal-nut-dong" type="button" ng-click="vm.modalIn.hienThi = false" aria-label="Đóng cửa sổ"><i class="bi bi-x-lg" aria-hidden="true"></i></button>
+      </div>
+      <div class="modal-noi-dung vung-in-phieu-noi-dung" id="vung-in-phieu-nhap" ng-if="vm.modalIn.phieu">
+        <!-- Đầu phiếu -->
+        <header class="in-phieu-dau">
+          <h2 class="in-phieu-ten-he-thong">HỆ THỐNG QUẢN LÝ BÁN LẺ</h2>
+          <h3 class="in-phieu-tieu-de">PHIẾU NHẬP KHO</h3>
+          <div class="in-phieu-meta">
+            Số phiếu: <strong class="in-phieu-meta-dam">{{ vm.modalIn.phieu.MAPHIEUNHAP }}</strong> &nbsp;|&nbsp; 
+            Ngày nhập: <strong class="in-phieu-meta-dam">{{ vm.modalIn.phieu.NGAYLAP | ngayVn }}</strong>
+          </div>
+        </header>
+
+        <!-- Thông tin đối tác & Người lập phiếu (Tên nhân viên hiển thị chuẩn) -->
+        <section class="in-phieu-thong-tin-luoi" aria-label="Thông tin đối tác và người lập">
+          <div>
+            <div class="in-phieu-dong">Nhà cung cấp: <strong class="in-phieu-meta-dam">{{ vm.modalIn.phieu.TENNCC }}</strong></div>
+            <div class="in-phieu-sub" ng-if="vm.modalIn.phieu.MANCC">Mã NCC: {{ vm.modalIn.phieu.MANCC }}</div>
+          </div>
+          <div>
+            <!-- Hiển thị tên nhân viên thay vì mã nhân viên -->
+            <div class="in-phieu-dong">Người lập phiếu: <strong class="in-phieu-meta-dam">{{ vm.modalIn.phieu.TENNV }}</strong></div>
+            <div class="in-phieu-sub" ng-if="vm.modalIn.phieu.MANV">Mã nhân viên: {{ vm.modalIn.phieu.MANV }}</div>
+          </div>
+        </section>
+
+        <!-- Bảng danh sách mặt hàng nhập (Hiển thị tên sản phẩm chuẩn) -->
+        <table class="in-phieu-bang">
+          <thead>
+            <tr class="in-phieu-hang-tieu-de">
+              <th class="in-phieu-th-stt">STT</th>
+              <th class="in-phieu-th-masp">Mã SP</th>
+              <th class="in-phieu-th-tensp">Tên sản phẩm</th>
+              <th class="in-phieu-th-dvt">ĐVT</th>
+              <th class="in-phieu-th-soluong">Số lượng</th>
+              <th class="in-phieu-th-dongia">Đơn giá</th>
+              <th class="in-phieu-th-thanhtien">Thành tiền</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr ng-repeat="ct in vm.modalIn.phieu.CHI_TIET">
+              <td class="in-phieu-td-stt">{{ $index + 1 }}</td>
+              <td class="in-phieu-td-masp"><strong>{{ ct.MASP }}</strong></td>
+              <!-- Hiển thị tên sản phẩm chuẩn -->
+              <td class="in-phieu-td-tensp">{{ ct.TENSP }}</td>
+              <td class="in-phieu-td-dvt">Cái</td>
+              <td class="in-phieu-td-soluong">{{ ct.SOLUONG | so }}</td>
+              <td class="in-phieu-td-dongia">{{ ct.DONGIANHAP | vnd }}</td>
+              <td class="in-phieu-td-thanhtien">{{ ct.THANHTIEN | vnd }}</td>
+            </tr>
+          </tbody>
+          <tfoot>
+            <tr class="in-phieu-hang-tong">
+              <td colspan="6" class="in-phieu-td-nhan-tong">Tổng giá trị nhập kho:</td>
+              <td class="in-phieu-td-gia-tri-tong">
+                {{ vm.modalIn.phieu.TONG_TIEN | vnd }}
+              </td>
+            </tr>
+          </tfoot>
+        </table>
+
+        <!-- Chữ ký các bên (Hiển thị tên nhân viên ở Người lập phiếu) -->
+        <footer class="in-phieu-chu-ky-luoi">
+          <div>
+            <strong>Người giao hàng</strong><br />
+            <span class="in-phieu-chu-ky-sub">(Ký, ghi rõ họ tên)</span>
+            <div class="in-phieu-khoang-ky"></div>
+          </div>
+          <div>
+            <strong>Thủ kho nhận hàng</strong><br />
+            <span class="in-phieu-chu-ky-sub">(Ký, ghi rõ họ tên)</span>
+            <div class="in-phieu-khoang-ky"></div>
+          </div>
+          <div>
+            <strong>Người lập phiếu</strong><br />
+            <span class="in-phieu-chu-ky-sub">(Ký, ghi rõ họ tên)</span>
+            <div class="in-phieu-khoang-ky"></div>
+            <!-- Tên nhân viên ký bên dưới -->
+            <strong class="in-phieu-nguoi-ky">{{ vm.modalIn.phieu.TENNV }}</strong>
+          </div>
+        </footer>
+      </div>
+      <div class="modal-chan">
+        <button type="button" class="nut nut-vien" ng-click="vm.modalIn.hienThi = false">Đóng</button>
+        <button type="button" class="nut nut-chinh" ng-click="vm.thucHienIn()"><i class="bi bi-printer" aria-hidden="true"></i> In phiếu ngay</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Tạo Mới / Chỉnh Sửa Phiếu Nhập Kho -->
+  <div class="modal-nen" ng-class="{'hien': vm.modalForm.hienThi}" aria-hidden="{{ !vm.modalForm.hienThi }}">
+    <div class="modal-hop modal-hop-form-pn" role="dialog" aria-modal="true" aria-labelledby="modal-form-pn-tieu-de">
+      <div class="modal-dau">
+        <h3 class="modal-tieu-de" id="modal-form-pn-tieu-de">{{ vm.modalForm.tieuDe }}</h3>
+        <button class="modal-nut-dong" type="button" ng-click="vm.modalForm.hienThi = false" aria-label="Đóng cửa sổ"><i class="bi bi-x-lg" aria-hidden="true"></i></button>
+      </div>
+      <div class="modal-noi-dung">
+        <form ng-submit="vm.luuPhieuNhap()" id="form-phieu-nhap">
+          <div class="bieu-mau-dong">
+            <div class="bieu-mau-cot">
+              <label class="nhan-truong" for="pn-maphieu-input">Mã phiếu nhập <span class="dau-sao">*</span></label>
+              <input type="text" id="pn-maphieu-input" class="o-nhap" ng-model="vm.modalForm.duLieu.MAPHIEUNHAP" ng-disabled="vm.modalForm.laSua" required placeholder="VD: PN001" />
+            </div>
+            <div class="bieu-mau-cot">
+              <label class="nhan-truong" for="pn-ngaylap-input">Ngày nhập kho <span class="dau-sao">*</span></label>
+              <input type="date" id="pn-ngaylap-input" class="o-nhap" ng-model="vm.modalForm.duLieu.NGAYLAP_OBJ" required />
+            </div>
+          </div>
+
+          <div class="bieu-mau-dong">
+            <div class="bieu-mau-cot">
+              <label class="nhan-truong" for="pn-ncc-select">Nhà cung cấp <span class="dau-sao">*</span></label>
+              <select id="pn-ncc-select" class="o-chon" ng-model="vm.modalForm.duLieu.MANCC" required ng-options="ncc.MANCC as (ncc.TENNCC + ' (' + ncc.MANCC + ')') for ncc in vm.danhSachNCC">
+                <option value="">-- Chọn nhà cung cấp --</option>
+              </select>
+            </div>
+            <div class="bieu-mau-cot">
+              <!-- Chọn nhân viên hiển thị rõ tên nhân viên -->
+              <label class="nhan-truong" for="pn-nv-select">Nhân viên nhập kho <span class="dau-sao">*</span></label>
+              <select id="pn-nv-select" class="o-chon" ng-model="vm.modalForm.duLieu.MANV" required ng-options="nv.MANV as (nv.TENNV + ' (' + nv.MANV + ')') for nv in vm.danhSachNV">
+                <option value="">-- Chọn nhân viên nhập --</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Danh sách mặt hàng nhập -->
+          <section class="pn-form-chi-tiet-khung" aria-label="Chi tiết sản phẩm nhập">
+            <div class="pn-form-chi-tiet-dau">
+              <strong class="pn-form-chi-tiet-tieu-de">Chi tiết sản phẩm nhập:</strong>
+              <button type="button" class="nut nut-vien nut-nho" ng-click="vm.themDongHang()">
+                <i class="bi bi-plus-lg" aria-hidden="true"></i> Thêm mặt hàng
+              </button>
+            </div>
+
+            <table class="bang pn-form-bang-chitiet">
+              <thead>
+                <tr>
+                  <th>Sản phẩm</th>
+                  <th class="col-form-soluong">Số lượng</th>
+                  <th class="col-form-dongia">Đơn giá nhập</th>
+                  <th class="van-ban-phai col-form-thanhtien">Thành tiền</th>
+                  <th class="col-form-xoa"></th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr ng-repeat="item in vm.modalForm.duLieu.chiTiet">
+                  <td>
+                    <!-- Chọn sản phẩm hiển thị rõ tên sản phẩm -->
+                    <select class="o-chon" ng-model="item.MASP" ng-change="vm.khiChonSanPham(item)" required ng-options="sp.MASP as (sp.TENSP + ' (' + sp.MASP + ')') for sp in vm.danhSachSP" aria-label="Chọn sản phẩm">
+                      <option value="">-- Chọn sản phẩm --</option>
+                    </select>
+                  </td>
+                  <td>
+                    <input type="number" min="1" class="o-nhap" ng-model="item.SOLUONG" ng-change="vm.tinhThanhTienDong(item)" required aria-label="Số lượng nhập" />
+                  </td>
+                  <td>
+                    <input type="number" min="0" step="1000" class="o-nhap" ng-model="item.DONGIANHAP" ng-change="vm.tinhThanhTienDong(item)" required aria-label="Đơn giá nhập" />
+                  </td>
+                  <td class="van-ban-phai pn-form-thanhtien-td">
+                    {{ (item.SOLUONG * item.DONGIANHAP) | vnd }}
+                  </td>
+                  <td class="van-ban-trung">
+                    <button type="button" class="nut nut-vien nut-nguy-hiem nut-nho" ng-click="vm.xoaDongHang($index)" ng-disabled="vm.modalForm.duLieu.chiTiet.length <= 1" aria-label="Xóa dòng mặt hàng">
+                      <i class="bi bi-trash" aria-hidden="true"></i>
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+              <tfoot>
+                <tr>
+                  <td colspan="3" class="van-ban-phai"><strong>Tổng cộng:</strong></td>
+                  <td class="van-ban-phai pn-form-tong-td">
+                    {{ vm.tinhTongTienForm() | vnd }}
+                  </td>
+                  <td></td>
+                </tr>
+              </tfoot>
+            </table>
+          </section>
+        </form>
+      </div>
+      <div class="modal-chan">
+        <button type="button" class="nut nut-vien" ng-click="vm.modalForm.hienThi = false">Hủy</button>
+        <button type="submit" form="form-phieu-nhap" class="nut nut-chinh" ng-disabled="vm.modalForm.dangLuu">
+          <i class="bi bi-floppy" aria-hidden="true"></i> {{ vm.modalForm.dangLuu ? 'Đang lưu...' : (vm.modalForm.laSua ? 'Cập nhật' : 'Tạo phiếu') }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal chung dùng lại cho toàn hệ thống -->
+  <div id="modal-chung" class="modal-nen" aria-hidden="true">
+    <div class="modal-hop" role="dialog" aria-modal="true">
+      <div class="modal-dau">
+        <h3 class="modal-tieu-de">Tiêu đề modal</h3>
+        <button class="modal-nut-dong" type="button" aria-label="Đóng"><i class="bi bi-x-lg" aria-hidden="true"></i></button>
+      </div>
+      <div class="modal-noi-dung"></div>
+      <div class="modal-chan"></div>
+    </div>
+  </div>
+
+  <!-- Vùng Toast thông báo -->
+  <div id="vung-toast" aria-live="polite"></div>
+
+  <!-- AngularJS và Scripts -->
+  <script src="../angular.min.js"></script>
+  <script src="../js/angular-app.js"></script>
+  <script src="../js/trang/quan-ly-phieu-nhap.js"></script>
+</body>
+</html>

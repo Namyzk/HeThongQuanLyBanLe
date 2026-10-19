@@ -1,0 +1,479 @@
+/* ============================================================
+   thanh-toan-qr.css — Giao diện thanh toán bằng mã QR (VietQR)
+   Chuẩn Thiết kế Bán lẻ POS Hiện đại
+   ============================================================ */
+
+.qr-modal-container {
+  width: 100%;
+}
+
+.qr-modal-grid {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: var(--kc-l);
+  align-items: stretch;
+}
+
+/* ── CỘT TRÁI: MÃ QR & TRẠNG THÁI ── */
+.qr-cot-trai {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  background: var(--xam-50);
+  border: 1px solid var(--duong-vien);
+  border-radius: var(--bo-goc-lon);
+  padding: var(--kc-l);
+  gap: var(--kc-m);
+}
+
+.qr-khung-chua {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 260px;
+  height: 260px;
+  padding: 14px;
+  background: #ffffff;
+  border-radius: var(--bo-goc-vua);
+  border: 2px solid var(--duong-vien);
+  box-shadow: var(--bong-vua);
+  transition: transform var(--chuyen-tiep), border-color var(--chuyen-tiep), box-shadow var(--chuyen-tiep);
+}
+
+.qr-khung-chua:hover {
+  border-color: var(--mau-chinh);
+  box-shadow: var(--bong-lon);
+}
+
+.qr-svg-wrapper {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.qr-svg-wrapper svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+  shape-rendering: crispEdges;
+  border-radius: var(--bo-goc-xs);
+}
+
+/* Huy hiệu DEMO khi chưa cấu hình */
+.qr-badge-demo-overlay {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: linear-gradient(135deg, var(--mau-canh-bao), var(--mau-nguy-hiem));
+  color: #ffffff;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  padding: 3px 8px;
+  border-radius: var(--bo-goc-tron);
+  text-transform: uppercase;
+  box-shadow: 0 2px 6px rgba(244, 63, 94, 0.4);
+  pointer-events: none;
+}
+
+/* Huy hiệu trạng thái thanh toán */
+.qr-trang-thai-vung {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.qr-badge-trang-thai {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 16px;
+  border-radius: var(--bo-goc-tron);
+  font-size: var(--font-nho);
+  font-weight: 600;
+  transition: all var(--chuyen-tiep);
+}
+
+.qr-badge-cho {
+  background: var(--mau-canh-bao-sang);
+  color: var(--mau-canh-bao-hover);
+  border: 1px solid var(--mau-canh-bao-nhat);
+}
+
+.qr-badge-demo {
+  background: var(--mau-nguy-hiem-sang);
+  color: var(--mau-nguy-hiem);
+  border: 1px solid var(--mau-nguy-hiem-nhat);
+}
+
+/* Chấm hiệu ứng nhịp tim (pulsing dot) */
+.qr-pulse-cham {
+  position: relative;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.qr-pulse-cham::after {
+  content: '';
+  position: absolute;
+  top: -3px;
+  left: -3px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: 0.4;
+  animation: qr-pulse 1.8s cubic-bezier(0.24, 0, 0.38, 1) infinite;
+}
+
+@keyframes qr-pulse {
+  0% { transform: scale(0.6); opacity: 0.8; }
+  50% { transform: scale(1.4); opacity: 0.2; }
+  100% { transform: scale(1.8); opacity: 0; }
+}
+
+.qr-huong-dan-quet {
+  font-size: 12px;
+  color: var(--van-ban-phu);
+  margin: 0;
+  line-height: 1.5;
+}
+
+.qr-logo-vietqr-napas {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: auto;
+  padding-top: 10px;
+  border-top: 1px dashed var(--duong-vien);
+  width: 100%;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--van-ban-mo);
+  letter-spacing: 0.5px;
+}
+
+/* ── CỘT PHẢI: THÔNG TIN HÓA ĐƠN & CHUYỂN KHOẢN ── */
+.qr-cot-phai {
+  display: flex;
+  flex-direction: column;
+  gap: var(--kc-m);
+}
+
+/* Khối thông tin hóa đơn & số tiền */
+.qr-the-so-tien {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: linear-gradient(135deg, #f8fafc 0%, var(--mau-chinh-sang) 100%);
+  border: 1px solid var(--mau-chinh-nhat);
+  border-radius: var(--bo-goc-vua);
+  padding: 14px 18px;
+  box-shadow: var(--bong-nho);
+}
+
+.qr-ma-hd-hop {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.qr-nhan-phu {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--van-ban-mo);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.qr-ma-hd-gia-tri {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: var(--van-ban-chinh);
+  letter-spacing: 0.5px;
+}
+
+.qr-so-tien-hop {
+  text-align: right;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.qr-so-tien-lon {
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: var(--mau-chinh);
+  letter-spacing: -0.5px;
+}
+
+/* Khối chi tiết tài khoản thụ hưởng */
+.qr-the-tai-khoan {
+  background: #ffffff;
+  border: 1px solid var(--duong-vien);
+  border-radius: var(--bo-goc-vua);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  box-shadow: var(--bong-nhe);
+}
+
+.qr-dong-tai-khoan {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 10px;
+  border-bottom: 1px dashed var(--duong-vien-nhe);
+}
+
+.qr-dong-tai-khoan:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.qr-nhan-thong-tin {
+  font-size: 12px;
+  color: var(--van-ban-phu);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 125px;
+}
+
+.qr-gia-tri-thong-tin {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-align: right;
+  flex: 1;
+  justify-content: flex-end;
+}
+
+.qr-van-ban-nhan-manh {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--van-ban-chinh);
+}
+
+.qr-stk-noi-bat {
+  font-family: 'Consolas', 'Courier New', monospace;
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--van-ban-chinh);
+  letter-spacing: 0.5px;
+  background: var(--xam-100);
+  padding: 2px 8px;
+  border-radius: var(--bo-goc-xs);
+}
+
+.qr-noi-dung-noi-bat {
+  font-family: 'Consolas', 'Courier New', monospace;
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--mau-chinh-dam);
+  background: var(--mau-chinh-sang);
+  border: 1px solid var(--mau-chinh-nhat);
+  padding: 3px 10px;
+  border-radius: var(--bo-goc-xs);
+  letter-spacing: 0.5px;
+}
+
+/* Nút sao chép */
+.qr-nut-sao-chep {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 10px;
+  height: 28px;
+  border-radius: var(--bo-goc-nho);
+  border: 1px solid var(--duong-vien);
+  background: #ffffff;
+  color: var(--van-ban-phu);
+  cursor: pointer;
+  transition: all var(--chuyen-tiep);
+  white-space: nowrap;
+}
+
+.qr-nut-sao-chep:hover {
+  background: var(--mau-chinh-sang);
+  color: var(--mau-chinh);
+  border-color: var(--mau-chinh);
+}
+
+.qr-nut-sao-chep.da-sao-chep {
+  background: var(--mau-thanh-cong-sang);
+  color: var(--mau-thanh-cong);
+  border-color: var(--mau-thanh-cong);
+}
+
+/* Hộp lưu ý / nhắc nhở */
+.qr-hop-luu-y {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  background: var(--mau-thong-tin-sang);
+  border: 1px solid var(--mau-thong-tin-nhat);
+  border-radius: var(--bo-goc-nho);
+  padding: 10px 14px;
+  font-size: 12px;
+  color: var(--van-ban-phu);
+  line-height: 1.45;
+}
+
+.qr-hop-luu-y i {
+  font-size: 16px;
+  color: var(--mau-thong-tin);
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+/* Hộp cảnh báo chưa cấu hình */
+.qr-hop-canh-bao-cau-hinh {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background: var(--mau-canh-bao-sang);
+  border: 1px solid var(--mau-canh-bao-nhat);
+  border-radius: var(--bo-goc-vua);
+  padding: 12px 16px;
+  color: #78350f;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.qr-canh-bao-tieu-de {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 700;
+  font-size: 13px;
+  color: var(--mau-canh-bao-hover);
+}
+
+.qr-canh-bao-huong-dan {
+  margin: 0;
+  color: var(--van-ban-chinh);
+}
+
+.qr-canh-bao-code {
+  background: rgba(0, 0, 0, 0.05);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: monospace;
+  font-weight: 600;
+  color: var(--mau-chinh-dam);
+}
+
+/* Chân modal thanh toán QR */
+.qr-modal-chan-hop {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  gap: var(--kc-m);
+}
+
+.qr-modal-chan-ghi-chu {
+  font-size: 11px;
+  color: var(--van-ban-mo);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.qr-modal-chan-ghi-chu i {
+  color: var(--mau-thanh-cong);
+}
+
+/* Nút mở lại QR trên màn hình bán hàng */
+.pos-nut-mo-qr {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-weight: 600;
+  font-size: var(--font-nho);
+  padding: 8px 12px;
+  background: var(--mau-chinh-sang);
+  color: var(--mau-chinh);
+  border: 1px solid var(--mau-chinh-nhat);
+  border-radius: var(--bo-goc-vua);
+  cursor: pointer;
+  transition: all var(--chuyen-tiep);
+  text-align: center;
+}
+
+.pos-nut-mo-qr:hover {
+  background: var(--mau-chinh);
+  color: #ffffff;
+  border-color: var(--mau-chinh);
+}
+
+/* ── RESPONSIVE DESIGN (TABLET & MOBILE) ── */
+@media (max-width: 768px) {
+  .qr-modal-grid {
+    grid-template-columns: 1fr;
+    gap: var(--kc-m);
+  }
+
+  .qr-cot-trai {
+    padding: var(--kc-m);
+  }
+
+  .qr-khung-chua {
+    width: 220px;
+    height: 220px;
+  }
+
+  .qr-the-so-tien {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .qr-so-tien-hop {
+    text-align: left;
+  }
+
+  .qr-so-tien-lon {
+    font-size: 1.5rem;
+  }
+
+  .qr-dong-tai-khoan {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+
+  .qr-gia-tri-thong-tin {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .qr-modal-chan-hop {
+    flex-direction: column-reverse;
+    align-items: stretch;
+  }
+
+  .qr-modal-chan-hop .nut {
+    width: 100%;
+  }
+
+  .qr-modal-chan-ghi-chu {
+    text-align: center;
+    justify-content: center;
+  }
+}

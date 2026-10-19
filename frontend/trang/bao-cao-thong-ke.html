@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="vi" ng-app="qlblApp">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Báo cáo & Thống kê kinh doanh - Hệ thống Quản lý Bán lẻ" />
+  <title>Báo cáo & Thống kê - Hệ thống Quản lý Bán lẻ</title>
+
+  <!-- Favicon -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%232563eb'><path d='M2.97 1.35A1 1 0 0 1 3.73 1h8.54a1 1 0 0 1 .76.35l2.609 3.044A1.5 1.5 0 0 1 16 5.37v.255a2.375 2.375 0 0 1-4.25 1.458A2.371 2.371 0 0 1 9.875 8 2.37 2.37 0 0 1 8 7.083 2.37 2.37 0 0 1 6.125 8a2.37 2.37 0 0 1-1.875-.917A2.375 2.375 0 0 1 0 5.625V5.37a1.5 1.5 0 0 1 .361-.976l2.61-3.045zm1.78 4.275a1.375 1.375 0 0 0 2.75 0 .5.5 0 0 1 1 0 1.375 1.375 0 0 0 2.75 0 .5.5 0 0 1 1 0 1.375 1.375 0 1 0 2.75 0V5.37a.5.5 0 0 0-.12-.325L12.27 2H3.73L1.12 5.045A.5.5 0 0 0 1 5.37v.255a1.375 1.375 0 0 0 2.75 0 .5.5 0 0 1 1 0zM1.5 8.5A.5.5 0 0 1 2 9v6h12V9a.5.5 0 0 1 1 0v6h.5a.5.5 0 0 1 0 1H.5a.5.5 0 0 1 0-1H1V9a.5.5 0 0 1 .5-.5zM4 15h8v-4.5a.5.5 0 0 0-.5-.5h-7a.5.5 0 0 0-.5.5V15z'/></svg>" />
+
+  <!-- Bootstrap Icons -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+
+  <!-- Modular CSS -->
+  <link rel="stylesheet" href="../css/chung.css" />
+  <link rel="stylesheet" href="../css/bo-cuc.css" />
+  <link rel="stylesheet" href="../css/thanh-phan.css" />
+  <link rel="stylesheet" href="../css/bieu-mau.css" />
+  <link rel="stylesheet" href="../css/hien-thi-di-dong.css" />
+  <link rel="stylesheet" href="../css/trang/bao-cao-thong-ke.css" />
+</head>
+<body ng-controller="BaoCaoController as vm">
+
+  <div id="ung-dung">
+    <div id="overlay-sidebar"></div>
+
+    <aside id="sidebar" aria-label="Thanh bên điều hướng">
+      <div class="sidebar-logo">
+        <div class="sidebar-logo-icon" aria-hidden="true">
+          <i class="bi bi-shop"></i>
+        </div>
+        <div class="sidebar-logo-ten">Quản lý Bán lẻ</div>
+        <button id="nut-thu-gon-sidebar" type="button" class="nut nut-vien nut-nho" title="Thu gọn / Mở rộng menu" aria-label="Thu gọn hoặc mở rộng menu">
+          <i class="bi bi-chevron-left" aria-hidden="true"></i>
+        </button>
+      </div>
+      <nav class="sidebar-noi-dung" aria-label="Menu điều hướng chính"></nav>
+      <div class="sidebar-footer"></div>
+    </aside>
+
+    <div id="vung-chinh">
+      <header id="header">
+        <button id="nut-mo-menu" type="button" class="header-btn-menu nut" aria-label="Mở Menu điều hướng">
+          <i class="bi bi-list" aria-hidden="true"></i>
+        </button>
+
+        <div class="header-tieu-de">
+          <h1 id="header-tieu-de-trang">Báo cáo & Thống kê</h1>
+          <div class="duong-dan" id="header-duong-dan">Trang chủ / Báo cáo & Thống kê</div>
+        </div>
+
+        <div class="header-hành-dong">
+          <div id="canh-bao-token" class="canh-bao-phien" title="Thời gian còn lại của phiên đăng nhập"></div>
+          <div class="header-thong-tin-user">
+            <div class="header-user-avatar" id="header-user-avatar" aria-hidden="true">U</div>
+            <div>
+              <div class="header-user-ten" id="header-user-ten">Người dùng</div>
+              <div class="header-user-vai-tro" id="header-user-vai-tro">Vai trò</div>
+            </div>
+          </div>
+          <button id="nut-dang-xuat" type="button" class="nut nut-vien nut-nho nut-nguy-hiem" title="Đăng xuất khỏi hệ thống">
+            <i class="bi bi-box-arrow-right" aria-hidden="true"></i>
+            <span class="van-ban-an-mobile">Đăng xuất</span>
+          </button>
+        </div>
+      </header>
+
+      <main id="noi-dung-trang" role="main">
+        <div class="bao-cao-khung">
+          <!-- Toolbar Bộ lọc thời gian & Nút Xuất báo cáo -->
+          <section class="the" aria-label="Bộ lọc và thao tác báo cáo">
+            <div class="the-noi-dung bao-cao-thanh-cong-cu">
+              <div class="bao-cao-bo-loc">
+                <div class="bao-cao-nhom-ngay">
+                  <label for="bc-tu-ngay">Từ ngày:</label>
+                  <input type="date" id="bc-tu-ngay" class="o-nhap" ng-model="vm.tuNgay" />
+                </div>
+                <div class="bao-cao-nhom-ngay">
+                  <label for="bc-den-ngay">Đến ngày:</label>
+                  <input type="date" id="bc-den-ngay" class="o-nhap" ng-model="vm.denNgay" />
+                </div>
+                <button type="button" id="bc-nut-loc" class="nut nut-chinh nut-nho" ng-click="vm.locDuLieu()">
+                  <i class="bi bi-funnel" aria-hidden="true"></i> Lọc dữ liệu
+                </button>
+                <button type="button" id="bc-nut-tat-ca" class="nut nut-vien nut-nho" ng-click="vm.xoaLoc()">
+                  <i class="bi bi-arrow-clockwise" aria-hidden="true"></i> Tất cả thời gian
+                </button>
+              </div>
+
+              <div>
+                <button type="button" id="bc-nut-xuat-excel" class="nut nut-vien nut-xanh" ng-click="vm.xuatBaoCaoCSV()">
+                  <i class="bi bi-file-earmark-excel" aria-hidden="true"></i>
+                  <span>Xuất báo cáo thống kê</span>
+                </button>
+              </div>
+            </div>
+          </section>
+
+          <!-- Thẻ tóm tắt chỉ số KPI -->
+          <section id="bc-vung-kpi" class="luoi-thong-ke" aria-label="Tổng quan tài chính">
+            <div class="o-thong-ke">
+              <div class="o-thong-ke-bieu-tuong bg-luc-nhat chu-mau-luc">
+                <i class="bi bi-cash-stack" aria-hidden="true"></i>
+              </div>
+              <div class="o-thong-ke-noi-dung">
+                <div class="o-thong-ke-gia-tri" title="{{ vm.kpi.tongDoanhThu | vnd }}">{{ vm.kpi.tongDoanhThu | vnd }}</div>
+                <div class="o-thong-ke-nhan">Tổng doanh thu bán ({{ vm.kpi.soDonHang | so }} hóa đơn)</div>
+              </div>
+            </div>
+
+            <div class="o-thong-ke">
+              <div class="o-thong-ke-bieu-tuong bg-hong-nhat chu-mau-hong">
+                <i class="bi bi-cart-dash" aria-hidden="true"></i>
+              </div>
+              <div class="o-thong-ke-noi-dung">
+                <div class="o-thong-ke-gia-tri" title="{{ vm.kpi.tongChiPhiNhap | vnd }}">{{ vm.kpi.tongChiPhiNhap | vnd }}</div>
+                <div class="o-thong-ke-nhan">Chi phí nhập hàng ({{ vm.kpi.soPhieuNhap | so }} phiếu)</div>
+              </div>
+            </div>
+
+            <div class="o-thong-ke">
+              <div class="o-thong-ke-bieu-tuong bg-lam-nhat chu-mau-lam">
+                <i class="bi bi-graph-up-arrow" aria-hidden="true"></i>
+              </div>
+              <div class="o-thong-ke-noi-dung">
+                <div
+                  class="o-thong-ke-gia-tri"
+                  ng-class="{'chu-mau-thanh-cong': vm.kpi.loiNhuanGop >= 0, 'chu-mau-nguy-hiem': vm.kpi.loiNhuanGop < 0}"
+                  title="{{ vm.kpi.loiNhuanGop | vnd }}"
+                >
+                  {{ vm.kpi.loiNhuanGop | vnd }}
+                </div>
+                <div class="o-thong-ke-nhan">Lợi nhuận gộp ước tính</div>
+              </div>
+            </div>
+
+            <div class="o-thong-ke">
+              <div class="o-thong-ke-bieu-tuong bg-vang-nhat chu-mau-vang">
+                <i class="bi bi-receipt-cutoff" aria-hidden="true"></i>
+              </div>
+              <div class="o-thong-ke-noi-dung">
+                <div class="o-thong-ke-gia-tri" title="{{ vm.kpi.giaTriTrungBinhDon | vnd }}">{{ vm.kpi.giaTriTrungBinhDon | vnd }}</div>
+                <div class="o-thong-ke-nhan">Giá trị trung bình đơn</div>
+              </div>
+            </div>
+          </section>
+
+          <!-- Bảng xếp hạng: Bán chạy nhất & Bán chậm nhất -->
+          <section class="luoi-san-pham-thong-ke" aria-label="Phân tích sản phẩm">
+            <!-- Thẻ Sản phẩm bán chạy nhất -->
+            <article class="the-xep-hang">
+              <div class="the-xep-hang-dau">
+                <div class="the-xep-hang-tieu-de">
+                  <i class="bi bi-trophy-fill bieu-tuong-vang" aria-hidden="true"></i>
+                  <span>Sản phẩm bán chạy nhất (Top 5)</span>
+                </div>
+                <span class="badge badge-xanh">Tiêu chí: Số lượng bán</span>
+              </div>
+              <div class="the-xep-hang-noi-dung" id="vung-top-sp-ban-chay">
+                <div class="van-ban-trung van-ban-phu pad-l" ng-if="vm.topSPBanChay.length === 0">
+                  Chưa có sản phẩm nào phát sinh doanh số trong khoảng thời gian đã chọn.
+                </div>
+                <table class="bang-xep-hang-sp" ng-if="vm.topSPBanChay.length > 0">
+                  <thead>
+                    <tr>
+                      <th class="trung col-hang">Hạng</th>
+                      <th>Sản phẩm</th>
+                      <th class="so col-sl-ban">SL Đã bán</th>
+                      <th class="so col-doanh-thu">Doanh thu</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr ng-repeat="sp in vm.topSPBanChay">
+                      <td class="trung">
+                        <span class="badge" ng-class="{'badge-vang': $index === 0, 'badge-xam': $index === 1, 'badge-lam': $index > 1}">
+                          {{ $index + 1 }}
+                        </span>
+                      </td>
+                      <td>
+                        <strong>{{ sp.tenSP }}</strong>
+                        <div class="sp-ma-phu">Mã: {{ sp.maSP }}</div>
+                      </td>
+                      <td class="so"><strong>{{ sp.soLuongBan | so }}</strong></td>
+                      <td class="so chu-mau-chinh font-dam">{{ sp.doanhThu | vnd }}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </article>
+
+            <!-- Thẻ Sản phẩm bán chậm / chưa bán -->
+            <article class="the-xep-hang">
+              <div class="the-xep-hang-dau">
+                <div class="the-xep-hang-tieu-de">
+                  <i class="bi bi-hourglass-bottom bieu-tuong-do" aria-hidden="true"></i>
+                  <span>Sản phẩm bán chậm / Chưa phát sinh bán</span>
+                </div>
+                <span class="badge badge-vang">Tiêu chí: Số lượng bán thấp nhất</span>
+              </div>
+              <div class="the-xep-hang-noi-dung" id="vung-sp-ban-cham">
+                <div class="van-ban-trung van-ban-phu pad-l" ng-if="vm.topSPBanCham.length === 0">
+                  Chưa có dữ liệu danh mục sản phẩm.
+                </div>
+                <table class="bang-xep-hang-sp" ng-if="vm.topSPBanCham.length > 0">
+                  <thead>
+                    <tr>
+                      <th class="trung col-hang">STT</th>
+                      <th>Sản phẩm</th>
+                      <th class="so col-sl-ban">SL Đã bán</th>
+                      <th class="so col-sl-ban">Tồn kho</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr ng-repeat="sp in vm.topSPBanCham">
+                      <td class="trung">
+                        <span class="badge" ng-class="{'badge-do': sp.soLuongBan === 0, 'badge-vang': sp.soLuongBan > 0}">
+                          {{ $index + 1 }}
+                        </span>
+                      </td>
+                      <td>
+                        <strong>{{ sp.tenSP }}</strong>
+                        <div class="sp-ma-phu">Mã: {{ sp.maSP }}</div>
+                      </td>
+                      <td class="so">
+                        <span class="badge" ng-class="{'badge-do': sp.soLuongBan === 0, 'badge-vang': sp.soLuongBan > 0}">
+                          {{ sp.soLuongBan | so }}
+                        </span>
+                      </td>
+                      <td class="so">{{ sp.soLuongTon | so }}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </article>
+          </section>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- Vùng Toast thông báo -->
+  <div id="vung-toast" aria-live="polite"></div>
+
+  <!-- AngularJS và Scripts -->
+  <script src="../angular.min.js"></script>
+  <script src="../js/angular-app.js"></script>
+  <script src="../js/trang/bao-cao-thong-ke.js"></script>
+</body>
+</html>

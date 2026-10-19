@@ -1,0 +1,135 @@
+/* ============================================================
+   hien-thi-di-dong.css — Responsive Design cho Tablet & Mobile (<1024px, <768px)
+   ============================================================ */
+
+/* ── Tablet (màn hình <= 1024px) ── */
+@media (max-width: 1024px) {
+  .khung-pos {
+    grid-template-columns: 1fr;
+  }
+
+  .pos-don-hang {
+    order: -1;
+  }
+
+  .luoi-thong-ke {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* ── Mobile (màn hình <= 768px) ── */
+@media (max-width: 768px) {
+  /* Sidebar trở thành ngăn kéo (off-canvas drawer) */
+  #sidebar {
+    transform: translateX(-100%);
+    width: var(--sidebar-rong) !important;
+    box-shadow: var(--bong-xl);
+  }
+
+  #sidebar.hien {
+    transform: translateX(0);
+  }
+
+  #sidebar .sidebar-logo-ten,
+  #sidebar .sidebar-nhom-ten,
+  #sidebar .menu-muc-nhan,
+  #sidebar .sidebar-user-ten {
+    opacity: 1 !important;
+    width: auto !important;
+    pointer-events: auto !important;
+  }
+
+  #vung-chinh {
+    margin-left: 0 !important;
+  }
+
+  /* Header trên Mobile */
+  #header {
+    padding: 0 var(--kc-l);
+  }
+
+  .van-ban-an-mobile {
+    display: none;
+  }
+
+  .header-tieu-de h1 {
+    font-size: var(--font-binh);
+  }
+
+  .header-tieu-de .duong-dan {
+    display: none;
+  }
+
+  .header-thong-tin-user {
+    padding: 4px;
+    background: transparent;
+    border: none;
+  }
+
+  .header-user-ten,
+  .header-user-vai-tro {
+    display: none;
+  }
+
+  /* Nội dung trang */
+  #noi-dung-trang {
+    padding: var(--kc-l);
+  }
+
+  /* Lưới thống kê 1 cột */
+  .luoi-thong-ke {
+    grid-template-columns: 1fr;
+    gap: var(--kc-m);
+  }
+
+  /* Toolbar tìm kiếm full width */
+  .thanh-cong-cu {
+    width: 100%;
+  }
+
+  .o-tim-kiem {
+    width: 100%;
+    min-width: 0;
+  }
+
+  /* Modal trên Mobile */
+  .modal-nen {
+    padding: var(--kc-m);
+    align-items: flex-end;
+  }
+
+  .modal-hop {
+    max-height: 92vh;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+  }
+
+  .payos-modal-grid {
+    grid-template-columns: 1fr !important;
+    gap: var(--kc-m) !important;
+  }
+
+  .payos-info-the {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Đăng nhập */
+  .dang-nhap-the {
+    padding: var(--kc-l);
+  }
+
+  /* POS bán hàng */
+  .pos-hang-hoa {
+    padding: var(--kc-m) !important;
+  }
+
+  #pos-luoi-sp {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+
+  .chi-tiet-sp-khung {
+    grid-template-columns: 1fr !important;
+    gap: var(--kc-m) !important;
+  }
+}
+

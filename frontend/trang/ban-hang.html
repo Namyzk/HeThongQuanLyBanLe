@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="vi" ng-app="qlblApp">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Màn hình Bán hàng POS - Hệ thống Quản lý Bán lẻ" />
+  <title>Bán hàng (POS) - Hệ thống Quản lý Bán lẻ</title>
+
+  <!-- Favicon -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%232563eb'><path d='M2.97 1.35A1 1 0 0 1 3.73 1h8.54a1 1 0 0 1 .76.35l2.609 3.044A1.5 1.5 0 0 1 16 5.37v.255a2.375 2.375 0 0 1-4.25 1.458A2.371 2.371 0 0 1 9.875 8 2.37 2.37 0 0 1 8 7.083 2.37 2.37 0 0 1 6.125 8a2.37 2.37 0 0 1-1.875-.917A2.375 2.375 0 0 1 0 5.625V5.37a1.5 1.5 0 0 1 .361-.976l2.61-3.045zm1.78 4.275a1.375 1.375 0 0 0 2.75 0 .5.5 0 0 1 1 0 1.375 1.375 0 0 0 2.75 0 .5.5 0 0 1 1 0 1.375 1.375 0 1 0 2.75 0V5.37a.5.5 0 0 0-.12-.325L12.27 2H3.73L1.12 5.045A.5.5 0 0 0 1 5.37v.255a1.375 1.375 0 0 0 2.75 0 .5.5 0 0 1 1 0zM1.5 8.5A.5.5 0 0 1 2 9v6h12V9a.5.5 0 0 1 1 0v6h.5a.5.5 0 0 1 0 1H.5a.5.5 0 0 1 0-1H1V9a.5.5 0 0 1 .5-.5zM4 15h8v-4.5a.5.5 0 0 0-.5-.5h-7a.5.5 0 0 0-.5.5V15z'/></svg>" />
+
+  <!-- Bootstrap Icons -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+
+  <!-- Modular CSS -->
+  <link rel="stylesheet" href="../css/chung.css" />
+  <link rel="stylesheet" href="../css/bo-cuc.css" />
+  <link rel="stylesheet" href="../css/thanh-phan.css" />
+  <link rel="stylesheet" href="../css/bieu-mau.css" />
+  <link rel="stylesheet" href="../css/hien-thi-di-dong.css" />
+
+  <link rel="stylesheet" href="../css/trang/ban-hang.css" />
+</head>
+<body ng-controller="BanHangController as vm">
+
+  <div id="ung-dung">
+    <div id="overlay-sidebar"></div>
+
+    <aside id="sidebar" aria-label="Thanh bên điều hướng">
+      <div class="sidebar-logo">
+        <div class="sidebar-logo-icon" aria-hidden="true">
+          <i class="bi bi-shop"></i>
+        </div>
+        <div class="sidebar-logo-ten">Quản lý Bán lẻ</div>
+        <button id="nut-thu-gon-sidebar" type="button" class="nut nut-vien nut-nho" title="Thu gọn / Mở rộng menu" aria-label="Thu gọn hoặc mở rộng menu">
+          <i class="bi bi-chevron-left" aria-hidden="true"></i>
+        </button>
+      </div>
+      <nav class="sidebar-noi-dung" aria-label="Menu điều hướng chính"></nav>
+      <div class="sidebar-footer"></div>
+    </aside>
+
+    <div id="vung-chinh">
+      <header id="header">
+        <button id="nut-mo-menu" type="button" class="header-btn-menu nut" aria-label="Mở Menu điều hướng">
+          <i class="bi bi-list" aria-hidden="true"></i>
+        </button>
+
+        <div class="header-tieu-de">
+          <h1 id="header-tieu-de-trang">Bán hàng (POS)</h1>
+          <div class="duong-dan" id="header-duong-dan">Trang chủ / Bán hàng</div>
+        </div>
+
+        <div class="header-hành-dong">
+          <div id="canh-bao-token" class="canh-bao-phien" title="Thời gian còn lại của phiên đăng nhập"></div>
+          <div class="header-thong-tin-user">
+            <div class="header-user-avatar" id="header-user-avatar" aria-hidden="true">A</div>
+            <div>
+              <div class="header-user-ten" id="header-user-ten">admin</div>
+              <div class="header-user-vai-tro" id="header-user-vai-tro">Quản trị viên</div>
+            </div>
+          </div>
+          <!-- Bỏ hộp thoại xác nhận khi đăng xuất -->
+          <button id="nut-dang-xuat" type="button" class="nut nut-vien nut-nho nut-nguy-hiem" title="Đăng xuất khỏi hệ thống">
+            <i class="bi bi-box-arrow-right" aria-hidden="true"></i>
+            <span class="van-ban-an-mobile">Đăng xuất</span>
+          </button>
+        </div>
+      </header>
+
+      <main id="noi-dung-trang" role="main">
+        <div class="pos-khung-chinh">
+
+          <!-- KHỐI BÊN TRÁI: Tìm kiếm, Bộ lọc danh mục & Lưới sản phẩm compact 4 cột -->
+          <section class="pos-vung-trai" aria-label="Danh mục và danh sách sản phẩm">
+            <!-- Ô tìm kiếm dạng pill -->
+            <div class="pos-o-tim-kiem-hop">
+              <i class="bi bi-search" aria-hidden="true"></i>
+              <input
+                type="text"
+                class="pos-input-tim"
+                placeholder="Tìm tên hàng, mã SP hoặc quét mã vạch..."
+                ng-model="vm.tuKhoa"
+                aria-label="Tìm kiếm sản phẩm"
+              />
+            </div>
+
+            <!-- Thanh danh mục dạng Pills bo tròn ngang -->
+            <nav class="pos-thanh-danh-muc" aria-label="Lọc theo danh mục">
+              <button
+                type="button"
+                class="pos-pill-dm"
+                ng-class="{'active': !vm.danhMucLoc}"
+                ng-click="vm.danhMucLoc = ''"
+              >
+                Tất cả
+              </button>
+              <button
+                type="button"
+                class="pos-pill-dm"
+                ng-repeat="dm in vm.danhSachDM"
+                ng-class="{'active': vm.danhMucLoc === dm.MADANHMUC}"
+                ng-click="vm.danhMucLoc = dm.MADANHMUC"
+              >
+                {{ dm.TENDANHMUC }}
+              </button>
+            </nav>
+
+            <!-- Loading -->
+            <div ng-show="vm.dangTai" class="pos-sp-dang-tai">
+              <div class="quay-vong can-giua pos-sp-dang-tai-icon"></div>
+              <p class="pos-sp-dang-tai-text">Đang tải danh sách hàng hóa...</p>
+            </div>
+
+            <!-- Lưới sản phẩm 4 cột compact theo đúng ảnh 3 -->
+            <div class="pos-luoi-san-pham" ng-hide="vm.dangTai">
+              <article
+                class="pos-the-card"
+                ng-repeat="sp in vm.danhSachSP | filter:vm.locSanPham"
+              >
+                <!-- Khung ảnh có badge mã, badge tồn kho và nút xem chi tiết -->
+                <figure class="pos-card-anh-hop">
+                  <span class="pos-badge-ma">{{ sp.MASP }}</span>
+                  <span class="pos-badge-tonkho">Tồn: {{ sp.SOLUONGTON | so }}</span>
+
+                  <!-- Nếu có ảnh thật -->
+                  <img
+                    ng-if="sp.CO_ANH"
+                    ng-src="{{ vm.layAnh(sp.MASP) }}"
+                    alt="{{ sp.TENSP }}"
+                    class="pos-card-anh-img"
+                  />
+
+                  <!-- Nếu không có ảnh: hiển thị avatar tròn chữ cái + tên sp nhỏ bên dưới đúng như ảnh 3 -->
+                  <div class="pos-card-avatar-hop" ng-if="!sp.CO_ANH">
+                    <div class="pos-avatar-chu-cai" ng-style="{'background-color': vm.layMauAvatar(sp.TENSP)}">
+                      {{ vm.layChuCaiDau(sp.TENSP) }}
+                    </div>
+                    <div class="pos-card-ma-phu">
+                      {{ sp.TENSP }}
+                    </div>
+                  </div>
+
+                  <button type="button" class="pos-card-nut-xem" title="Xem chi tiết" ng-click="vm.xemNhanh(sp)" aria-label="Xem nhanh sản phẩm">
+                    <i class="bi bi-eye" aria-hidden="true"></i>
+                  </button>
+                </figure>
+
+                <!-- Tên sản phẩm và mã vạch -->
+                <h3 class="pos-card-ten" title="{{ sp.TENSP }}">{{ sp.TENSP }}</h3>
+                <div class="pos-card-mavach">
+                  <i class="bi bi-upc" aria-hidden="true"></i> {{ sp.MAVACH || '—' }}
+                </div>
+
+                <!-- Đơn giá và nút tròn thêm vào giỏ -->
+                <div class="pos-card-chan">
+                  <div class="pos-card-gia">{{ sp.DONGIA | vnd }}</div>
+                  <button type="button" class="pos-card-nut-cong" ng-click="vm.themVaoGio(sp)" title="Thêm vào đơn hàng" aria-label="Thêm vào đơn hàng">
+                    +
+                  </button>
+                </div>
+              </article>
+
+              <div ng-if="(vm.danhSachSP | filter:vm.locSanPham).length === 0 && !vm.dangTai" class="pos-sp-trong-hop">
+                <i class="bi bi-inbox pos-sp-trong-icon" aria-hidden="true"></i>
+                Không tìm thấy sản phẩm nào.
+              </div>
+            </div>
+          </section>
+
+          <!-- KHỐI BÊN PHẢI: Hóa đơn bán hàng theo đúng ảnh 3 -->
+          <aside class="pos-hoa-don-khung" aria-label="Hóa đơn bán hàng">
+            <header class="pos-hd-dau">
+              <div class="pos-hd-tieu-de">
+                <i class="bi bi-cart3 pos-hd-cart-icon" aria-hidden="true"></i>
+                <h2>Hóa đơn bán hàng</h2>
+              </div>
+              <button type="button" class="nut nut-vien nut-nho" ng-click="vm.xoaHetGio()" title="Làm trống giỏ hàng" aria-label="Làm trống giỏ hàng">
+                <i class="bi bi-trash" aria-hidden="true"></i> Làm trống
+              </button>
+            </header>
+
+            <!-- Khách hàng -->
+            <div class="pos-hd-khach-hang-hop">
+              <select class="o-chon pos-select-flex" ng-model="vm.khachHangChon" aria-label="Chọn khách hàng">
+                <option value="KH_LE">-- Khách vãng lai (Mặc định) --</option>
+                <option ng-repeat="kh in vm.danhSachKH" value="{{ kh.MAKHACHHANG }}">
+                  {{ kh.TENKHACHHANG }} ({{ kh.SDT }})
+                </option>
+              </select>
+              <button type="button" class="nut nut-vien nut-nho pos-btn-them-kh" title="Thêm khách hàng mới" ng-click="vm.moThemKH()" aria-label="Thêm khách hàng mới">
+                <i class="bi bi-person-plus" aria-hidden="true"></i>
+              </button>
+            </div>
+
+            <!-- Mã hóa đơn & Nhân viên bán -->
+            <div class="pos-hd-thong-tin-hang">
+              <div>
+                <label class="pos-hd-label" for="pos-ma-hd-input">Mã hóa đơn</label>
+                <input type="text" id="pos-ma-hd-input" class="pos-hd-pill-input" ng-model="vm.maHoaDonHienTai" readonly />
+              </div>
+              <div>
+                <label class="pos-hd-label" for="pos-nhan-vien-select">Nhân viên bán</label>
+                <select id="pos-nhan-vien-select" class="pos-hd-pill-input" ng-model="vm.nhanVienChon" ng-options="nv.MANV as (nv.TENNV || nv.MANV) for nv in vm.danhSachNV">
+                  <option value="">-- Chọn nhân viên --</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Bảng tiêu đề danh sách giỏ -->
+            <div class="pos-hd-bang-tieu-de">
+              <div>Sản phẩm</div>
+              <div class="pos-hd-col-sl">Số lượng</div>
+              <div class="pos-hd-col-tt">Thành tiền</div>
+              <div></div>
+            </div>
+
+            <!-- Danh sách các món trong giỏ (Có thumbnail theo ảnh 3) -->
+            <div class="pos-hd-danh-sach-gio">
+              <div class="pos-hd-dong-gio" ng-repeat="item in vm.gioHang">
+                <div class="pos-hd-item-info">
+                  <div class="pos-avatar-chu-cai pos-hd-item-avatar" ng-style="{'background-color': vm.layMauAvatar(item.TENSP)}">
+                    {{ vm.layChuCaiDau(item.TENSP) }}
+                  </div>
+                  <div class="pos-hd-item-text">
+                    <div class="pos-hd-item-ten">{{ item.TENSP }}</div>
+                    <div class="pos-hd-item-sub">{{ item.MASP }} • {{ item.DONGIA | vnd }}</div>
+                  </div>
+                </div>
+                <div class="pos-hd-item-sl-hop">
+                  <div class="pos-hd-stepper">
+                    <button type="button" ng-click="vm.giamSoLuong(item)" aria-label="Giảm số lượng">-</button>
+                    <input type="number" min="1" ng-model="item.SOLUONG" ng-change="vm.capNhatThanhTien(item)" aria-label="Số lượng" />
+                    <button type="button" ng-click="vm.tangSoLuong(item)" aria-label="Tăng số lượng">+</button>
+                  </div>
+                </div>
+                <div class="pos-hd-item-tt-hop">
+                  {{ item.THANHTIEN | vnd }}
+                </div>
+                <div class="pos-hd-item-del-hop">
+                  <i class="bi bi-x pos-hd-item-del-btn" ng-click="vm.xoaKhoiGio($index)" title="Xóa món" role="button" aria-label="Xóa mặt hàng"></i>
+                </div>
+              </div>
+
+              <div ng-if="vm.gioHang.length === 0" class="pos-hd-gio-trong">
+                <i class="bi bi-cart pos-hd-gio-trong-icon" aria-hidden="true"></i>
+                Chưa có sản phẩm trong đơn.
+              </div>
+            </div>
+
+            <!-- Khối tính tiền -->
+            <div class="pos-hd-tong-ket">
+              <div class="pos-hd-tong-dong">
+                <span class="pos-hd-nhan-phu">Tiền hàng:</span>
+                <strong class="pos-hd-so-dam">{{ vm.tinhTienHang() | vnd }}</strong>
+              </div>
+              <div class="pos-hd-tong-dong">
+                <span class="pos-hd-nhan-phu">VAT (%):</span>
+                <input type="number" min="0" max="100" class="o-nhap pos-hd-vat-input" ng-model="vm.vatPhanTram" aria-label="Phần trăm VAT" />
+                <span class="pos-hd-giam-nhan">Giảm giá:</span>
+                <input type="number" min="0" step="1000" class="o-nhap pos-hd-giam-input" ng-model="vm.giamGia" aria-label="Số tiền giảm giá" />
+              </div>
+              <div class="pos-hd-khach-phai-tra">
+                <strong class="pos-hd-phai-tra-nhan">KHÁCH PHẢI TRẢ:</strong>
+                <strong class="pos-hd-phai-tra-gia">{{ vm.tinhTongCong() | vnd }}</strong>
+              </div>
+            </div>
+
+            <!-- Phương thức thanh toán & tiền khách đưa -->
+            <div class="pos-hd-pt-row">
+              <select class="o-chon pos-select-flex" ng-model="vm.ptThanhToan" aria-label="Phương thức thanh toán">
+                <option value="Tiền mặt">💵 Tiền mặt</option>
+                <option value="Thanh toán QR">📱 Thanh toán QR</option>
+              </select>
+              <input
+                type="number"
+                class="o-nhap pos-select-flex"
+                placeholder="Tiền khách đưa..."
+                ng-model="vm.tienKhachDua"
+                ng-show="vm.ptThanhToan === 'Tiền mặt'"
+                aria-label="Tiền khách đưa"
+              />
+            </div>
+
+            <!-- Nút tiền nhanh (chỉ hiện khi thanh toán tiền mặt) -->
+            <div class="pos-hd-nhom-tien-nhanh" ng-show="vm.ptThanhToan === 'Tiền mặt'">
+              <button type="button" class="pos-pill-tien-nhanh" ng-click="vm.datTienNhanh(100000)">100k</button>
+              <button type="button" class="pos-pill-tien-nhanh" ng-click="vm.datTienNhanh(200000)">200k</button>
+              <button type="button" class="pos-pill-tien-nhanh" ng-click="vm.datTienNhanh(500000)">500k</button>
+              <button type="button" class="pos-pill-tien-nhanh" ng-click="vm.datTienDung()">Đúng số tiền</button>
+            </div>
+
+            <!-- Tiền thừa -->
+            <div class="pos-hd-tien-thua-row" ng-show="vm.ptThanhToan === 'Tiền mặt'">
+              <span class="pos-hd-nhan-phu">Số tiền trả lại:</span>
+              <strong class="pos-hd-tien-thua-so">{{ vm.tinhTienThua() | vnd }}</strong>
+            </div>
+
+            <!-- Ghi chú cho QR -->
+            <div class="pos-hd-qr-guide" ng-show="vm.ptThanhToan === 'Thanh toán QR'">
+              <i class="bi bi-info-circle" aria-hidden="true"></i> Quét mã QR qua PayOS, hệ thống tự động xác nhận sau khi chuyển khoản.
+            </div>
+
+            <!-- Nút thanh toán F9 -->
+            <button
+              type="button"
+              class="pos-nut-thanh-toan-f9"
+              ng-click="vm.thanhToan()"
+              ng-disabled="vm.gioHang.length === 0 || vm.dangThanhToan"
+            >
+              <i class="bi bi-check2-circle pos-btn-pay-icon" aria-hidden="true"></i>
+              <span>{{ vm.dangThanhToan ? 'ĐANG XỬ LÝ...' : 'THANH TOÁN (F9)' }}</span>
+            </button>
+          </aside>
+
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- Modal Thanh Toán QR PayOS (Chuẩn 100% Ảnh 2) -->
+  <div class="modal-nen" ng-class="{'hien': vm.modalPayOs.hienThi}" aria-hidden="{{ !vm.modalPayOs.hienThi }}">
+    <div class="modal-hop modal-hop-payos" role="dialog" aria-modal="true" aria-labelledby="modal-payos-tieu-de">
+      <div class="modal-dau">
+        <h3 class="modal-tieu-de" id="modal-payos-tieu-de">Thanh toán hóa đơn bằng QR</h3>
+        <button class="modal-nut-dong" type="button" ng-click="vm.dongModalPayOs()" aria-label="Đóng cửa sổ"><i class="bi bi-x-lg" aria-hidden="true"></i></button>
+      </div>
+      <div class="modal-noi-dung modal-payos-body">
+        <div class="payos-modal-container">
+          <div class="payos-modal-grid">
+            <!-- CỘT 1: MÃ QR & TRẠNG THÁI -->
+            <section class="payos-modal-qr-col" aria-label="Mã QR thanh toán">
+              <div class="payos-qr-hop">
+                <div class="payos-qr-khung" aria-label="Mã QR thanh toán">
+                  <img
+                    ng-if="vm.modalPayOs.qrImageUrl || vm.modalPayOs.qrImageDataUrl"
+                    ng-src="{{ vm.modalPayOs.qrImageDataUrl || vm.modalPayOs.qrImageUrl }}"
+                    class="payos-qr-img"
+                    alt="Mã QR thanh toán"
+                    width="240"
+                    height="240"
+                  />
+                  <div ng-if="!vm.modalPayOs.qrImageUrl && !vm.modalPayOs.qrImageDataUrl" class="payos-qr-khong-anh">
+                    <div class="quay-vong can-giua payos-qr-loading-icon"></div>
+                    <p class="payos-qr-loading-text">Đang tạo mã QR PayOS...</p>
+                  </div>
+                </div>
+
+                <!-- Trạng thái thanh toán -->
+                <div class="payos-trang-thai-vung">
+                  <div
+                    class="payos-badge"
+                    ng-class="{'payos-badge-cho': vm.modalPayOs.trangThai !== 'Đã thanh toán', 'payos-badge-da-tt': vm.modalPayOs.trangThai === 'Đã thanh toán'}"
+                  >
+                    <span class="quay-vong quay-vong-nho" ng-if="vm.modalPayOs.trangThai !== 'Đã thanh toán'"></span>
+                    <i class="bi bi-check-circle-fill" ng-if="vm.modalPayOs.trangThai === 'Đã thanh toán'" aria-hidden="true"></i>
+                    <span>{{ vm.modalPayOs.trangThai === 'Đã thanh toán' ? 'Đã thanh toán thành công' : 'Đang chờ thanh toán' }}</span>
+                  </div>
+                  <p class="payos-qr-huong-dan">
+                    Mở ứng dụng ngân hàng hoặc ví điện tử để quét mã QR thanh toán.
+                  </p>
+                </div>
+
+                <!-- Nút mở trang PayOS trực tiếp -->
+                <a
+                  class="nut nut-vien nut-nho payos-btn-checkout payos-qr-status-btn"
+                  ng-if="vm.modalPayOs.checkoutUrl"
+                  ng-href="{{ vm.modalPayOs.checkoutUrl }}"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <i class="bi bi-box-arrow-up-right" aria-hidden="true"></i> Mở trang thanh toán PayOS
+                </a>
+
+                <!-- Nút kiểm tra thủ công & ghi chú -->
+                <div class="payos-kiem-tra-phu">
+                  <button
+                    type="button"
+                    class="nut nut-vien nut-nho payos-btn-recheck"
+                    ng-click="vm.kiemTraTrangThaiPayOs(true)"
+                    ng-disabled="vm.modalPayOs.dangKiemTra || vm.modalPayOs.trangThai === 'Đã thanh toán'"
+                  >
+                    <i class="bi bi-arrow-repeat" ng-class="{'quay-vong': vm.modalPayOs.dangKiemTra}" aria-hidden="true"></i> Kiểm tra lại ngay
+                  </button>
+                  <span class="payos-ghi-chu-he-thong">
+                    Hệ thống tự động kiểm tra mỗi 3–4 giây
+                  </span>
+                </div>
+              </div>
+            </section>
+
+            <!-- CỘT 2: THÔNG TIN HÓA ĐƠN & DANH SÁCH MẶT HÀNG -->
+            <section class="payos-modal-info-col" aria-label="Thông tin hóa đơn">
+              <!-- Thông tin thẻ -->
+              <div class="payos-info-the">
+                <div class="payos-meta-grid">
+                  <div>
+                    <span class="payos-meta-label">Mã hóa đơn:</span>
+                    <strong class="payos-meta-val">{{ vm.modalPayOs.maHD }}</strong>
+                  </div>
+                  <div>
+                    <span class="payos-meta-label">Ngày lập:</span>
+                    <span class="payos-meta-val">{{ vm.modalPayOs.ngayLap | date:'HH:mm:ss dd/MM/yyyy' }}</span>
+                  </div>
+                  <div>
+                    <span class="payos-meta-label">Nhân viên:</span>
+                    <span class="payos-meta-val">{{ vm.modalPayOs.tenNV }}</span>
+                  </div>
+                  <div>
+                    <span class="payos-meta-label">Khách hàng:</span>
+                    <span class="payos-meta-val">{{ vm.modalPayOs.tenKH }}</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Bảng mặt hàng -->
+              <div class="payos-bang-khung">
+                <table class="payos-bang">
+                  <thead>
+                    <tr class="payos-bang-thead-tr">
+                      <th class="payos-bang-th-sp">SẢN PHẨM</th>
+                      <th class="payos-bang-th-sl">SL</th>
+                      <th class="payos-bang-th-dg">ĐƠN GIÁ</th>
+                      <th class="payos-bang-th-tt">THÀNH TIỀN</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr ng-repeat="it in vm.modalPayOs.chiTiet" class="payos-bang-tr-item">
+                      <td class="payos-bang-td-sp">
+                        <div class="payos-sp-ten">{{ it.TENSP }}</div>
+                        <div class="payos-sp-ma">{{ it.MASP }}</div>
+                      </td>
+                      <td class="payos-bang-td-sl">{{ it.SOLUONG }}</td>
+                      <td class="payos-bang-td-dg">{{ it.DONGIA | vnd }}</td>
+                      <td class="payos-bang-td-tt">{{ it.THANHTIEN | vnd }}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <!-- Tóm tắt số tiền -->
+              <div class="payos-tong-khung">
+                <div class="payos-tong-dong">
+                  <span class="payos-tong-label">Tiền hàng:</span>
+                  <span class="payos-tong-val">{{ vm.modalPayOs.tienHang | vnd }}</span>
+                </div>
+                <div class="payos-tong-dong" ng-if="vm.modalPayOs.tienVAT > 0">
+                  <span class="payos-tong-label">Thuế VAT:</span>
+                  <span class="payos-tong-val">{{ vm.modalPayOs.tienVAT | vnd }}</span>
+                </div>
+                <div class="payos-tong-dong" ng-if="vm.modalPayOs.giamGia > 0">
+                  <span class="payos-tong-label">Giảm giá:</span>
+                  <span class="payos-giam-val">-{{ vm.modalPayOs.giamGia | vnd }}</span>
+                </div>
+                <div class="payos-tong-cong-dong">
+                  <strong class="payos-tong-cong-label">Tổng tiền phải thanh toán:</strong>
+                  <strong class="payos-tong-cong-so">{{ vm.modalPayOs.tongCong | vnd }}</strong>
+                </div>
+              </div>
+            </section>
+          </div>
+        </div>
+      </div>
+      <div class="modal-chan">
+        <button type="button" class="nut nut-vien" ng-click="vm.dongModalPayOs()">Để sau</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Hóa Đơn Thanh Toán Thành Công -->
+  <div class="modal-nen" ng-class="{'hien': vm.modalHoaDon.hienThi}" aria-hidden="{{ !vm.modalHoaDon.hienThi }}">
+    <div class="modal-hop modal-hop-hoadon" role="dialog" aria-modal="true" aria-labelledby="modal-hoadon-tieu-de">
+      <div class="modal-dau">
+        <h3 class="modal-tieu-de" id="modal-hoadon-tieu-de">Hóa đơn thanh toán thành công</h3>
+        <button class="modal-nut-dong" type="button" ng-click="vm.dongModalHoaDon()" aria-label="Đóng cửa sổ"><i class="bi bi-x-lg" aria-hidden="true"></i></button>
+      </div>
+      <div class="modal-noi-dung in-hd-noi-dung" id="vung-in-hoa-don" ng-if="vm.modalHoaDon.duLieu">
+        <header class="in-hd-dau">
+          <h2 class="in-hd-ten-he-thong">HỆ THỐNG QUẢN LÝ BÁN LẺ</h2>
+          <p class="in-hd-phu-de">HÓA ĐƠN BÁN LẺ TẠI QUẦY</p>
+          <div class="in-hd-meta">
+            Mã HĐ: <strong>{{ vm.modalHoaDon.duLieu.maHD }}</strong> | Ngày: {{ vm.modalHoaDon.duLieu.ngayBan | ngayVn }}
+          </div>
+        </header>
+
+        <section class="in-hd-khach-hang" aria-label="Thông tin hóa đơn">
+          <div>Khách hàng: <strong>{{ vm.modalHoaDon.duLieu.tenKH }}</strong></div>
+          <div>Thu ngân: <strong>{{ vm.modalHoaDon.duLieu.thuNgan }}</strong></div>
+          <div>Phương thức: <strong>{{ vm.modalHoaDon.duLieu.ptThanhToan }}</strong></div>
+        </section>
+
+        <table class="in-hd-bang">
+          <thead>
+            <tr class="in-hd-bang-thead-tr">
+              <th class="in-hd-th-sp">Mặt hàng</th>
+              <th class="in-hd-th-sl">SL</th>
+              <th class="in-hd-th-dg">Đơn giá</th>
+              <th class="in-hd-th-tt">T.Tiền</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr ng-repeat="item in vm.modalHoaDon.duLieu.chiTiet" class="in-hd-tr-item">
+              <td class="in-hd-td-sp">{{ item.TENSP }}</td>
+              <td class="in-hd-td-sl">{{ item.SOLUONG }}</td>
+              <td class="in-hd-td-dg">{{ item.DONGIA | vnd }}</td>
+              <td class="in-hd-td-tt">{{ item.THANHTIEN | vnd }}</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <section class="in-hd-tong-ket" aria-label="Chi tiết thanh toán">
+          <div class="in-hd-tong-dong">
+            <span>Tiền hàng:</span>
+            <span>{{ vm.modalHoaDon.duLieu.tienHang | vnd }}</span>
+          </div>
+          <div class="in-hd-tong-dong" ng-show="vm.modalHoaDon.duLieu.tienVAT > 0">
+            <span>Thuế VAT:</span>
+            <span>{{ vm.modalHoaDon.duLieu.tienVAT | vnd }}</span>
+          </div>
+          <div class="in-hd-tong-dong" ng-show="vm.modalHoaDon.duLieu.giamGia > 0">
+            <span>Giảm giá:</span>
+            <span>-{{ vm.modalHoaDon.duLieu.giamGia | vnd }}</span>
+          </div>
+          <div class="in-hd-tong-cong-dong">
+            <span>TỔNG CỘNG:</span>
+            <span>{{ vm.modalHoaDon.duLieu.tongCong | vnd }}</span>
+          </div>
+        </section>
+
+        <footer class="in-hd-loi-cam-on">
+          Cảm ơn quý khách đã mua sắm! Hẹn gặp lại quý khách!
+        </footer>
+      </div>
+      <div class="modal-chan">
+        <button type="button" class="nut nut-vien" ng-click="vm.dongModalHoaDon()">Đóng</button>
+        <button type="button" class="nut nut-chinh" ng-click="vm.inHoaDon()">
+          <i class="bi bi-printer" aria-hidden="true"></i> In hóa đơn
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal xem nhanh sản phẩm -->
+  <div class="modal-nen" ng-class="{'hien': vm.modalXemNhanh.hienThi}" aria-hidden="{{ !vm.modalXemNhanh.hienThi }}">
+    <div class="modal-hop modal-hop-xem-nhanh" role="dialog" aria-modal="true" aria-labelledby="modal-xem-nhanh-tieu-de">
+      <div class="modal-dau">
+        <h3 class="modal-tieu-de" id="modal-xem-nhanh-tieu-de">Chi tiết sản phẩm</h3>
+        <button class="modal-nut-dong" type="button" ng-click="vm.dongXemNhanh()" aria-label="Đóng cửa sổ"><i class="bi bi-x-lg" aria-hidden="true"></i></button>
+      </div>
+      <div class="modal-noi-dung modal-xem-nhanh-body" ng-if="vm.modalXemNhanh.sp">
+        <header class="xem-nhanh-header">
+          <div class="pos-avatar-chu-cai xem-nhanh-avatar" ng-style="{'background-color': vm.layMauAvatar(vm.modalXemNhanh.sp.TENSP)}">
+            {{ vm.layChuCaiDau(vm.modalXemNhanh.sp.TENSP) }}
+          </div>
+          <div>
+            <h4 class="xem-nhanh-ten">{{ vm.modalXemNhanh.sp.TENSP }}</h4>
+            <div class="xem-nhanh-masp">Mã SP: <strong>{{ vm.modalXemNhanh.sp.MASP }}</strong></div>
+          </div>
+        </header>
+        <section class="xem-nhanh-luoi" aria-label="Chi tiết thông số sản phẩm">
+          <div class="xem-nhanh-dong">
+            <span class="xem-nhanh-label">Mã vạch:</span>
+            <strong>{{ vm.modalXemNhanh.sp.MAVACH || '—' }}</strong>
+          </div>
+          <div class="xem-nhanh-dong">
+            <span class="xem-nhanh-label">Đơn giá:</span>
+            <strong class="xem-nhanh-dongia">{{ vm.modalXemNhanh.sp.DONGIA | vnd }}</strong>
+          </div>
+          <div class="xem-nhanh-dong">
+            <span class="xem-nhanh-label">Tồn kho:</span>
+            <strong class="xem-nhanh-tonkho">{{ vm.modalXemNhanh.sp.SOLUONGTON | so }}</strong>
+          </div>
+          <div class="xem-nhanh-dong" ng-if="vm.modalXemNhanh.sp.THUOCTINH">
+            <span class="xem-nhanh-label">Thuộc tính:</span>
+            <span>{{ vm.modalXemNhanh.sp.THUOCTINH }}</span>
+          </div>
+        </section>
+      </div>
+      <div class="modal-chan">
+        <button type="button" class="nut nut-vien" ng-click="vm.dongXemNhanh()">Đóng</button>
+        <button type="button" class="nut nut-chinh" ng-click="vm.themVaoGio(vm.modalXemNhanh.sp); vm.dongXemNhanh()">
+          <i class="bi bi-cart-plus" aria-hidden="true"></i> Thêm vào giỏ
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Vùng Toast thông báo -->
+  <div id="vung-toast" aria-live="polite"></div>
+
+  <!-- Scripts -->
+  <script src="../angular.min.js"></script>
+  <script src="../js/angular-app.js"></script>
+  <script src="../js/trang/ban-hang.js"></script>
+</body>
+</html>
