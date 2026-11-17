@@ -17,11 +17,7 @@ public sealed class PayOs_Controller : ControllerBase
     private readonly GoQrImageService _goQrImage;
     private readonly ILogger<PayOs_Controller> _logger;
 
-    public PayOs_Controller(
-        PayOsPayment_DAL paymentDal,
-        PayOsService payOs,
-        GoQrImageService goQrImage,
-        ILogger<PayOs_Controller> logger)
+    public PayOs_Controller(  PayOsPayment_DAL paymentDal, PayOsService payOs,    GoQrImageService goQrImage,  ILogger<PayOs_Controller> logger)
     {
         _paymentDal = paymentDal;
         _payOs = payOs;
@@ -95,9 +91,7 @@ public sealed class PayOs_Controller : ControllerBase
 
             try
             {
-                // Dùng mã hóa đơn làm nội dung chuyển khoản để người bán dễ đối soát.
-                // Một số kênh ngân hàng giới hạn description 9 ký tự; mã dài hơn dùng
-                // mã rút gọn sinh từ OrderCode, còn webhook vẫn ghép chính xác bằng OrderCode.
+                
                 string description = maHoaDon.Length <= 9
                     ? maHoaDon
                     : "HD" + (orderCode % 10_000_000).ToString("D7", CultureInfo.InvariantCulture);
@@ -160,8 +154,7 @@ public sealed class PayOs_Controller : ControllerBase
             var row = rows.Rows[0];
             string trangThai = row["TRANGTHAI"]?.ToString()?.Trim() ?? "Chưa thanh toán";
 
-            // Webhook là luồng chính. Nếu webhook không tới được (ví dụ backend chạy
-            // local), hỏi PayOS trực tiếp để đối soát và cập nhật giao dịch đã trả tiền.
+           
             if (trangThai == "Chưa thanh toán" && _payOs.IsConfigured &&
                 row["PAYOS_ORDER_CODE"] != DBNull.Value)
             {
@@ -211,7 +204,7 @@ public sealed class PayOs_Controller : ControllerBase
                 }
                 catch (Exception ex)
                 {
-                    // Trạng thái SQL hiện tại vẫn được trả về; lần polling sau sẽ thử lại.
+                   
                     _logger.LogWarning(ex, "Không đối soát được trạng thái PayOS của hóa đơn {MaHoaDon}.", maHoaDon);
                 }
             }

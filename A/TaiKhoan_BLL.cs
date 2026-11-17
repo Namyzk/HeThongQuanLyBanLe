@@ -43,6 +43,7 @@ namespace BLL
 
             tk.MATAIKHOAN = tk.MATAIKHOAN.Trim();
             tk.USERNAME = tk.USERNAME.Trim();
+            tk.EMAIL = ValidateEmail(tk.EMAIL);
 
             if (tk_dal.KiemTraTonTai(tk.MATAIKHOAN))
                 throw new InvalidOperationException($"Mã tài khoản '{tk.MATAIKHOAN}' đã tồn tại.");
@@ -55,10 +56,22 @@ namespace BLL
 
         public bool CapNhat(TaiKhoan tk)
         {
+            // Khi quản trị viên chỉ sửa email/quyền, giữ lại mật khẩu hiện có.
+            if (tk != null && string.IsNullOrWhiteSpace(tk.PASS))
+            {
+                if (string.IsNullOrWhiteSpace(tk.MATAIKHOAN))
+                    throw new ArgumentException("Mã tài khoản không được để trống.");
+                var existing = tk_dal.GetByID(tk.MATAIKHOAN.Trim());
+                if (existing.Count == 0)
+                    throw new KeyNotFoundException("Không tìm thấy tài khoản.");
+                tk.PASS = existing[0].PASS;
+            }
+
             ValidateTaiKhoan(tk);
 
             tk.MATAIKHOAN = tk.MATAIKHOAN.Trim();
             tk.USERNAME = tk.USERNAME.Trim();
+            tk.EMAIL = ValidateEmail(tk.EMAIL);
 
             if (!tk_dal.KiemTraTonTai(tk.MATAIKHOAN))
                 throw new KeyNotFoundException($"Không tìm thấy tài khoản có mã '{tk.MATAIKHOAN}'.");
@@ -109,10 +122,10 @@ namespace BLL
                 !VerifyPassword(password, account.PASS))
                 return new List<TaiKhoan>();
 
-            // Chuyển tài khoản cũ đang lưu PBKDF2 về dạng văn bản sau khi xác thực thành công.
-            if (account.PASS.StartsWith("pbkdf2$", StringComparison.Ordinal))
+            // Nâng cấp mật khẩu cũ dạng rõ sang PBKDF2 sau lần đăng nhập hợp lệ.
+            if (!account.PASS.StartsWith("pbkdf2$", StringComparison.Ordinal))
             {
-                account.PASS = password;
+                account.PASS = HashPassword(password);
                 tk_dal.CapNhatMatKhau(account.MATAIKHOAN, account.PASS);
             }
 
@@ -158,9 +171,29 @@ namespace BLL
             if (tk.PASS.Length > 128)
                 throw new ArgumentException("Mật khẩu không được vượt quá 128 ký tự.");
 
+            tk.PASS = HashPassword(tk.PASS);
+
             // 4. Quyền: 1 - Admin, 2 - ThuNgan, 3 - ThuKho, 4 - KeToan
             if (tk.QUYEN < 1 || tk.QUYEN > 4)
                 throw new ArgumentException("Quyền tài khoản không hợp lệ (1: Admin, 2: ThuNgan, 3: ThuKho, 4: KeToan).");
+        }
+
+        private static string? ValidateEmail(string? email)
+        {
+            if (string.IsNullOrWhiteSpace(email)) return null;
+            email = email.Trim();
+            if (email.Length > 320 || !System.Text.RegularExpressions.Regex.IsMatch(email, @"^[^\s@]+@[^\s@]+\.[^\s@]+$"))
+                throw new ArgumentException("Email không hợp lệ.");
+            return email.ToLowerInvariant();
+        }
+
+        private static string HashPassword(string password)
+        {
+            if (password.StartsWith("pbkdf2$", StringComparison.Ordinal)) return password;
+            const int iterations = 210_000;
+            byte[] salt = RandomNumberGenerator.GetBytes(16);
+            byte[] hash = Rfc2898DeriveBytes.Pbkdf2(password, salt, iterations, HashAlgorithmName.SHA256, 32);
+            return $"pbkdf2${iterations}${Convert.ToBase64String(salt)}${Convert.ToBase64String(hash)}";
         }
 
         private static bool VerifyPassword(string password, string stored)

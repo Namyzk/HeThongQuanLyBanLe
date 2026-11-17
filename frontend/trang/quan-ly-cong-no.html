@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="vi" ng-app="qlblApp">
 <head>
   <meta charset="UTF-8" />
@@ -13,12 +13,12 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
 
   <!-- Modular CSS -->
-  <link rel="stylesheet" href="../css/chung.css" />
-  <link rel="stylesheet" href="../css/bo-cuc.css" />
-  <link rel="stylesheet" href="../css/thanh-phan.css" />
-  <link rel="stylesheet" href="../css/bieu-mau.css" />
-  <link rel="stylesheet" href="../css/hien-thi-di-dong.css" />
-  <link rel="stylesheet" href="../css/trang/quan-ly-cong-no.css" />
+  <link rel="stylesheet" href="../css/chung.css?v=20261115_blue" />
+  <link rel="stylesheet" href="../css/bo-cuc.css?v=20261115_blue" />
+  <link rel="stylesheet" href="../css/thanh-phan.css?v=20261115_blue" />
+  <link rel="stylesheet" href="../css/bieu-mau.css?v=20261115_blue" />
+  <link rel="stylesheet" href="../css/hien-thi-di-dong.css?v=20261115_blue" />
+  <link rel="stylesheet" href="../css/trang/quan-ly-cong-no.css?v=20261115_blue" />
 </head>
 <body ng-controller="CongNoController as vm">
 
@@ -189,7 +189,7 @@
                   </thead>
                   <tbody>
                     <tr ng-repeat="row in vm.layDanhSachPhanTrang()">
-                      <td><span class="badge badge-lam">{{ row.MAHDBAN }}</span></td>
+                      <td><span class="ma-du-lieu">{{ row.MAHDBAN }}</span></td>
                       <td><strong>{{ row.MAKH }}</strong></td>
                       <td>{{ row.NGAYLAP | ngayVn }}</td>
                       <td><strong>{{ row.TONG_PHAI_TRA | vnd }}</strong></td>
@@ -214,11 +214,12 @@
                         <div class="cum-nut-hanh-dong">
                           <button
                             type="button"
-                            class="nut nut-thanh-cong nut-nho"
+                            class="nut nut-thanh-cong nut-nho nut-co-chu"
                             ng-if="row.CON_NO > 0"
                             ng-click="vm.moModalThuNo(row)"
                             title="Xác nhận thu nợ"
                             aria-label="Thu nợ"
+                            style="width: auto !important; min-width: 96px !important; max-width: none !important; height: 36px !important; padding: 0 14px !important; white-space: nowrap !important; display: inline-flex !important; align-items: center !important; justify-content: center !important; gap: 6px !important;"
                           >
                             <i class="bi bi-cash-coin" aria-hidden="true"></i> Thu nợ
                           </button>

@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="vi" ng-app="qlblApp">
 <head>
   <meta charset="UTF-8" />
@@ -13,9 +13,9 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
 
   <!-- Modular CSS -->
-  <link rel="stylesheet" href="../css/chung.css" />
+  <link rel="stylesheet" href="../css/chung.css?v=20261115_blue" />
   <link rel="stylesheet" href="../css/bo-cuc.css" />
-  <link rel="stylesheet" href="../css/thanh-phan.css" />
+  <link rel="stylesheet" href="../css/thanh-phan.css?v=20261115_blue" />
   <link rel="stylesheet" href="../css/bieu-mau.css" />
   <link rel="stylesheet" href="../css/hien-thi-di-dong.css" />
   <link rel="stylesheet" href="../css/trang/quan-ly-ton-kho.css" />
@@ -128,18 +128,12 @@
                   </thead>
                   <tbody>
                     <tr ng-repeat="row in vm.layDanhSachPhanTrang()">
-                      <td><span class="badge badge-lam">{{ row.MASP }}</span></td>
+                      <td><span class="ma-du-lieu">{{ row.MASP }}</span></td>
                       <td><strong>{{ row.TENSP }}</strong></td>
                       <td>{{ row.TENDANHMUC || row.MADANHMUC || '—' }}</td>
                       <td>
-                        <span class="badge badge-do" ng-if="row.SOLUONGTON <= 0">
-                          <i class="bi bi-x-circle" aria-hidden="true"></i> Hết hàng (0)
-                        </span>
-                        <span class="badge badge-vang" ng-if="row.SOLUONGTON > 0 && row.SOLUONGTON <= 5">
-                          <i class="bi bi-exclamation-triangle" aria-hidden="true"></i> Sắp hết ({{ row.SOLUONGTON | so }})
-                        </span>
-                        <span class="badge badge-xanh" ng-if="row.SOLUONGTON > 5">
-                          <i class="bi bi-check-circle" aria-hidden="true"></i> Sẵn sàng ({{ row.SOLUONGTON | so }})
+                        <span class="ton-kho-so-luong">
+                          {{ row.SOLUONGTON > 0 ? (row.SOLUONGTON | so) + ' cái' : 'Hết hàng (0)' }}
                         </span>
                       </td>
                       <td><strong>{{ row.DONGIA | vnd }}</strong></td>

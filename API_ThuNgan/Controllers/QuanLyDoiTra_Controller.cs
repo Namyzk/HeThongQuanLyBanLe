@@ -189,6 +189,21 @@ namespace API_ThuNgan.Controllers
 
             try
             {
+                DataTable danhSachThanhToan = _ttBll.getAll();
+                bool coThanhToanLienQuan = danhSachThanhToan.AsEnumerable().Any(row =>
+                    danhSachThanhToan.Columns.Contains("MAHDBAN") &&
+                    row["MAHDBAN"] != DBNull.Value &&
+                    string.Equals(row["MAHDBAN"].ToString()?.Trim(), cleanMa, StringComparison.OrdinalIgnoreCase));
+
+                if (coThanhToanLienQuan)
+                {
+                    return Conflict(new
+                    {
+                        success = false,
+                        message = "Không thể xóa hóa đơn này vì đã phát sinh giao dịch thanh toán. Vui lòng kiểm tra và xử lý giao dịch liên quan trước khi thực hiện."
+                    });
+                }
+
                 bool result = _hdbBll.Xoa(cleanMa);
                 if (!result)
                     return NotFound(new { success = false, message = "Không tìm thấy hóa đơn cần xóa." });

@@ -368,8 +368,7 @@
         MANCC: d.MANCC,
         MANV: d.MANV,
         NGAYLAP: ngayStr,
-        TONG_TIEN: vm.tinhTongTienForm(),
-        CHI_TIET: d.chiTiet.map(function (c) {
+        listjson_chitietnhap: d.chiTiet.map(function (c) {
           return {
             MASP: c.MASP,
             SOLUONG: Number(c.SOLUONG) || 1,

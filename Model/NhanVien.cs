@@ -12,6 +12,7 @@ namespace Models
         public string TENNV { get; set; }
         public string SDT { get; set; }
         public string DIACHI { get; set; }
+        public string? EMAIL { get; set; }
     }
 }
 

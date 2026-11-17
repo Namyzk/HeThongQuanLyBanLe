@@ -13,13 +13,13 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
 
   <!-- Modular CSS -->
-  <link rel="stylesheet" href="../css/chung.css" />
+  <link rel="stylesheet" href="../css/chung.css?v=20261115_blue" />
   <link rel="stylesheet" href="../css/bo-cuc.css" />
-  <link rel="stylesheet" href="../css/thanh-phan.css" />
+  <link rel="stylesheet" href="../css/thanh-phan.css?v=20261115_blue" />
   <link rel="stylesheet" href="../css/bieu-mau.css" />
   <link rel="stylesheet" href="../css/hien-thi-di-dong.css" />
 
-  <link rel="stylesheet" href="../css/trang/ban-hang.css" />
+  <link rel="stylesheet" href="../css/trang/ban-hang.css?v=20261117_detail" />
 </head>
 <body ng-controller="BanHangController as vm">
 
@@ -125,8 +125,9 @@
 
                   <!-- Nếu có ảnh thật -->
                   <img
-                    ng-if="sp.CO_ANH"
                     ng-src="{{ vm.layAnh(sp.MASP) }}"
+                    onload="if(this.parentElement.querySelector('.pos-card-avatar-hop')) this.parentElement.querySelector('.pos-card-avatar-hop').style.display='none';"
+                    onerror="this.style.display='none'; var avatar=this.parentElement.querySelector('.pos-card-avatar-hop'); if(avatar) avatar.style.display='flex';"
                     alt="{{ sp.TENSP }}"
                     class="pos-card-anh-img"
                   />
@@ -224,7 +225,10 @@
                   </div>
                   <div class="pos-hd-item-text">
                     <div class="pos-hd-item-ten">{{ item.TENSP }}</div>
-                    <div class="pos-hd-item-sub">{{ item.MASP }} • {{ item.DONGIA | vnd }}</div>
+                    <div class="pos-hd-item-sub">{{ item.MASP }} • {{ item.DONGIA | vnd }} • VAT {{ item.THUE }}% (+{{ item.TIENTHUE | vnd }})</div>
+                    <div class="pos-hd-item-sub" ng-if="item.TENKM" style="color: #2563eb; font-weight: 600;">
+                      <i class="bi bi-tag-fill" aria-hidden="true"></i> {{ item.TENKM }} ({{ item.MOTA_KM }}: -{{ item.TIENGIAM_KM | vnd }})
+                    </div>
                   </div>
                 </div>
                 <div class="pos-hd-item-sl-hop">
@@ -235,7 +239,7 @@
                   </div>
                 </div>
                 <div class="pos-hd-item-tt-hop">
-                  {{ item.THANHTIEN | vnd }}
+                  {{ item.THANHTIEN_SAU_THUE | vnd }}
                 </div>
                 <div class="pos-hd-item-del-hop">
                   <i class="bi bi-x pos-hd-item-del-btn" ng-click="vm.xoaKhoiGio($index)" title="Xóa món" role="button" aria-label="Xóa mặt hàng"></i>
@@ -251,14 +255,20 @@
             <!-- Khối tính tiền -->
             <div class="pos-hd-tong-ket">
               <div class="pos-hd-tong-dong">
-                <span class="pos-hd-nhan-phu">Tiền hàng:</span>
+                <span class="pos-hd-nhan-phu">Tiền hàng (chưa thuế):</span>
                 <strong class="pos-hd-so-dam">{{ vm.tinhTienHang() | vnd }}</strong>
               </div>
               <div class="pos-hd-tong-dong">
-                <span class="pos-hd-nhan-phu">VAT (%):</span>
-                <input type="number" min="0" max="100" class="o-nhap pos-hd-vat-input" ng-model="vm.vatPhanTram" aria-label="Phần trăm VAT" />
-                <span class="pos-hd-giam-nhan">Giảm giá:</span>
-                <input type="number" min="0" step="1000" class="o-nhap pos-hd-giam-input" ng-model="vm.giamGia" aria-label="Số tiền giảm giá" />
+                <span class="pos-hd-nhan-phu">Tổng thuế VAT (theo SP):</span>
+                <strong class="pos-hd-so-dam">{{ vm.tinhTienVAT() | vnd }}</strong>
+              </div>
+              <div class="pos-hd-tong-dong">
+                <span class="pos-hd-nhan-phu">Tổng tiền hàng (gồm thuế):</span>
+                <strong class="pos-hd-so-dam">{{ vm.tinhTienHangSauThue() | vnd }}</strong>
+              </div>
+              <div class="pos-hd-tong-dong">
+                <span class="pos-hd-nhan-phu">Giảm giá KM (VNĐ):</span>
+                <input type="number" min="0" step="1000" class="o-nhap pos-hd-giam-input" ng-model="vm.giamGia" ng-change="vm.khiDoiGiamGia()" aria-label="Số tiền giảm giá" />
               </div>
               <div class="pos-hd-khach-phai-tra">
                 <strong class="pos-hd-phai-tra-nhan">KHÁCH PHẢI TRẢ:</strong>
@@ -428,11 +438,11 @@
                     <tr ng-repeat="it in vm.modalPayOs.chiTiet" class="payos-bang-tr-item">
                       <td class="payos-bang-td-sp">
                         <div class="payos-sp-ten">{{ it.TENSP }}</div>
-                        <div class="payos-sp-ma">{{ it.MASP }}</div>
+                        <div class="payos-sp-ma">{{ it.MASP }} • VAT {{ it.THUE }}% (+{{ it.TIENTHUE | vnd }})</div>
                       </td>
                       <td class="payos-bang-td-sl">{{ it.SOLUONG }}</td>
                       <td class="payos-bang-td-dg">{{ it.DONGIA | vnd }}</td>
-                      <td class="payos-bang-td-tt">{{ it.THANHTIEN | vnd }}</td>
+                      <td class="payos-bang-td-tt">{{ (it.THANHTIEN_SAU_THUE || it.THANHTIEN) | vnd }}</td>
                     </tr>
                   </tbody>
                 </table>
@@ -500,10 +510,10 @@
           </thead>
           <tbody>
             <tr ng-repeat="item in vm.modalHoaDon.duLieu.chiTiet" class="in-hd-tr-item">
-              <td class="in-hd-td-sp">{{ item.TENSP }}</td>
+              <td class="in-hd-td-sp">{{ item.TENSP }} <small>(VAT {{ item.THUE }}%)</small></td>
               <td class="in-hd-td-sl">{{ item.SOLUONG }}</td>
               <td class="in-hd-td-dg">{{ item.DONGIA | vnd }}</td>
-              <td class="in-hd-td-tt">{{ item.THANHTIEN | vnd }}</td>
+              <td class="in-hd-td-tt">{{ (item.THANHTIEN_SAU_THUE || item.THANHTIEN) | vnd }}</td>
             </tr>
           </tbody>
         </table>
@@ -540,47 +550,99 @@
     </div>
   </div>
 
-  <!-- Modal xem nhanh sản phẩm -->
+  <!-- Modal xem nhanh sản phẩm (Thiết kế 2 cột to, rõ ràng, trực quan) -->
   <div class="modal-nen" ng-class="{'hien': vm.modalXemNhanh.hienThi}" aria-hidden="{{ !vm.modalXemNhanh.hienThi }}">
     <div class="modal-hop modal-hop-xem-nhanh" role="dialog" aria-modal="true" aria-labelledby="modal-xem-nhanh-tieu-de">
       <div class="modal-dau">
-        <h3 class="modal-tieu-de" id="modal-xem-nhanh-tieu-de">Chi tiết sản phẩm</h3>
+        <h3 class="modal-tieu-de" id="modal-xem-nhanh-tieu-de">
+          <i class="bi bi-box-seam" aria-hidden="true" style="color: #2563eb; margin-right: 6px;"></i>
+          Chi tiết sản phẩm — {{ vm.modalXemNhanh.sp.MASP }}
+        </h3>
         <button class="modal-nut-dong" type="button" ng-click="vm.dongXemNhanh()" aria-label="Đóng cửa sổ"><i class="bi bi-x-lg" aria-hidden="true"></i></button>
       </div>
       <div class="modal-noi-dung modal-xem-nhanh-body" ng-if="vm.modalXemNhanh.sp">
-        <header class="xem-nhanh-header">
-          <div class="pos-avatar-chu-cai xem-nhanh-avatar" ng-style="{'background-color': vm.layMauAvatar(vm.modalXemNhanh.sp.TENSP)}">
-            {{ vm.layChuCaiDau(vm.modalXemNhanh.sp.TENSP) }}
+        <div class="xem-nhanh-bo-cuc-2-cot">
+          <!-- Cột trái: Ảnh sản phẩm lớn & Trạng thái tồn kho -->
+          <div class="xem-nhanh-cot-anh">
+            <div class="xem-nhanh-khung-anh">
+              <img
+                ng-src="{{ vm.layAnh(vm.modalXemNhanh.sp.MASP) }}"
+                onload="this.style.display='block'; var fb=this.parentElement.querySelector('.xem-nhanh-avatar-lon'); if(fb) fb.style.display='none';"
+                onerror="this.style.display='none'; var fb=this.parentElement.querySelector('.xem-nhanh-avatar-lon'); if(fb) fb.style.display='flex';"
+                alt="{{ vm.modalXemNhanh.sp.TENSP }}"
+                class="xem-nhanh-anh-lon"
+              />
+              <div class="xem-nhanh-avatar-lon" ng-style="{'background-color': vm.layMauAvatar(vm.modalXemNhanh.sp.TENSP), 'display': vm.modalXemNhanh.sp.CO_ANH ? 'none' : 'flex'}">
+                <span class="xem-nhanh-avatar-chu">{{ vm.layChuCaiDau(vm.modalXemNhanh.sp.TENSP) }}</span>
+                <span class="xem-nhanh-avatar-ten">{{ vm.modalXemNhanh.sp.TENSP }}</span>
+              </div>
+            </div>
+            <div class="xem-nhanh-trang-thai-ton" ng-class="{'con-hang': vm.modalXemNhanh.sp.SOLUONGTON > 0, 'het-hang': vm.modalXemNhanh.sp.SOLUONGTON <= 0}">
+              <i class="bi" ng-class="vm.modalXemNhanh.sp.SOLUONGTON > 0 ? 'bi-check-circle-fill' : 'bi-x-circle-fill'" aria-hidden="true"></i>
+              <span ng-if="vm.modalXemNhanh.sp.SOLUONGTON > 0">Còn hàng trong kho: <strong>{{ vm.modalXemNhanh.sp.SOLUONGTON | so }}</strong></span>
+              <span ng-if="vm.modalXemNhanh.sp.SOLUONGTON <= 0">Hiện đang hết hàng</span>
+            </div>
           </div>
-          <div>
+
+          <!-- Cột phải: Thông tin sản phẩm chi tiết -->
+          <div class="xem-nhanh-cot-thong-tin">
+            <div class="xem-nhanh-meta-dau">
+              <span class="xem-nhanh-tag-ma"><i class="bi bi-hash" aria-hidden="true"></i> {{ vm.modalXemNhanh.sp.MASP }}</span>
+              <span class="xem-nhanh-tag-dm"><i class="bi bi-folder2-open" aria-hidden="true"></i> {{ vm.layTenDanhMuc(vm.modalXemNhanh.sp.MADANHMUC) }}</span>
+            </div>
+
             <h4 class="xem-nhanh-ten">{{ vm.modalXemNhanh.sp.TENSP }}</h4>
-            <div class="xem-nhanh-masp">Mã SP: <strong>{{ vm.modalXemNhanh.sp.MASP }}</strong></div>
+
+            <!-- Khối giá bán & Thuế VAT -->
+            <div class="xem-nhanh-hop-gia">
+              <div class="xem-nhanh-gia-chinh-dong">
+                <span class="xem-nhanh-gia-nhan">Đơn giá bán:</span>
+                <strong class="xem-nhanh-dongia">{{ vm.modalXemNhanh.sp.DONGIA | vnd }}</strong>
+              </div>
+              <div class="xem-nhanh-gia-phu-dong">
+                <span>Thuế VAT ({{ vm.modalXemNhanh.sp.THUE }}%): <strong>+{{ (vm.modalXemNhanh.sp.DONGIA * vm.modalXemNhanh.sp.THUE / 100) | vnd }}</strong></span>
+                <span>•</span>
+                <span>Giá gồm thuế: <strong class="xem-nhanh-gia-sau-thue">{{ (vm.modalXemNhanh.sp.DONGIA * (1 + vm.modalXemNhanh.sp.THUE / 100)) | vnd }}</strong></span>
+              </div>
+              <div class="xem-nhanh-km-hop" ng-if="vm.modalXemNhanh.sp.KHUYENMAI">
+                <i class="bi bi-tag-fill" aria-hidden="true"></i>
+                <span>Khuyến mãi đang áp dụng: <strong>{{ vm.modalXemNhanh.sp.KHUYENMAI.TenKM }}</strong></span>
+              </div>
+            </div>
+
+            <!-- Bảng thông số kỹ thuật -->
+            <section class="xem-nhanh-luoi" aria-label="Chi tiết thông số sản phẩm">
+              <div class="xem-nhanh-dong">
+                <span class="xem-nhanh-label"><i class="bi bi-upc-scan" aria-hidden="true"></i> Mã vạch:</span>
+                <strong>{{ vm.modalXemNhanh.sp.MAVACH || '—' }}</strong>
+              </div>
+              <div class="xem-nhanh-dong">
+                <span class="xem-nhanh-label"><i class="bi bi-sliders" aria-hidden="true"></i> Quy cách / Thuộc tính:</span>
+                <strong>{{ vm.modalXemNhanh.sp.THUOCTINH || 'Tiêu chuẩn' }}</strong>
+              </div>
+              <div class="xem-nhanh-dong xem-nhanh-dong-mo-ta" ng-if="vm.modalXemNhanh.sp.MOTA">
+                <span class="xem-nhanh-label"><i class="bi bi-card-text" aria-hidden="true"></i> Mô tả sản phẩm:</span>
+                <p class="xem-nhanh-mo-ta-text">{{ vm.modalXemNhanh.sp.MOTA }}</p>
+              </div>
+            </section>
           </div>
-        </header>
-        <section class="xem-nhanh-luoi" aria-label="Chi tiết thông số sản phẩm">
-          <div class="xem-nhanh-dong">
-            <span class="xem-nhanh-label">Mã vạch:</span>
-            <strong>{{ vm.modalXemNhanh.sp.MAVACH || '—' }}</strong>
-          </div>
-          <div class="xem-nhanh-dong">
-            <span class="xem-nhanh-label">Đơn giá:</span>
-            <strong class="xem-nhanh-dongia">{{ vm.modalXemNhanh.sp.DONGIA | vnd }}</strong>
-          </div>
-          <div class="xem-nhanh-dong">
-            <span class="xem-nhanh-label">Tồn kho:</span>
-            <strong class="xem-nhanh-tonkho">{{ vm.modalXemNhanh.sp.SOLUONGTON | so }}</strong>
-          </div>
-          <div class="xem-nhanh-dong" ng-if="vm.modalXemNhanh.sp.THUOCTINH">
-            <span class="xem-nhanh-label">Thuộc tính:</span>
-            <span>{{ vm.modalXemNhanh.sp.THUOCTINH }}</span>
-          </div>
-        </section>
+        </div>
       </div>
-      <div class="modal-chan">
-        <button type="button" class="nut nut-vien" ng-click="vm.dongXemNhanh()">Đóng</button>
-        <button type="button" class="nut nut-chinh" ng-click="vm.themVaoGio(vm.modalXemNhanh.sp); vm.dongXemNhanh()">
-          <i class="bi bi-cart-plus" aria-hidden="true"></i> Thêm vào giỏ
-        </button>
+      <div class="modal-chan xem-nhanh-chan">
+        <div class="xem-nhanh-chon-sl" ng-if="vm.modalXemNhanh.sp && vm.modalXemNhanh.sp.SOLUONGTON > 0">
+          <span class="xem-nhanh-sl-nhan">Số lượng:</span>
+          <div class="pos-hd-stepper xem-nhanh-stepper">
+            <button type="button" ng-click="vm.modalXemNhanh.soLuongChon = (vm.modalXemNhanh.soLuongChon > 1 ? vm.modalXemNhanh.soLuongChon - 1 : 1)" aria-label="Giảm số lượng">-</button>
+            <input type="number" min="1" max="{{ vm.modalXemNhanh.sp.SOLUONGTON }}" ng-model="vm.modalXemNhanh.soLuongChon" aria-label="Số lượng" />
+            <button type="button" ng-click="vm.modalXemNhanh.soLuongChon = (vm.modalXemNhanh.soLuongChon < vm.modalXemNhanh.sp.SOLUONGTON ? vm.modalXemNhanh.soLuongChon + 1 : vm.modalXemNhanh.sp.SOLUONGTON)" aria-label="Tăng số lượng">+</button>
+          </div>
+        </div>
+        <div class="xem-nhanh-chan-nut">
+          <button type="button" class="nut nut-vien" ng-click="vm.dongXemNhanh()">Đóng</button>
+          <button type="button" class="nut nut-chinh" ng-click="vm.themTuXemNhanh()" ng-disabled="vm.modalXemNhanh.sp.SOLUONGTON <= 0">
+            <i class="bi bi-cart-plus" aria-hidden="true"></i> Thêm vào giỏ hàng
+          </button>
+        </div>
       </div>
     </div>
   </div>
@@ -591,6 +653,6 @@
   <!-- Scripts -->
   <script src="../angular.min.js"></script>
   <script src="../js/angular-app.js"></script>
-  <script src="../js/trang/ban-hang.js"></script>
+  <script src="../js/trang/ban-hang.js?v=20261117_detail"></script>
 </body>
 </html>

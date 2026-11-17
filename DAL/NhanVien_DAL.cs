@@ -72,7 +72,7 @@ namespace DAL
             {
                 List<NhanVien> list = new List<NhanVien>();
 
-                string sql = @" SELECT MANV, TENNV, SDT, DIACHI FROM NHANVIEN";
+                string sql = @" SELECT MANV, TENNV, SDT, DIACHI, EMAIL FROM NHANVIEN";
                 DataTable dt = Connect.ExecuteQuery(sql);
                 foreach (DataRow row in dt.Rows)
                 {
@@ -81,7 +81,8 @@ namespace DAL
                         MANV = row["MANV"]?.ToString()?.Trim(),
                         TENNV = row["TENNV"]?.ToString()?.Trim(),
                         SDT = row["SDT"]?.ToString()?.Trim(),
-                        DIACHI = row["DIACHI"]?.ToString()?.Trim()
+                        DIACHI = row["DIACHI"]?.ToString()?.Trim(),
+                        EMAIL = row["EMAIL"] == DBNull.Value ? null : row["EMAIL"]?.ToString()?.Trim()
                     });
                 }
 
@@ -99,7 +100,7 @@ namespace DAL
             try
             {
                 List<NhanVien> list = new List<NhanVien>();
-                string sql = @" SELECT MANV, TENNV, SDT, DIACHI FROM NHANVIEN WHERE MANV = @MANV";
+                string sql = @" SELECT MANV, TENNV, SDT, DIACHI, EMAIL FROM NHANVIEN WHERE MANV = @MANV";
 
                 SqlParameter[] parameters =
                 {
@@ -115,7 +116,8 @@ namespace DAL
                         MANV = row["MANV"]?.ToString()?.Trim(),
                         TENNV = row["TENNV"]?.ToString()?.Trim(),
                         SDT = row["SDT"]?.ToString()?.Trim(),
-                        DIACHI = row["DIACHI"]?.ToString()?.Trim()
+                        DIACHI = row["DIACHI"]?.ToString()?.Trim(),
+                        EMAIL = row["EMAIL"] == DBNull.Value ? null : row["EMAIL"]?.ToString()?.Trim()
                     });
                 }
 
@@ -134,15 +136,16 @@ namespace DAL
             {
                 if (nv == null)  return false;
 
-                string sql = @" INSERT INTO NHANVIEN  ( MANV, TENNV, SDT, DIACHI)
-                    VALUES ( @MANV,  @TENNV,   @SDT, @DIACHI  )";
+                string sql = @" INSERT INTO NHANVIEN  ( MANV, TENNV, SDT, DIACHI, EMAIL)
+                    VALUES ( @MANV,  @TENNV,   @SDT, @DIACHI, @EMAIL )";
 
                 SqlParameter[] parameters =
                 {
                     new SqlParameter(  "@MANV",   nv.MANV?.Trim() ?? ""),
                     new SqlParameter( "@TENNV",    nv.TENNV?.Trim() ?? ""),
                     new SqlParameter(  "@SDT",   nv.SDT?.Trim() ?? ""),
-                    new SqlParameter(  "@DIACHI",   nv.DIACHI?.Trim() ?? "")
+                    new SqlParameter(  "@DIACHI",   nv.DIACHI?.Trim() ?? ""),
+                    new SqlParameter("@EMAIL", SqlDbType.NVarChar, 320) { Value = (object?)nv.EMAIL?.Trim() ?? DBNull.Value }
                 };
                 int rows = Connect.ExecuteNonQuery( sql, parameters);
                 return rows > 0;
@@ -172,6 +175,7 @@ namespace DAL
                         TENNV = @TENNV,
                         SDT = @SDT,
                         DIACHI = @DIACHI
+                        , EMAIL = @EMAIL
                     WHERE MANV = @MANV";
 
                 SqlParameter[] parameters =
@@ -179,7 +183,8 @@ namespace DAL
                     new SqlParameter( "@MANV", nv.MANV.Trim()),
                     new SqlParameter( "@TENNV", nv.TENNV?.Trim() ?? ""),
                     new SqlParameter( "@SDT", nv.SDT?.Trim() ?? ""),
-                    new SqlParameter( "@DIACHI", nv.DIACHI?.Trim() ?? "")
+                    new SqlParameter( "@DIACHI", nv.DIACHI?.Trim() ?? ""),
+                    new SqlParameter("@EMAIL", SqlDbType.NVarChar, 320) { Value = (object?)nv.EMAIL?.Trim() ?? DBNull.Value }
                 };
 
                 int rows = Connect.ExecuteNonQuery( sql, parameters);

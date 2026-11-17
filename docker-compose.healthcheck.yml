@@ -1,0 +1,12 @@
+services:
+  api-healthcheck:
+    restart: unless-stopped
+    build:
+      context: .
+      dockerfile: API_HealthCheck/Dockerfile
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ASPNETCORE_URLS: http://+:8080
+      ConnectionStrings__DefaultConnection: "${DB_CONNECTION_STRING:?Set DB_CONNECTION_STRING in .env}"
+    ports:
+      - "8081:8080"

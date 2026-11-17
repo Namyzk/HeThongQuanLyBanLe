@@ -7,7 +7,7 @@ using Models;
 
 namespace API_ThuKho.Controllers
 {
-    [Authorize(Roles = "Admin,ThuKho")]
+    [Authorize]
     [Route("api/QuanLyDanhMuc")]
 
     [ApiController]
@@ -22,6 +22,7 @@ namespace API_ThuKho.Controllers
 
         [Route("get-all-danhmuc")]
         [HttpGet]
+        [Authorize(Roles = "Admin,ThuKho,ThuNgan")]
         public IActionResult GetAll()
         {
             try
@@ -42,6 +43,7 @@ namespace API_ThuKho.Controllers
 
         [Route("get-byID-danhmuc")]
         [HttpGet]
+        [Authorize(Roles = "Admin,ThuKho")]
         public IActionResult GetByID([FromQuery] string? madanhmuc)
         {
             if (string.IsNullOrWhiteSpace(madanhmuc))
@@ -55,8 +57,7 @@ namespace API_ThuKho.Controllers
 
                 return Ok(new
                 {
-                    success = true,
-                    message = "Lấy thông tin danh mục thành công.",
+                    success = true, message = "Lấy thông tin danh mục thành công.",
                     data = list[0] 
                 });
             }
@@ -68,6 +69,7 @@ namespace API_ThuKho.Controllers
 
         [Route("insert-danhmuc")]
         [HttpPost]
+        [Authorize(Roles = "Admin,ThuKho")]
         public IActionResult Create([FromBody] DanhMuc? model)
         {
             if (model == null)
@@ -90,6 +92,7 @@ namespace API_ThuKho.Controllers
 
         [Route("update-danhmuc")]
         [HttpPost]
+        [Authorize(Roles = "Admin,ThuKho")]
         public IActionResult Update([FromBody] DanhMuc? model)
         {
             if (model == null)
@@ -111,6 +114,7 @@ namespace API_ThuKho.Controllers
 
         [Route("delete-danhmuc")]
         [HttpDelete]
+        [Authorize(Roles = "Admin,ThuKho")]
         public IActionResult Delete([FromQuery] string? maDanhMuc)
         {
             if (string.IsNullOrWhiteSpace(maDanhMuc))

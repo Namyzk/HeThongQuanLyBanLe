@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="vi" ng-app="qlblApp">
 <head>
   <meta charset="UTF-8" />
@@ -18,7 +18,7 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
 
   <!-- Stylesheets -->
-  <link rel="stylesheet" href="../css/chung.css" />
+  <link rel="stylesheet" href="../css/chung.css?v=20261115_blue" />
   <link rel="stylesheet" href="../css/trang/dang-nhap.css" />
 </head>
 <body class="trang-dang-nhap-body" ng-controller="DangNhapController as vm">
@@ -40,7 +40,7 @@
         <h1 id="tieu-de-dang-nhap">Đăng Nhập</h1>
         <p class="phu-de-form">Hệ thống Quản lý Bán lẻ & POS Bán hàng</p>
 
-        <div class="o-nhap-group">
+        <div class="o-nhap-group" >
           <div class="o-nhap-hop">
             <i class="bi bi-person bieu-tuong-input" aria-hidden="true"></i>
             <input
@@ -78,6 +78,7 @@
         </div>
 
         <!-- Vùng thông báo lỗi -->
+
         <div class="dang-nhap-loi" role="alert" aria-live="polite" ng-show="vm.thongBaoLoi">
           <i class="bi bi-exclamation-circle-fill" aria-hidden="true"></i>
           <span>{{ vm.thongBaoLoi }}</span>
@@ -91,61 +92,69 @@
 
         <div class="lien-ket-phu">
           <a href="#" ng-click="vm.moPhanQuyen(); $event.preventDefault();">
-            <i class="bi bi-question-circle"></i> Chưa có tài khoản hoặc quên mật khẩu?
+            <i class="bi bi-person-plus"></i> Tạo tài khoản (dành cho Admin)
           </a>
         </div>
       </form>
     </section>
 
-    <!-- Panel 2: Thông tin Phân quyền & Hỗ trợ (Sign Up / Info) -->
+    <!-- Panel 2: Tạo tài khoản (chỉ Admin đã đăng nhập mới được gửi) -->
     <section class="form-container sign-up" aria-labelledby="tieu-de-phan-quyen">
-      <div class="thong-tin-noi-dung">
-        <header class="thong-tin-header">
-          <div class="badge-icon-header" aria-hidden="true">
-            <i class="bi bi-shield-check"></i>
-          </div>
-          <h1 id="tieu-de-phan-quyen">Phân Quyền Vai Trò</h1>
-          <p class="phu-de-form">Hệ thống phân quyền làm việc theo 4 nhóm chuyên trách</p>
-        </header>
+      <form ng-submit="vm.taoTaiKhoan()" novalidate>
+        <div class="logo-dang-nhap" aria-hidden="true"><i class="bi bi-person-plus"></i></div>
+        <h1 id="tieu-de-phan-quyen">Tạo tài khoản</h1>
+        <p class="phu-de-form">Tài khoản mới chỉ được tạo bởi quản trị viên</p>
 
-        <div class="danh-sach-vai-tro">
-          <article class="the-vai-tro vai-tro-admin">
-            <div class="icon-vt"><i class="bi bi-shield-lock-fill"></i></div>
-            <div class="text-vt">
-              <strong>Quản trị viên (Admin)</strong>
-              <span>Toàn quyền quản trị tài khoản, nhân viên, phân quyền và doanh thu.</span>
-            </div>
-          </article>
-
-          <article class="the-vai-tro vai-tro-thukho">
-            <div class="icon-vt"><i class="bi bi-boxes"></i></div>
-            <div class="text-vt">
-              <strong>Thủ kho (ThuKho)</strong>
-              <span>Quản lý danh mục, sản phẩm, phiếu nhập kho và kiểm kê tồn kho.</span>
-            </div>
-          </article>
-
-          <article class="the-vai-tro vai-tro-thungan">
-            <div class="icon-vt"><i class="bi bi-cash-coin"></i></div>
-            <div class="text-vt">
-              <strong>Thu ngân (ThuNgan)</strong>
-              <span>Giao dịch bán hàng tại quầy POS, xuất hóa đơn, quản lý đổi trả.</span>
-            </div>
-          </article>
-
-          <article class="the-vai-tro vai-tro-ketoan">
-            <div class="icon-vt"><i class="bi bi-graph-up-arrow"></i></div>
-            <div class="text-vt">
-              <strong>Kế toán (KeToan)</strong>
-              <span>Theo dõi công nợ, phiếu thu chi thanh toán và báo cáo thống kê.</span>
-            </div>
-          </article>
+        <div class="thong-bao-admin" ng-if="!vm.daLaAdmin" role="status">
+          <i class="bi bi-shield-lock" aria-hidden="true"></i>
+          <span>Hãy đăng nhập bằng tài khoản Admin để tiếp tục. API tạo tài khoản yêu cầu quyền quản trị.</span>
         </div>
 
-        <footer class="lien-ket-phu">
-          <small><i class="bi bi-info-circle"></i> Để cấp tài khoản mới hoặc đặt lại mật khẩu, vui lòng liên hệ Ban Quản Trị IT.</small>
-        </footer>
-      </div>
+        <div class="o-nhap-group" ng-if="vm.daLaAdmin">
+          <div class="o-nhap-hop">
+            <i class="bi bi-card-text bieu-tuong-input" aria-hidden="true"></i>
+            <input type="text" aria-label="Mã tài khoản" ng-model="vm.taiKhoanMoi.maTaiKhoan" readonly />
+          </div>
+          <div class="o-nhap-hop">
+            <i class="bi bi-person bieu-tuong-input" aria-hidden="true"></i>
+            <input type="text" placeholder="Tên đăng nhập" autocomplete="off" maxlength="20" ng-model="vm.taiKhoanMoi.username" required />
+          </div>
+          <div class="o-nhap-hop">
+            <i class="bi bi-envelope bieu-tuong-input" aria-hidden="true"></i>
+            <input type="email" placeholder="Email khôi phục mật khẩu" maxlength="320" ng-model="vm.taiKhoanMoi.email" required />
+          </div>
+          <div class="o-nhap-hop">
+            <i class="bi bi-lock bieu-tuong-input" aria-hidden="true"></i>
+            <input type="password" placeholder="Mật khẩu (6–20 ký tự)" autocomplete="new-password" minlength="6" maxlength="20" ng-model="vm.taiKhoanMoi.password" required />
+          </div>
+          <div class="o-nhap-hop">
+            <i class="bi bi-lock-fill bieu-tuong-input" aria-hidden="true"></i>
+            <input type="password" placeholder="Nhập lại mật khẩu" autocomplete="new-password" minlength="6" maxlength="20" ng-model="vm.taiKhoanMoi.xacNhanMatKhau" required />
+          </div>
+          <div class="o-nhap-hop">
+            <i class="bi bi-shield bieu-tuong-input" aria-hidden="true"></i>
+            <select aria-label="Vai trò tài khoản" ng-model="vm.taiKhoanMoi.quyen"
+                    ng-options="vaiTro.quyen as vaiTro.ten for vaiTro in vm.dsVaiTro" required></select>
+          </div>
+        </div>
+
+        <div class="dang-nhap-loi" role="alert" aria-live="polite" ng-show="vm.loiTaoTaiKhoan">
+          <i class="bi bi-exclamation-circle-fill" aria-hidden="true"></i><span>{{ vm.loiTaoTaiKhoan }}</span>
+        </div>
+
+        <button type="submit" class="nut-chinh-submit" ng-if="vm.daLaAdmin" ng-disabled="vm.dangTaoTaiKhoan">
+          <span class="quay-vong quay-vong-nho" ng-show="vm.dangTaoTaiKhoan"></span>
+          <i class="bi bi-person-check" ng-hide="vm.dangTaoTaiKhoan" aria-hidden="true"></i>
+          <span>{{ vm.dangTaoTaiKhoan ? 'Đang tạo...' : 'Tạo tài khoản' }}</span>
+        </button>
+        <button type="button" class="nut-chinh-submit" ng-if="!vm.daLaAdmin" ng-click="vm.dangNhapAdminDeTaoTaiKhoan()">
+          <i class="bi bi-box-arrow-in-right" aria-hidden="true"></i><span>Đăng nhập Admin</span>
+        </button>
+
+        <div class="lien-ket-phu">
+          <a href="#" ng-click="vm.veDangNhap(); $event.preventDefault();"><i class="bi bi-arrow-left"></i> Quay lại đăng nhập</a>
+        </div>
+      </form>
     </section>
 
     <!-- Sliding Curved Overlay Panel -->
@@ -167,7 +176,7 @@
           <h1>Quản Lý Bán Lẻ</h1>
           <p>Giải pháp quản trị bán hàng, tồn kho và tài chính toàn diện, bảo mật cao.</p>
           <button type="button" class="ghost-btn" ng-click="vm.moPhanQuyen()">
-            Xem Phân Quyền <i class="bi bi-arrow-right-circle"></i>
+            Tạo tài khoản <i class="bi bi-arrow-right-circle"></i>
           </button>
         </div>
       </div>

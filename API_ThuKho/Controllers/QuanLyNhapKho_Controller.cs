@@ -17,12 +17,14 @@ namespace API_ThuKho.Controllers
         private readonly PhieuNhapKho_BLL _pnkBll;
         private readonly ChiTietNhap_BLL _ctnBll;
         private readonly NhaCungCap_BLL _nccBll;
+        private readonly NhanVien_BLL _nvBll;
 
-        public QuanLyNhapKho_Controller(PhieuNhapKho_BLL _pnkBll, ChiTietNhap_BLL _ctnBll, NhaCungCap_BLL _nccBll)
+        public QuanLyNhapKho_Controller(PhieuNhapKho_BLL _pnkBll, ChiTietNhap_BLL _ctnBll, NhaCungCap_BLL _nccBll, NhanVien_BLL _nvBll)
         {
             this._pnkBll = _pnkBll;
             this._ctnBll = _ctnBll;
             this._nccBll = _nccBll;
+            this._nvBll = _nvBll;
         }
 
        
@@ -71,8 +73,21 @@ namespace API_ThuKho.Controllers
         {
             try
             {
-                var data = _pnkBll.LayTatCa();
-                return Ok(new { success = true, count = data?.Count ?? 0, message = "Lấy danh sách phiếu nhập kho thành công.", data });
+                var raw = _pnkBll.LayTatCa();
+                var data = raw.Select(p =>
+                {
+                    var chiTietList = p.listjson_chitietnhap ?? new List<ChiTietNhap>();
+                    decimal tongTien = chiTietList.Sum(ct => ct.THANHTIEN > 0 ? ct.THANHTIEN : (ct.SOLUONG * ct.DONGIANHAP));
+                    return new
+                    {
+                        p.MAPHIEUNHAP,  p.MANCC,  p.MANV,  p.NGAYLAP,
+                        listjson_chitietnhap = chiTietList,
+                        CHI_TIET = chiTietList,
+                        TONG_TIEN = tongTien,
+                        SO_LUONG_SP = chiTietList.Count
+                    };
+                }).ToList();
+                return Ok(new { success = true, count = data.Count, message = "Lấy danh sách phiếu nhập kho thành công.", data });
             }
             catch (Exception ex)
             {
@@ -316,6 +331,25 @@ namespace API_ThuKho.Controllers
                 DataTable dt = _nccBll.GetAll();
                 var data = dt.AsEnumerable().Select(MapNhaCungCap).ToList();
                 return Ok(new { success = true, count = data.Count, message = "Lấy danh sách nhà cung cấp thành công.", data });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { success = false, message = "Lỗi hệ thống nội bộ." });
+            }
+        }
+
+        [HttpGet("get-all-nhanvien")]
+        public IActionResult GetAllNhanVien()
+        {
+            try
+            {
+                var list = _nvBll.LayTatCa();
+                var data = list.Select(x => new
+                {
+                    MANV = x.MANV?.Trim(),
+                    TENNV = x.TENNV?.Trim()
+                }).ToList();
+                return Ok(new { success = true, count = data.Count, message = "Lấy danh sách nhân viên thành công.", data });
             }
             catch (Exception ex)
             {

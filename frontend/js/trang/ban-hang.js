@@ -31,6 +31,7 @@
     vm.danhSachDM = [];
     vm.danhSachKH = [];
     vm.danhSachNV = [];
+    vm.danhSachKM = [];
     vm.dangTai = false;
 
     // Tìm kiếm và lọc
@@ -43,7 +44,9 @@
     vm.nhanVienChon = '';
     vm.maHoaDonHienTai = '';
     vm.vatPhanTram = 0;
+    vm.vatTuyChinh = false;
     vm.giamGia = 0;
+    vm.giamGiaTuyChinh = false;
     vm.ptThanhToan = 'Tiền mặt';
     vm.tienKhachDua = 0;
     vm.dangThanhToan = false;
@@ -57,7 +60,9 @@
     // Modal xem nhanh sản phẩm
     vm.modalXemNhanh = {
       hienThi: false,
-      sp: null
+      sp: null,
+      soLuongChon: 1,
+      loiAnh: false
     };
 
     // Modal PayOS QR theo đúng ảnh 2
@@ -82,6 +87,7 @@
     };
 
     var timerPayOs = null;
+    var hoaDonChoThanhToan = null;
 
     // Bảng màu avatar
     var mauAvatarList = [
@@ -119,6 +125,85 @@
       vm.maHoaDonHienTai = 'HD' + soNgauNhien;
     };
 
+    // Chuẩn hóa chuỗi ngày YYYY-MM-DD
+    function chuanHoaChuoiNgay(val) {
+      if (!val) return '';
+      var s = String(val).trim();
+      var m = s.match(/^(\d{4})-(\d{2})-(\d{2})/);
+      if (m) return m[1] + '-' + m[2] + '-' + m[3];
+      var d = new Date(s);
+      if (isNaN(d.getTime())) return '';
+      return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+    }
+
+    // Tìm chương trình khuyến mãi áp dụng cho mã sản phẩm
+    function timKhuyenMaiTheoSP(maSP) {
+      if (!maSP || !Array.isArray(vm.danhSachKM) || vm.danhSachKM.length === 0) return null;
+      var ma = String(maSP).trim().toUpperCase();
+      var dsCungSP = vm.danhSachKM.filter(function (k) {
+        return String(k.MaSP || '').trim().toUpperCase() === ma;
+      });
+      if (dsCungSP.length === 0) return null;
+
+      var homNay = chuanHoaChuoiNgay(new Date());
+      var kmDangHieuLuc = dsCungSP.find(function (k) {
+        var bd = chuanHoaChuoiNgay(k.NgayBD);
+        var kt = chuanHoaChuoiNgay(k.NgayKT);
+        if (!bd || !kt) return false;
+        if (homNay < bd || homNay > kt) return false;
+        return true;
+      });
+      return kmDangHieuLuc || null;
+    }
+
+    // Tính số tiền giảm giá khuyến mãi cho 1 dòng sản phẩm (Phương án 1)
+    function tinhTienGiamKhuyenMaiSP(tenKM, tienHangSP, soLuong) {
+      if (!tenKM || tienHangSP <= 0) return { tienGiam: 0, moTaGiam: '' };
+      var chuoi = String(tenKM).trim();
+
+      // 1. Nếu tên KM có ghi % (VD: "Giảm 15%", "Ưu đãi 20%")
+      var matchPhanTram = chuoi.match(/(\d+(?:[.,]\d+)?)\s*%/);
+      if (matchPhanTram) {
+        var pt = Number(matchPhanTram[1].replace(',', '.'));
+        if (!isNaN(pt) && pt > 0 && pt <= 100) {
+          return {
+            tienGiam: Math.round(tienHangSP * pt / 100),
+            moTaGiam: '-' + pt + '%'
+          };
+        }
+      }
+
+      // 2. Nếu tên KM có ghi số tiền dạng "50k", "30 nghìn"
+      var matchK = chuoi.match(/\b(\d+(?:[.,]\d+)?)\s*(?:k|nghìn|ngàn)\b/i);
+      if (matchK) {
+        var soTienK = Math.round(Number(matchK[1].replace(',', '.')) * 1000) * (Number(soLuong) || 1);
+        if (!isNaN(soTienK) && soTienK > 0) {
+          return {
+            tienGiam: Math.min(tienHangSP, soTienK),
+            moTaGiam: '-' + Math.round(soTienK / 1000) + 'k'
+          };
+        }
+      }
+
+      // 3. Nếu tên KM có ghi số tiền dạng "50.000", "50,000đ"
+      var matchTien = chuoi.match(/\b(\d{1,3}(?:[.,]\d{3})+)\s*(?:đ|đồng|vnd)?\b/i);
+      if (matchTien) {
+        var soTien = Number(matchTien[1].replace(/[.,]/g, '')) * (Number(soLuong) || 1);
+        if (!isNaN(soTien) && soTien > 0) {
+          return {
+            tienGiam: Math.min(tienHangSP, soTien),
+            moTaGiam: '-' + soTien.toLocaleString('vi-VN') + 'đ'
+          };
+        }
+      }
+
+      // 4. Mặc định giảm 10% giá sản phẩm có khuyến mãi
+      return {
+        tienGiam: Math.round(tienHangSP * 10 / 100),
+        moTaGiam: '-10%'
+      };
+    }
+
     // Tải dữ liệu từ API
     vm.taiDuLieu = function () {
       vm.dangTai = true;
@@ -127,18 +212,46 @@
       var pDM = ApiService.get(ApiService.URL.thukho + '/QuanLyDanhMuc/get-all-danhmuc').catch(function () { return []; });
       var pKH = ApiService.get(ApiService.URL.thungan + '/QuanLyBanHang/get-all-khachhang').catch(function () { return []; });
       var pNV = ApiService.get(ApiService.URL.thungan + '/QuanLyBanHang/get-all-nhanvien-ban-hang').catch(function () { return []; });
+      var pKM = ApiService.get(ApiService.URL.admin + '/QuanLyKhuyenMai/get-all-khuyenmai').catch(function () { return { data: [] }; });
 
-      $q.all([pSP, pDM, pKH, pNV]).then(function (results) {
+      $q.all([pSP, pDM, pKH, pNV, pKM]).then(function (results) {
         var rawSP = ApiService.layMang(results[0]);
         var rawDM = ApiService.layMang(results[1]);
         var rawKH = ApiService.layMang(results[2]);
         var rawNV = ApiService.layMang(results[3]);
+        var rawKM = ApiService.layMang(results[4]);
+
+        if (rawKM && rawKM.length > 0) {
+          vm.danhSachKM = rawKM.map(function (k) {
+            return {
+              MaKM: String(ApiService.layThuocTinh(k, 'MaKM') || ApiService.layThuocTinh(k, 'MAKM') || '').trim(),
+              TenKM: String(ApiService.layThuocTinh(k, 'TenKM') || ApiService.layThuocTinh(k, 'TENKM') || '').trim(),
+              MaSP: String(ApiService.layThuocTinh(k, 'MaSP') || ApiService.layThuocTinh(k, 'MASP') || '').trim(),
+              NgayBD: ApiService.layThuocTinh(k, 'NgayBD') || ApiService.layThuocTinh(k, 'NGAYBATDAU') || null,
+              NgayKT: ApiService.layThuocTinh(k, 'NgayKT') || ApiService.layThuocTinh(k, 'NGAYKETTHUC') || null
+            };
+          });
+          try {
+            $window.localStorage.setItem('qlbl_cache_khuyenmai', JSON.stringify(vm.danhSachKM));
+          } catch (e) {}
+        } else {
+          try {
+            var cacheKM = JSON.parse($window.localStorage.getItem('qlbl_cache_khuyenmai') || '[]');
+            if (Array.isArray(cacheKM)) vm.danhSachKM = cacheKM;
+          } catch (e) {
+            vm.danhSachKM = [];
+          }
+        }
 
         // Chuẩn hóa SP
         vm.danhSachSP = rawSP.map(function (s) {
           var ma = String(ApiService.layThuocTinh(s, 'MASP') || '').trim();
           var ten = String(ApiService.layThuocTinh(s, 'TENSP') || '').trim();
           var coAnh = Boolean(ApiService.layThuocTinh(s, 'HINHANH') || ApiService.layThuocTinh(s, 'ANH'));
+          var thueRaw = ApiService.layThuocTinh(s, 'THUE');
+          if (thueRaw === undefined || thueRaw === null) thueRaw = ApiService.layThuocTinh(s, 'THUEVAT');
+          var thueSP = (thueRaw !== undefined && thueRaw !== null && thueRaw !== '') ? Number(thueRaw) : 10;
+          var kmApDung = timKhuyenMaiTheoSP(ma);
           return {
             MASP: ma,
             TENSP: ten,
@@ -147,6 +260,9 @@
             SOLUONGTON: Number(ApiService.layThuocTinh(s, 'SOLUONGTON')) || 0,
             MAVACH: String(ApiService.layThuocTinh(s, 'MAVACH') || '').trim(),
             THUOCTINH: String(ApiService.layThuocTinh(s, 'THUOCTINH') || '').trim(),
+            MOTA: String(ApiService.layThuocTinh(s, 'MOTA') || '').trim(),
+            THUE: isNaN(thueSP) ? 10 : thueSP,
+            KHUYENMAI: kmApDung,
             CO_ANH: coAnh
           };
         });
@@ -229,14 +345,77 @@
       return mauAvatarList[idx];
     };
 
+    // Lấy tên danh mục từ mã danh mục
+    vm.layTenDanhMuc = function (maDM) {
+      if (!maDM) return 'Chưa phân loại';
+      var dm = vm.danhSachDM.find(function (d) { return d.MADANHMUC === maDM; });
+      return dm ? dm.TENDANHMUC : maDM;
+    };
+
     // Xem nhanh sản phẩm
     vm.xemNhanh = function (sp) {
       vm.modalXemNhanh.sp = sp;
+      vm.modalXemNhanh.soLuongChon = 1;
+      vm.modalXemNhanh.loiAnh = false;
       vm.modalXemNhanh.hienThi = true;
     };
 
     vm.dongXemNhanh = function () {
       vm.modalXemNhanh.hienThi = false;
+    };
+
+    vm.themTuXemNhanh = function () {
+      var sp = vm.modalXemNhanh.sp;
+      if (!sp) return;
+      var sl = Math.max(1, Number(vm.modalXemNhanh.soLuongChon) || 1);
+      for (var i = 0; i < sl; i++) {
+        vm.themVaoGio(sp);
+      }
+      vm.dongXemNhanh();
+    };
+
+    // Tính tiền hàng, tiền thuế riêng, tiền khuyến mãi riêng và thành tiền cho từng sản phẩm
+    function capNhatDongGio(item) {
+      if (!item) return;
+      var sl = Number(item.SOLUONG) || 1;
+      var donGia = Number(item.DONGIA) || 0;
+      var thueSP = (item.THUE !== undefined && item.THUE !== null && !isNaN(Number(item.THUE))) ? Number(item.THUE) : 10;
+      item.THUE = thueSP;
+      item.THANHTIEN = sl * donGia;
+      item.TIENTHUE = Math.round(item.THANHTIEN * thueSP / 100);
+
+      var km = item.KHUYENMAI || timKhuyenMaiTheoSP(item.MASP);
+      if (km && km.TenKM) {
+        item.KHUYENMAI = km;
+        item.MAKM = km.MaKM || '';
+        item.TENKM = km.TenKM;
+        var kqKM = tinhTienGiamKhuyenMaiSP(km.TenKM, item.THANHTIEN, sl);
+        item.TIENGIAM_KM = kqKM.tienGiam;
+        item.MOTA_KM = kqKM.moTaGiam;
+      } else {
+        item.MAKM = '';
+        item.TENKM = '';
+        item.TIENGIAM_KM = 0;
+        item.MOTA_KM = '';
+      }
+
+      item.THANHTIEN_SAU_THUE = item.THANHTIEN + item.TIENTHUE;
+    }
+
+    // Tự động cộng tổng tiền khuyến mãi của các sản phẩm trong giỏ vào ô Giảm giá
+    function dongBoGiamGiaKhuyenMai() {
+      if (vm.gioHang.length === 0) {
+        vm.giamGiaTuyChinh = false;
+        vm.giamGia = 0;
+        return;
+      }
+      if (!vm.giamGiaTuyChinh) {
+        vm.giamGia = vm.tinhTienKhuyenMaiSP();
+      }
+    }
+
+    vm.khiDoiGiamGia = function () {
+      vm.giamGiaTuyChinh = true;
     };
 
     // Thêm sản phẩm vào giỏ
@@ -250,21 +429,30 @@
           return;
         }
         itemTonTai.SOLUONG += 1;
-        itemTonTai.THANHTIEN = itemTonTai.SOLUONG * itemTonTai.DONGIA;
+        capNhatDongGio(itemTonTai);
       } else {
         if (ton <= 0) {
           ToastService.warning('Hết hàng', 'Sản phẩm này hiện đã hết hàng trong kho.');
           return;
         }
-        vm.gioHang.push({
+        var thueSP = (sp.THUE !== undefined && sp.THUE !== null && !isNaN(Number(sp.THUE))) ? Number(sp.THUE) : 10;
+        var itemMoi = {
           MASP: sp.MASP,
           TENSP: sp.TENSP,
           DONGIA: sp.DONGIA,
+          THUE: thueSP,
+          KHUYENMAI: sp.KHUYENMAI || timKhuyenMaiTheoSP(sp.MASP),
           SOLUONG: 1,
           THANHTIEN: sp.DONGIA,
+          TIENTHUE: 0,
+          TIENGIAM_KM: 0,
+          THANHTIEN_SAU_THUE: 0,
           SOLUONGTON: ton
-        });
+        };
+        capNhatDongGio(itemMoi);
+        vm.gioHang.push(itemMoi);
       }
+      dongBoGiamGiaKhuyenMai();
     };
 
     // Tăng số lượng
@@ -274,18 +462,20 @@
         return;
       }
       item.SOLUONG += 1;
-      item.THANHTIEN = item.SOLUONG * item.DONGIA;
+      capNhatDongGio(item);
+      dongBoGiamGiaKhuyenMai();
     };
 
     // Giảm số lượng
     vm.giamSoLuong = function (item) {
       if (item.SOLUONG > 1) {
         item.SOLUONG -= 1;
-        item.THANHTIEN = item.SOLUONG * item.DONGIA;
+        capNhatDongGio(item);
       } else {
         var idx = vm.gioHang.indexOf(item);
         if (idx > -1) vm.gioHang.splice(idx, 1);
       }
+      dongBoGiamGiaKhuyenMai();
     };
 
     // Điều chỉnh số lượng trực tiếp
@@ -297,12 +487,14 @@
         ToastService.warning('Giới hạn tồn', 'Số lượng đã được tự động đưa về mức tối đa: ' + sl);
       }
       item.SOLUONG = sl;
-      item.THANHTIEN = item.SOLUONG * item.DONGIA;
+      capNhatDongGio(item);
+      dongBoGiamGiaKhuyenMai();
     };
 
     // Xóa món
     vm.xoaKhoiGio = function (idx) {
       vm.gioHang.splice(idx, 1);
+      dongBoGiamGiaKhuyenMai();
     };
 
     // Xóa hết giỏ
@@ -310,21 +502,43 @@
       if (vm.gioHang.length === 0) return;
       vm.gioHang = [];
       vm.giamGia = 0;
+      vm.giamGiaTuyChinh = false;
       vm.tienKhachDua = 0;
     };
 
-    // Tính toán tiền
+    // Tính toán tiền: mỗi sản phẩm tính thuế riêng và khuyến mãi riêng, sau đó cộng tổng
     vm.tinhTienHang = function () {
-      return vm.gioHang.reduce(function (s, item) { return s + item.THANHTIEN; }, 0);
+      return vm.gioHang.reduce(function (s, item) {
+        return s + (Number(item.THANHTIEN) || 0);
+      }, 0);
     };
 
     vm.tinhTienVAT = function () {
-      var vat = Number(vm.vatPhanTram) || 0;
-      return Math.round(vm.tinhTienHang() * vat / 100);
+      return vm.gioHang.reduce(function (s, item) {
+        var tienHangSP = Number(item.THANHTIEN) || ((Number(item.SOLUONG) || 0) * (Number(item.DONGIA) || 0));
+        var thueSP = (item.THUE !== undefined && item.THUE !== null && !isNaN(Number(item.THUE))) ? Number(item.THUE) : 10;
+        var tienThueSP = (item.TIENTHUE !== undefined) ? Number(item.TIENTHUE) : Math.round(tienHangSP * thueSP / 100);
+        return s + tienThueSP;
+      }, 0);
+    };
+
+    vm.tinhTienKhuyenMaiSP = function () {
+      return vm.gioHang.reduce(function (s, item) {
+        return s + (Number(item.TIENGIAM_KM) || 0);
+      }, 0);
+    };
+
+    vm.tinhTienHangSauThue = function () {
+      return vm.gioHang.reduce(function (s, item) {
+        var tienHangSP = Number(item.THANHTIEN) || ((Number(item.SOLUONG) || 0) * (Number(item.DONGIA) || 0));
+        var thueSP = (item.THUE !== undefined && item.THUE !== null && !isNaN(Number(item.THUE))) ? Number(item.THUE) : 10;
+        var tienThueSP = (item.TIENTHUE !== undefined) ? Number(item.TIENTHUE) : Math.round(tienHangSP * thueSP / 100);
+        return s + tienHangSP + tienThueSP;
+      }, 0);
     };
 
     vm.tinhTongCong = function () {
-      var tong = vm.tinhTienHang() + vm.tinhTienVAT() - (Number(vm.giamGia) || 0);
+      var tong = vm.tinhTienHangSauThue() - (Number(vm.giamGia) || 0);
       return Math.max(0, tong);
     };
 
@@ -370,6 +584,12 @@
       var nvObj = vm.danhSachNV.find(function (n) { return n.MANV === vm.nhanVienChon; });
       if (nvObj && nvObj.TENNV) tenNV = nvObj.TENNV;
 
+      if (hoaDonChoThanhToan) {
+        if (vm.ptThanhToan === 'Thanh toán QR') vm.khoiTaoThanhToanPayOs(hoaDonChoThanhToan.maHD, hoaDonChoThanhToan.tenKH, hoaDonChoThanhToan.tenNV, hoaDonChoThanhToan.tongCong);
+        else ghiNhanTienMat(hoaDonChoThanhToan.maHD, hoaDonChoThanhToan.tenKH, hoaDonChoThanhToan.tenNV, hoaDonChoThanhToan.tongCong);
+        return;
+      }
+
       // 1. Tạo hóa đơn trong DB trước (khớp chính xác Models.HoaDonBan)
       var payloadHD = {
         MAHDBAN: maHD,
@@ -390,21 +610,29 @@
         })
       };
 
-      ApiService.post(ApiService.URL.thungan + '/QuanLyBanHang/create-hoadonban', payloadHD).then(function () {
-        if (vm.ptThanhToan === 'Thanh toán QR') {
-          // 2. Nếu chọn Thanh toán QR: Gọi API PayOS để lấy link và mã QR
-          vm.khoiTaoThanhToanPayOs(maHD, tenKH, tenNV, tongCong);
-        } else {
-          // Thanh toán Tiền mặt: Hoàn tất ngay
-          ToastService.success('Thành công', 'Thanh toán đơn hàng ' + maHD + ' thành công!');
-          vm.hienModalHoaDonThanhCong(maHD, tenKH, tenNV, tongCong);
-          vm.dangThanhToan = false;
-        }
+      ApiService.post(ApiService.URL.thungan + '/QuanLyBanHang/insert-hoadonban', payloadHD).then(function () {
+        hoaDonChoThanhToan = { maHD: maHD, tenKH: tenKH, tenNV: tenNV, tongCong: tongCong };
+        if (vm.ptThanhToan === 'Thanh toán QR') vm.khoiTaoThanhToanPayOs(maHD, tenKH, tenNV, tongCong);
+        else ghiNhanTienMat(maHD, tenKH, tenNV, tongCong);
       }).catch(function (err) {
         ToastService.error('Lỗi thanh toán', err);
         vm.dangThanhToan = false;
       });
     };
+
+    function ghiNhanTienMat(maHD, tenKH, tenNV, tongCong) {
+      vm.dangThanhToan = true;
+      ApiService.post(ApiService.URL.thungan + '/QuanLyBanHang/insert-thanhtoan', {
+        MaThanhToan: 'TT' + Date.now().toString().slice(-12), MaHDBan: maHD,
+        PhuongThuc: 'Tiền mặt', SoTienThanhToan: tongCong,
+        NgayThanhToan: new Date().toISOString(), TrangThai: 'Đã thanh toán'
+      }).then(function () {
+        hoaDonChoThanhToan = null;
+        ToastService.success('Thành công', 'Thanh toán đơn hàng ' + maHD + ' thành công!');
+        vm.hienModalHoaDonThanhCong(maHD, tenKH, tenNV, tongCong);
+      }).catch(function (err) { ToastService.error('Lỗi thanh toán tiền mặt', err); })
+        .finally(function () { vm.dangThanhToan = false; });
+    }
 
     // Khởi tạo quy trình thanh toán QR PayOS (Ảnh 2)
     vm.khoiTaoThanhToanPayOs = function (maHD, tenKH, tenNV, tongCong) {
@@ -443,10 +671,8 @@
         vm.batDauPollingPayOs(maHD);
       }).catch(function (err) {
         var msg = (err && err.data && err.data.message) ? err.data.message : 'Không thể tạo link QR PayOS';
-        ToastService.warning('Lưu ý PayOS', msg);
-        // Fallback QR ảnh tĩnh nếu có mã
-        vm.modalPayOs.trangThai = 'Chưa thanh toán';
-        vm.batDauPollingPayOs(maHD);
+        ToastService.error('Không tạo được QR', msg + '. Hóa đơn đã lưu nhưng chưa thanh toán; hãy kiểm tra cấu hình PayOS hoặc chọn phương thức khác.');
+        vm.modalPayOs.hienThi = false; vm.dungPollingPayOs(); vm.dangThanhToan = false;
       });
     };
 
@@ -475,6 +701,7 @@
         var status = d.trangThai || '';
         if (status === 'Đã thanh toán') {
           vm.modalPayOs.trangThai = 'Đã thanh toán';
+          hoaDonChoThanhToan = null;
           vm.dungPollingPayOs();
           ToastService.success('Thành công', 'Hóa đơn ' + vm.modalPayOs.maHD + ' đã thanh toán thành công qua PayOS!');
 
@@ -510,10 +737,14 @@
     vm.dongModalPayOs = function (daThanhToan) {
       vm.dungPollingPayOs();
       vm.modalPayOs.hienThi = false;
+      hoaDonChoThanhToan = null;
 
       // Làm trống giỏ hàng và chuẩn bị đơn hàng mới
       vm.gioHang = [];
+      vm.vatPhanTram = 0;
+      vm.vatTuyChinh = false;
       vm.giamGia = 0;
+      vm.giamGiaTuyChinh = false;
       vm.tienKhachDua = 0;
       vm.taoMaHoaDonMoi();
       vm.taiDuLieu();
@@ -543,7 +774,10 @@
 
       // Reset dữ liệu giỏ và tạo mã HĐ mới
       vm.gioHang = [];
+      vm.vatPhanTram = 0;
+      vm.vatTuyChinh = false;
       vm.giamGia = 0;
+      vm.giamGiaTuyChinh = false;
       vm.tienKhachDua = 0;
       vm.taoMaHoaDonMoi();
       vm.taiDuLieu();
@@ -559,16 +793,18 @@
       var vungIn = document.getElementById('vung-in-hoa-don');
       if (!vungIn) return;
       var w = $window.open('', '_blank');
+      if (!w) return;
       w.document.write('<html><head><title>Hóa Đơn Bán Lẻ</title>');
-      w.document.write('<style>body{font-family:monospace,sans-serif;padding:16px;color:#000;max-width:380px;margin:auto;}table{width:100%;border-collapse:collapse;margin:12px 0;}th,td{padding:4px 0;font-size:12px;}hr{border:none;border-top:1px dashed #000;margin:8px 0;}</style>');
+      w.document.write('<style>@page{size:A4 portrait;margin:8mm}*{box-sizing:border-box}body{font-family:Arial,sans-serif;padding:8px;color:#000;width:75mm;margin:0 auto;font-size:11px;line-height:1.25}table{width:100%;border-collapse:collapse;margin:8px 0}th,td{padding:3px 0;font-size:10px;text-align:left}hr{border:none;border-top:1px dashed #000;margin:6px 0}#receipt{transform-origin:top left}.in-hd-dau{text-align:center;border-bottom:1px dashed #444;padding-bottom:7px}.in-hd-ten-he-thong{font-size:16px;margin:0 0 4px}.in-hd-phu-de,.in-hd-meta{margin:3px 0}.in-hd-khach-hang{margin:7px 0;padding:5px 0;border-bottom:1px dashed #aaa}.in-hd-bang{width:100%;border-collapse:collapse}.in-hd-bang th,.in-hd-bang td{border-bottom:1px solid #bbb;padding:4px 2px}.in-hd-tong-ket{border-top:1px dashed #444;margin-top:8px;padding-top:6px}.in-hd-tong-dong,.in-hd-tong-cong-dong{display:flex;justify-content:space-between;padding:2px 0}.in-hd-tong-cong-dong{font-weight:bold;border-top:1px solid #444;margin-top:5px;padding-top:6px}.in-hd-loi-cam-on{text-align:center;margin-top:10px;font-style:italic}</style>');
       w.document.write('</head><body>');
-      w.document.write(vungIn.innerHTML);
+      w.document.write('<main id="receipt">'+vungIn.innerHTML+'</main>');
       w.document.write('</body></html>');
       w.document.close();
       w.focus();
       setTimeout(function () {
-        w.print();
-        w.close();
+        var node=w.document.getElementById('receipt'), available=1040, h=node.scrollHeight;
+        if(h>available){var scale=available/h;node.style.zoom=scale;}
+        w.focus(); w.print(); w.close();
       }, 300);
     };
   }

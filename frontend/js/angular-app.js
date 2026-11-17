@@ -12,14 +12,23 @@
   /* ==========================================================================
      1. HẰNG SỐ CẤU HÌNH (APP_CONFIG)
      ========================================================================== */
+    //   app.constant('APP_CONFIG', {
+    // BASE_URL: 'https://localhost:7144',
+    // API_URL: {
+    //   login:   'https://localhost:7144/api/Login',
+    //   admin:   'https://localhost:7144/api/admin',
+    //   thukho:  'https://localhost:7144/api/thukho',
+    //   thungan: 'https://localhost:7144/api/thungan',
+    //   ketoan:  'https://localhost:7144/api/ketoan',
+    // },
   app.constant('APP_CONFIG', {
-    BASE_URL: 'https://localhost:7144',
+    BASE_URL: '',
     API_URL: {
-      login:   'https://localhost:7144/api/Login',
-      admin:   'https://localhost:7144/api/admin',
-      thukho:  'https://localhost:7144/api/thukho',
-      thungan: 'https://localhost:7144/api/thungan',
-      ketoan:  'https://localhost:7144/api/ketoan',
+      login:   '/api/Login',
+      admin:   '/api/admin',
+      thukho:  '/api/thukho',
+      thungan: '/api/thungan',
+      ketoan:  '/api/ketoan',
     },
     // Khóa lưu phiên tương thích hoàn toàn với xac-thuc.js và cau-hinh.js
     KHOA_PHIEN: {
@@ -306,7 +315,8 @@
       return $http(reqConfig).then(function (res) {
         return res.data;
       }).catch(function (err) {
-        if (err.status === 401 && !isRetry) {
+        var laDangNhap = method === 'POST' && url.replace(/\/$/, '') === (APP_CONFIG.API_URL.login + '/login').replace(/\/$/, '');
+        if (err.status === 401 && !isRetry && !laDangNhap) {
           return lamMoiToken().then(function (ok) {
             if (ok) {
               return request(method, url, data, params, true);
@@ -390,6 +400,7 @@
     function hienXacNhan(tieuDe, noiDung, nhanNutXacNhan) {
       var defer = $q.defer();
       var modal = document.getElementById('modal-chung');
+      var phanTuMoModal = document.activeElement;
       if (!modal) {
         defer.resolve(confirm(noiDung));
         return defer.promise;
@@ -411,6 +422,9 @@
 
       function dong() {
         modal.classList.remove('hien');
+        if (modal.contains(document.activeElement) && phanTuMoModal && typeof phanTuMoModal.focus === 'function') {
+          phanTuMoModal.focus();
+        }
         modal.setAttribute('aria-hidden', 'true');
       }
 
@@ -441,12 +455,67 @@
      6. DỊCH VỤ BẢNG ĐIỀU HƯỚNG VÀ HEADER DÙNG CHUNG (SidebarHeaderService)
      Khởi tạo và quản lý sidebar + header theo đúng 100% markup, CSS và behavior gốc.
      ========================================================================== */
-  app.factory('SidebarHeaderService', ['APP_CONFIG', 'AuthService', '$window', '$interval', function (APP_CONFIG, AuthService, $window, $interval) {
+  app.factory('SidebarHeaderService', ['APP_CONFIG', 'AuthService', 'ApiService', '$window', '$interval', function (APP_CONFIG, AuthService, ApiService, $window, $interval) {
     function khoiTao(trangId, tieuDeTrang, duongDanTrang) {
       var vaiTro = AuthService.layVaiTro() || 'Admin';
       var nguoiDung = AuthService.layNguoiDung() || {};
       var tenVaiTro = APP_CONFIG.TEN_VAI_TRO[vaiTro] || vaiTro;
       var avatarChuCai = (nguoiDung.userName || 'U').charAt(0).toUpperCase();
+      function capNhatHoSo(profile) {
+        profile = profile || nguoiDung;
+        var modal = document.getElementById('modal-thong-tin-tai-khoan');
+        if (!modal) return;
+        var role = profile.roleName || profile.RoleName || vaiTro;
+        var values = {
+          'ho-so-ma': profile.maTaiKhoan || profile.MaTaiKhoan || nguoiDung.MaTaiKhoan || 'Chưa có',
+          'ho-so-ten': profile.userName || profile.UserName || nguoiDung.UserName || nguoiDung.userName || 'Người dùng',
+          'ho-so-email': profile.email || profile.Email || 'Chưa cập nhật email',
+          'ho-so-vai-tro': APP_CONFIG.TEN_VAI_TRO[role] || role || tenVaiTro,
+          'ho-so-quyen': profile.quyen || profile.Quyen || nguoiDung.Quyen || '—'
+        };
+        Object.keys(values).forEach(function (id) {
+          var field = modal.querySelector('#' + id);
+          if (field) field.textContent = values[id];
+        });
+      }
+
+      function moHoSoTaiKhoan() {
+        var modal = document.getElementById('modal-thong-tin-tai-khoan');
+        if (!modal) {
+          modal = document.createElement('div');
+          modal.id = 'modal-thong-tin-tai-khoan';
+          modal.className = 'ho-so-tai-khoan-nen';
+          modal.setAttribute('aria-hidden', 'true');
+          modal.innerHTML = '<section class="ho-so-tai-khoan-hop" role="dialog" aria-modal="true" aria-labelledby="ho-so-tieu-de">' +
+            '<header class="ho-so-tai-khoan-dau"><div class="ho-so-tai-khoan-bieu-tuong"><i class="bi bi-person-vcard" aria-hidden="true"></i></div><div><h2 id="ho-so-tieu-de">Thông tin tài khoản</h2><p>Phiên đăng nhập hiện tại</p></div><button type="button" class="ho-so-tai-khoan-dong" aria-label="Đóng"><i class="bi bi-x-lg"></i></button></header>' +
+            '<div class="ho-so-tai-khoan-noi-dung"><div class="ho-so-tai-khoan-hang"><span>Mã tài khoản</span><strong id="ho-so-ma"></strong></div><div class="ho-so-tai-khoan-hang"><span>Tên đăng nhập</span><strong id="ho-so-ten"></strong></div><div class="ho-so-tai-khoan-hang"><span>Email</span><strong id="ho-so-email"></strong></div><div class="ho-so-tai-khoan-hang"><span>Vai trò</span><strong id="ho-so-vai-tro"></strong></div><div class="ho-so-tai-khoan-hang"><span>Mã quyền</span><strong id="ho-so-quyen"></strong></div></div>' +
+            '<footer class="ho-so-tai-khoan-chan"><button type="button" class="nut nut-chinh nut-ho-so-dong">Đóng</button></footer></section>';
+          document.body.appendChild(modal);
+          function dongHoSo() { modal.classList.remove('hien'); modal.setAttribute('aria-hidden', 'true'); }
+          modal.addEventListener('click', function (event) {
+            if (event.target === modal || event.target.closest('.ho-so-tai-khoan-dong, .nut-ho-so-dong')) dongHoSo();
+          });
+          document.addEventListener('keydown', function (event) { if (event.key === 'Escape') dongHoSo(); });
+        }
+        capNhatHoSo(nguoiDung);
+        modal.classList.add('hien');
+        modal.setAttribute('aria-hidden', 'false');
+        ApiService.get(ApiService.URL.login + '/profile').then(function (res) {
+          if (res && res.success && res.data) capNhatHoSo(res.data);
+        }).catch(function () {});
+      }
+
+      function ganNutHoSo(element) {
+        if (!element) return;
+        element.setAttribute('role', 'button');
+        element.setAttribute('tabindex', '0');
+        element.setAttribute('aria-haspopup', 'dialog');
+        element.setAttribute('aria-label', 'Xem thông tin tài khoản');
+        element.addEventListener('click', moHoSoTaiKhoan);
+        element.addEventListener('keydown', function (event) {
+          if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); moHoSoTaiKhoan(); }
+        });
+      }
 
       // 1. Khởi tạo Sidebar
       var sidebar = document.getElementById('sidebar');
@@ -486,6 +555,7 @@
               '</div>' +
             '</div>';
         }
+          ganNutHoSo(footerEl.querySelector('.sidebar-user-info'));
 
         // Khôi phục trạng thái thu gọn
         var daThuGon = $window.sessionStorage.getItem('sidebar_thu_gon') === '1';
@@ -514,6 +584,8 @@
 
         var userAvatarEl = document.getElementById('header-user-avatar');
         if (userAvatarEl) userAvatarEl.textContent = avatarChuCai;
+        if (userAvatarEl) userAvatarEl.removeAttribute('aria-hidden');
+        ganNutHoSo(header.querySelector('.header-thong-tin-user'));
 
         var userTenEl = document.getElementById('header-user-ten');
         if (userTenEl) userTenEl.textContent = nguoiDung.userName || 'Người dùng';
@@ -615,3 +687,4 @@
   });
 
 })();
+

@@ -88,8 +88,7 @@ namespace API_Admin.Controllers
 
                 return Ok(new
                 {
-                    success = true,
-                    message = "Lấy thông tin khuyến mại thành công.",
+                    success = true, message = "Lấy thông tin khuyến mại thành công.",
                     data = MapKhuyenMai(dt.Rows[0]) 
                 });
             }

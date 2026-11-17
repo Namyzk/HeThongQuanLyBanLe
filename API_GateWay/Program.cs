@@ -27,16 +27,10 @@ if (allowedOrigins == null || allowedOrigins.Length == 0)
 
     allowedOrigins = new[]
     {
-        "http://localhost:3000",
-        "http://localhost:5173",
-        "https://localhost:3001",
-        "https://localhost:5173",
-        "http://localhost:5500",
-        "http://localhost:5501",
-        "http://localhost:5502",
-        "http://127.0.0.1:5500",
-        "http://127.0.0.1:5501",
-        "http://127.0.0.1:5502"
+      
+        "http://127.0.0.1:5502",
+        "http://127.0.0.1:5503",
+        "http://localhost:5502"
     };
 }
 
@@ -87,7 +81,13 @@ builder.Services.AddRateLimiter(options =>
 {
     options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
     options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(context =>
-        RateLimitPartition.GetSlidingWindowLimiter(
+    {
+        if (context.User.Identity?.IsAuthenticated == true)
+        {
+            return RateLimitPartition.GetNoLimiter("authenticated");
+        }
+
+        return RateLimitPartition.GetSlidingWindowLimiter(
             context.Connection.RemoteIpAddress?.ToString() ?? "anonymous",
             _ => new SlidingWindowRateLimiterOptions
             {
@@ -97,7 +97,8 @@ builder.Services.AddRateLimiter(options =>
                 QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
                 Window = TimeSpan.FromMinutes(1),
                 SegmentsPerWindow = 6
-            }));
+            });
+    });
 });
 
 var app = builder.Build();

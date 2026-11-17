@@ -1,0 +1,100 @@
+services:
+  api-admin:
+    restart: unless-stopped
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        PROJECT: BTL Web API/API_Admin.csproj
+        DLL: API_Admin.dll
+    environment: &api-environment
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:8080
+      ConnectionStrings__DefaultConnection: "${DB_CONNECTION_STRING:?Set DB_CONNECTION_STRING in D:/WebApi/.env}"
+    expose:
+      - "8080"
+    volumes:
+      - ./Pic:/app/Pic
+
+  api-gateway:
+    restart: unless-stopped
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        PROJECT: API_GateWay/API_GateWay.csproj
+        DLL: API_GateWay.dll
+    environment:
+      <<: *api-environment
+      Cors__AllowedOrigins__8: "http://localhost:8080"
+    expose:
+      - "8080"
+    depends_on:
+      - api-admin
+      - api-ketoan
+      - api-login
+      - api-thukho
+      - api-thungan
+
+  frontend:
+    restart: unless-stopped
+    build:
+      context: ../FontEnd/frontend
+      dockerfile: Dockerfile
+    ports:
+      - "8080:80"
+    volumes:
+      - ../FontEnd/frontend:/usr/local/apache2/htdocs
+    depends_on:
+      - api-gateway
+
+  api-ketoan:
+    restart: unless-stopped
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        PROJECT: API_KeToan1/API_KeToan1.csproj
+        DLL: API_KeToan1.dll
+    environment: *api-environment
+    expose:
+      - "8080"
+
+  api-login:
+    restart: unless-stopped
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        PROJECT: API_Login/API_Login.csproj
+        DLL: API_Login.dll
+    environment:
+      <<: *api-environment
+    expose:
+      - "8080"
+
+  api-thukho:
+    restart: unless-stopped
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        PROJECT: API_ThuKho/API_ThuKho.csproj
+        DLL: API_ThuKho.dll
+    environment: *api-environment
+    expose:
+      - "8080"
+    volumes:
+      - ./Pic:/app/Pic
+
+  api-thungan:
+    restart: unless-stopped
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        PROJECT: API_ThuNgan/API_ThuNgan.csproj
+        DLL: API_ThuNgan.dll
+    environment: *api-environment
+    expose:
+      - "8080"

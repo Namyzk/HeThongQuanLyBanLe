@@ -72,11 +72,42 @@
       vm.taiDuLieu();
     };
 
+    vm.danhSachKM = [];
+
+    function chuanHoaChuoiNgay(val) {
+      if (!val) return '';
+      var s = String(val).trim();
+      var m = s.match(/^(\d{4})-(\d{2})-(\d{2})/);
+      if (m) return m[1] + '-' + m[2] + '-' + m[3];
+      var d = new Date(s);
+      if (isNaN(d.getTime())) return '';
+      return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+    }
+
+    function timKhuyenMaiTheoSP(maSP) {
+      if (!maSP || !Array.isArray(vm.danhSachKM) || vm.danhSachKM.length === 0) return null;
+      var ma = String(maSP).trim().toUpperCase();
+      var dsCungSP = vm.danhSachKM.filter(function (k) {
+        return String(k.MaSP || k.MASP || '').trim().toUpperCase() === ma;
+      });
+      if (dsCungSP.length === 0) return null;
+      var homNay = chuanHoaChuoiNgay(new Date());
+      var kmDangHieuLuc = dsCungSP.find(function (k) {
+        var bd = chuanHoaChuoiNgay(k.NgayBD || k.NGAYBATDAU);
+        var kt = chuanHoaChuoiNgay(k.NgayKT || k.NGAYKETTHUC);
+        if (!bd || !kt) return false;
+        if (homNay < bd || homNay > kt) return false;
+        return true;
+      });
+      return kmDangHieuLuc || null;
+    }
+
     // Chuẩn hóa bản ghi sản phẩm từ API
     function chuanHoaSP(raw) {
       var ma = String(ApiService.layThuocTinh(raw, 'MASP') || '').trim();
       var ten = String(ApiService.layThuocTinh(raw, 'TENSP') || '').trim();
       var thueVal = ApiService.layThuocTinh(raw, 'THUE');
+      var km = timKhuyenMaiTheoSP(ma);
       return {
         MASP: ma,
         TENSP: ten,
@@ -87,6 +118,7 @@
         THUOCTINH: String(ApiService.layThuocTinh(raw, 'THUOCTINH') || '').trim(),
         MOTA: String(ApiService.layThuocTinh(raw, 'MOTA') || '').trim(),
         THUE: thueVal !== undefined && thueVal !== null ? Number(thueVal) : 8,
+        KHUYENMAI: km,
         HINHANH: ApiService.layThuocTinh(raw, 'HINHANH') || null
       };
     }
@@ -99,10 +131,36 @@
       var pDM = ApiService.get(ApiService.URL.thukho + '/QuanLyDanhMuc/get-all-danhmuc').catch(function () {
         return { data: [] };
       });
+      var pKM = ApiService.get(ApiService.URL.admin + '/QuanLyKhuyenMai/get-all-khuyenmai').catch(function () {
+        return { data: [] };
+      });
 
-      $q.all([pSP, pDM]).then(function (results) {
+      $q.all([pSP, pDM, pKM]).then(function (results) {
         var rawSP = ApiService.layMang(results[0]);
         var rawDM = ApiService.layMang(results[1]);
+        var rawKM = ApiService.layMang(results[2]);
+
+        if (rawKM && rawKM.length > 0) {
+          vm.danhSachKM = rawKM.map(function (k) {
+            return {
+              MaKM: String(ApiService.layThuocTinh(k, 'MaKM') || ApiService.layThuocTinh(k, 'MAKM') || '').trim(),
+              TenKM: String(ApiService.layThuocTinh(k, 'TenKM') || ApiService.layThuocTinh(k, 'TENKM') || '').trim(),
+              MaSP: String(ApiService.layThuocTinh(k, 'MaSP') || ApiService.layThuocTinh(k, 'MASP') || '').trim(),
+              NgayBD: ApiService.layThuocTinh(k, 'NgayBD') || ApiService.layThuocTinh(k, 'NGAYBATDAU') || null,
+              NgayKT: ApiService.layThuocTinh(k, 'NgayKT') || ApiService.layThuocTinh(k, 'NGAYKETTHUC') || null
+            };
+          });
+          try {
+            $window.localStorage.setItem('qlbl_cache_khuyenmai', JSON.stringify(vm.danhSachKM));
+          } catch (e) {}
+        } else {
+          try {
+            var cacheKM = JSON.parse($window.localStorage.getItem('qlbl_cache_khuyenmai') || '[]');
+            if (Array.isArray(cacheKM)) vm.danhSachKM = cacheKM;
+          } catch (e) {
+            vm.danhSachKM = [];
+          }
+        }
 
         vm.danhSachSP = rawSP.map(chuanHoaSP);
         vm.danhSachDM = rawDM.map(function (dm) {
@@ -181,10 +239,22 @@
       return maDM;
     };
 
+    vm.anhVersion = Date.now();
+
     // Lấy link ảnh sản phẩm qua API Gateway
-    vm.layAnh = function (maSP) {
+    vm.layAnh = function (sp) {
+      if (!sp) return '';
+      var maSP = typeof sp === 'string' ? sp : (sp.MASP || '');
+      var directUrl = typeof sp === 'object' ? (sp.urlAnh || sp.HINHANH) : '';
+      if (directUrl && (directUrl.startsWith('http') || directUrl.startsWith('data:'))) {
+        return directUrl;
+      }
       if (!maSP) return '';
-      return ApiService.URL.thukho + '/QuanLySanPham/xem-anh-sp/' + encodeURIComponent(maSP);
+      var url = ApiService.URL.thukho + '/QuanLySanPham/xem-anh-sp/' + encodeURIComponent(maSP);
+      if (vm.anhVersion) {
+        url += (url.indexOf('?') >= 0 ? '&' : '?') + 't=' + vm.anhVersion;
+      }
+      return url;
     };
 
     // Mở form Thêm mới (Ảnh 3)
@@ -213,13 +283,14 @@
 
     // Mở form Sửa (Ảnh 4)
     vm.moFormSua = function (sp) {
+      var duLieu = angular.copy(sp);
       vm.modalForm = {
         hienThi: true,
         laSua: true,
         tieuDe: 'Cập nhật sản phẩm — ' + sp.MASP,
-        duLieu: angular.copy(sp),
+        duLieu: duLieu,
         fileAnh: null,
-        anhPreview: null,
+        anhPreview: vm.layAnh(sp.MASP),
         dangLuu: false
       };
     };
@@ -279,14 +350,17 @@
           formData.append('file', vm.modalForm.fileAnh);
           formData.append('maSP', d.MASP.trim());
 
-          fetch(ApiService.URL.thukho + '/QuanLySanPham/upload-anh-sp', {
-            method: 'POST',
-            body: formData,
-            credentials: 'include'
-          }).finally(function () {
-            ToastService.success('Thành công', vm.modalForm.laSua ? 'Cập nhật sản phẩm thành công.' : 'Thêm sản phẩm thành công.');
-            vm.dongModalForm();
-            vm.taiDuLieu();
+          fetch(ApiService.URL.thukho + '/QuanLySanPham/upload', {
+            method: 'POST', body: formData, credentials: 'include'
+          }).then(function (response) {
+            return response.json().catch(function () { return {}; }).then(function (body) {
+              if (!response.ok) throw new Error(body.message || 'Không tải được ảnh sản phẩm lên máy chủ.');
+              vm.anhVersion = Date.now();
+              ToastService.success('Thành công', vm.modalForm.laSua ? 'Cập nhật sản phẩm và ảnh thành công.' : 'Thêm sản phẩm và ảnh thành công.');
+              vm.dongModalForm(); vm.taiDuLieu();
+            });
+          }).catch(function (err) {
+            ToastService.error('Lỗi tải ảnh', err.message || 'Không thể tải ảnh sản phẩm lên.');
           });
         } else {
           ToastService.success('Thành công', vm.modalForm.laSua ? 'Cập nhật sản phẩm thành công.' : 'Thêm sản phẩm thành công.');

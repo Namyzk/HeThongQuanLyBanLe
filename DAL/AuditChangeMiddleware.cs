@@ -8,10 +8,6 @@ using System.Text.Json;
 
 namespace DAL.Middleware;
 
-
-// Ghi audit cho các request có khả năng làm thay đổi dữ liệu.
-// Chỉ lưu các mã định danh đã chọn, không lưu toàn bộ body hoặc thông tin bí mật.
-
 public sealed class AuditChangeMiddleware
 {
     private const int MaxAuditRequestBodyBytes = 256 * 1024;
@@ -238,7 +234,7 @@ public sealed class AuditChangeMiddleware
         }
         catch (JsonException)
         {
-            // Một số API trả thông báo dạng text; khi HTTP status thành công xem là thành công.
+            
         }
         finally
         {

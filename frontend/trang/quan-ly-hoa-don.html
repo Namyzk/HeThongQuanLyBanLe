@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="vi" ng-app="qlblApp">
 <head>
   <meta charset="UTF-8" />
@@ -13,12 +13,12 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
 
   <!-- Modular CSS -->
-  <link rel="stylesheet" href="../css/chung.css" />
+  <link rel="stylesheet" href="../css/chung.css?v=20261115_blue" />
   <link rel="stylesheet" href="../css/bo-cuc.css" />
-  <link rel="stylesheet" href="../css/thanh-phan.css" />
+  <link rel="stylesheet" href="../css/thanh-phan.css?v=20261115_blue" />
   <link rel="stylesheet" href="../css/bieu-mau.css" />
   <link rel="stylesheet" href="../css/hien-thi-di-dong.css" />
-  <link rel="stylesheet" href="../css/trang/quan-ly-hoa-don.css" />
+  <link rel="stylesheet" href="../css/trang/quan-ly-hoa-don.css?v=20261117_w960_2" />
 </head>
 <body ng-controller="HoaDonController as vm">
 
@@ -80,7 +80,7 @@
                   <i class="bi bi-search" aria-hidden="true"></i>
                   <input
                     type="search"
-                    placeholder="Tìm theo mã HĐ, mã NV, khách hàng..."
+                    placeholder="Mã HĐ, mã NV, khách hàng hoặc ngày (dd/mm/yyyy)..."
                     ng-model="vm.tuKhoa"
                     ng-change="vm.trangHienTai = 1"
                     aria-label="Tìm kiếm hóa đơn"
@@ -131,7 +131,7 @@
                   </thead>
                   <tbody>
                     <tr ng-repeat="row in vm.layDanhSachPhanTrang()">
-                      <td><span class="badge badge-lam">{{ row.MAHDBAN }}</span></td>
+                      <td><span class="ma-du-lieu">{{ row.MAHDBAN }}</span></td>
                       <td>{{ row.MANV || '—' }}</td>
                       <td>{{ row.MAKH || 'Khách vãng lai' }}</td>
                       <td>{{ row.NGAYLAP | ngayVn }}</td>
@@ -221,7 +221,7 @@
           </header>
 
           <div class="hoa-don-thong-tin-chung">
-            <div><strong>Mã HĐ:</strong> <span class="badge badge-lam">{{ vm.modalChiTiet.hoaDon.MAHDBAN }}</span></div>
+            <div><strong>Mã HĐ:</strong> <span class="ma-du-lieu">{{ vm.modalChiTiet.hoaDon.MAHDBAN }}</span></div>
             <div><strong>Ngày lập:</strong> {{ vm.modalChiTiet.hoaDon.NGAYLAP | ngayVn }}</div>
             <div><strong>Thu ngân:</strong> {{ vm.modalChiTiet.hoaDon.MANV || '—' }}</div>
             <div><strong>Khách hàng:</strong> {{ vm.modalChiTiet.hoaDon.MAKH || 'Khách vãng lai' }}</div>
@@ -235,22 +235,24 @@
                   <th>Mặt hàng</th>
                   <th class="van-ban-phai">SL</th>
                   <th class="van-ban-phai">Đơn giá</th>
-                  <th class="van-ban-phai">Thành tiền</th>
+                  <th class="van-ban-phai">Thuế VAT</th>
+                  <th class="van-ban-phai">Thành tiền (gồm thuế)</th>
                 </tr>
               </thead>
               <tbody>
                 <tr ng-if="vm.modalChiTiet.chiTiet.length === 0">
-                  <td colspan="5" class="van-ban-trung van-ban-mo">Chưa có chi tiết sản phẩm</td>
+                  <td colspan="6" class="van-ban-trung van-ban-mo">Chưa có chi tiết sản phẩm</td>
                 </tr>
                 <tr ng-repeat="ct in vm.modalChiTiet.chiTiet">
                   <td class="trung">{{ $index + 1 }}</td>
                   <td>
                     <strong>{{ ct.TenSP || ct.TENSP || ct.MASP || '—' }}</strong>
-                    <div class="sp-ma-phu">{{ ct.MASP || '' }}</div>
+                    <div class="sp-ma-phu">{{ ct.MASP || '' }} • Chưa thuế: {{ ct.TONGTIEN | vnd }}</div>
                   </td>
                   <td class="van-ban-phai font-dam">{{ ct.SOLUONG || 1 | so }}</td>
                   <td class="van-ban-phai">{{ ct.DONGIA || 0 | vnd }}</td>
-                  <td class="van-ban-phai font-dam chu-mau-chinh">{{ (ct.TONGTIEN || (ct.SOLUONG * ct.DONGIA)) | vnd }}</td>
+                  <td class="van-ban-phai">{{ ct.TIENTHUE | vnd }} ({{ ct.THUE }}%)</td>
+                  <td class="van-ban-phai font-dam chu-mau-chinh">{{ (ct.THANHTIEN_SAU_THUE || ct.TONGTIEN || (ct.SOLUONG * ct.DONGIA)) | vnd }}</td>
                 </tr>
               </tbody>
             </table>
@@ -258,12 +260,16 @@
 
           <footer class="hoa-don-tong-ket">
             <div class="hoa-don-tong-dong">
-              <span>Tổng tiền hàng:</span>
+              <span>Tiền hàng (chưa thuế):</span>
               <span>{{ vm.modalChiTiet.hoaDon.TONGTIENHANG | vnd }}</span>
             </div>
             <div class="hoa-don-tong-dong">
-              <span>Thuế VAT:</span>
+              <span>Tổng thuế VAT (theo từng SP):</span>
               <span>{{ vm.modalChiTiet.hoaDon.THUEVAT | vnd }}</span>
+            </div>
+            <div class="hoa-don-tong-dong">
+              <span>Tổng tiền hàng (đã gồm thuế):</span>
+              <span>{{ (vm.modalChiTiet.hoaDon.TONG_TIEN_SAU_THUE || (vm.modalChiTiet.hoaDon.TONGTIENHANG + vm.modalChiTiet.hoaDon.THUEVAT)) | vnd }}</span>
             </div>
             <div class="hoa-don-tong-dong">
               <span>Giảm giá:</span>
@@ -306,6 +312,6 @@
   <!-- AngularJS và Scripts -->
   <script src="../angular.min.js"></script>
   <script src="../js/angular-app.js"></script>
-  <script src="../js/trang/quan-ly-hoa-don.js"></script>
+  <script src="../js/trang/quan-ly-hoa-don.js?v=20261117_q"></script>
 </body>
 </html>

@@ -24,6 +24,7 @@ namespace API_Admin.Controllers
         {
             MaTaiKhoan = x.MATAIKHOAN?.Trim(),
             UserName = x.USERNAME?.Trim(),
+            Email = x.EMAIL?.Trim(),
             Quyen = x.QUYEN,
             RoleName = x.QUYEN switch
             {
@@ -82,9 +83,9 @@ namespace API_Admin.Controllers
         public IActionResult CreateTaiKhoan([FromBody] TaiKhoan tk)
         {
             if (tk == null || string.IsNullOrWhiteSpace(tk.MATAIKHOAN) ||
-                string.IsNullOrWhiteSpace(tk.USERNAME) || string.IsNullOrWhiteSpace(tk.PASS))
+                string.IsNullOrWhiteSpace(tk.USERNAME) || string.IsNullOrWhiteSpace(tk.PASS) || string.IsNullOrWhiteSpace(tk.EMAIL))
             {
-                return BadRequest(new { success = false, message = "Vui lòng nhập đầy đủ Mã tài khoản, Tên đăng nhập và Mật khẩu." });
+                return BadRequest(new { success = false, message = "Vui lòng nhập Mã tài khoản, Tên đăng nhập, Mật khẩu và Email." });
             }
 
             try
@@ -106,9 +107,9 @@ namespace API_Admin.Controllers
         public IActionResult UpdateTaiKhoan([FromBody] TaiKhoan tk)
         {
             if (tk == null || string.IsNullOrWhiteSpace(tk.MATAIKHOAN) ||
-                string.IsNullOrWhiteSpace(tk.USERNAME) || string.IsNullOrWhiteSpace(tk.PASS))
+                string.IsNullOrWhiteSpace(tk.USERNAME))
             {
-                return BadRequest(new { success = false, message = "Vui lòng nhập đầy đủ Mã tài khoản, Tên đăng nhập và Mật khẩu." });
+                return BadRequest(new { success = false, message = "Vui lòng nhập Mã tài khoản và Tên đăng nhập." });
             }
 
             try
@@ -146,7 +147,7 @@ namespace API_Admin.Controllers
             }
         }
 
-        // 6. Đăng nhập (Dành cho việc gọi trực tiếp trong phân hệ Admin)
+  
     } 
 }
 

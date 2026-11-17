@@ -1,8 +1,23 @@
-IF DB_ID(N'QUANLYBANLE') IS NULL
-    CREATE DATABASE QUANLYBANLE;
-GO
+
 USE QUANLYBANLE;
 GO
+
+IF COL_LENGTH(N'dbo.NHANVIEN', N'EMAIL') IS NULL
+    ALTER TABLE dbo.NHANVIEN ADD EMAIL NVARCHAR(320) NULL;
+GO
+
+IF COL_LENGTH(N'dbo.TAIKHOAN', N'EMAIL') IS NULL
+    ALTER TABLE dbo.TAIKHOAN ADD EMAIL NVARCHAR(320) NULL;
+GO
+
+-- PBKDF2 hashes are longer than the old CHAR(20) password field.
+IF EXISTS (
+    SELECT 1 FROM sys.columns
+    WHERE object_id = OBJECT_ID(N'dbo.TAIKHOAN') AND name = N'PASS'
+      AND (max_length < 255 OR system_type_id <> TYPE_ID(N'varchar'))
+)
+    ALTER TABLE dbo.TAIKHOAN ALTER COLUMN PASS VARCHAR(255) NULL;
+
 select * from Auditlog
 -- Audit log chỉ ghi các thao tác có khả năng thay đổi dữ liệu qua API.
 -- Khi chạy lần đầu: tạo bảng; nếu bảng đã tồn tại: chỉ bổ sung các cột còn thiếu.
@@ -55,12 +70,10 @@ GO
 IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = N'IX_AuditLog_EntityName_OccurredAtUtc' AND object_id = OBJECT_ID(N'dbo.AuditLog'))
     CREATE INDEX IX_AuditLog_EntityName_OccurredAtUtc ON dbo.AuditLog (EntityName, OccurredAtUtc DESC);
 GO
--- Nếu QUANLYBANLE đã tồn tại, hãy chỉ chạy phần AuditLog phía trên (từ IF OBJECT_ID đến các index).
--- Phần dưới là script khởi tạo schema mới và không dùng để chạy lại trên database đã có bảng.
--- Xem các thay đổi gần nhất:
--- SELECT TOP (100) OccurredAtUtc, UserName, RoleName, OperationType, EntityName,
---        RecordKey, Result, StatusCode, ServiceName, RequestPath
--- FROM dbo.AuditLog WHERE OperationType <> N'UNKNOWN' ORDER BY AuditLogId DESC;
+
+
+
+
 CREATE TABLE DANHMUC (
     MADANHMUC CHAR(15) PRIMARY KEY,
     TENDANHMUC NVARCHAR(200),
@@ -103,7 +116,8 @@ CREATE TABLE NHANVIEN
 	MANV CHAR(15) PRIMARY KEY,
 	TENNV NVARCHAR(50),
 	SDT CHAR(10),
-	DIACHI NVARCHAR(100)
+	DIACHI NVARCHAR(100),
+	EMAIL NVARCHAR(320) NULL
 )
 
 CREATE TABLE PHIEUNHAPKHO
@@ -130,10 +144,18 @@ CREATE TABLE CHITIETNHAP
 CREATE TABLE TAIKHOAN(
 	MATAIKHOAN CHAR(15) PRIMARY KEY,
 	USERNAME CHAR(20),
-	PASS CHAR(20),
-	QUYEN INT
+	PASS VARCHAR(255),
+	QUYEN INT,
+	EMAIL NVARCHAR(320) NULL
 )
-GO
+
+
+IF COL_LENGTH('dbo.NHANVIEN', 'EMAIL') IS NULL
+    ALTER TABLE dbo.NHANVIEN ADD EMAIL NVARCHAR(320) NULL;
+
+IF COL_LENGTH('dbo.TAIKHOAN', 'EMAIL') IS NULL
+    ALTER TABLE dbo.TAIKHOAN ADD EMAIL NVARCHAR(320) NULL;
+
 
 -- Refresh token được lưu dưới dạng SHA-256 hash, không lưu token thô.
 -- Với database đã tồn tại, chỉ cần chạy riêng khối IF này sau khi có TAIKHOAN.
@@ -173,6 +195,8 @@ CREATE TABLE HOADONBAN(
 	THUEVAT FLOAT,
 	GIAMGIA FLOAT
 )
+
+
 GO
 
 	CREATE TABLE CT_HDB(
@@ -227,10 +251,7 @@ GO
 
 
 
-    USE QUANLYBANLE
-GO
-
--- XÓA TOÀN BỘ DỮ LIỆU CŨ THEO THỨ TỰ RÀNG BUỘC
+ 
 
 
 -- 1. BẢNG DANHMUC (20 BẢN GHI)
@@ -538,59 +559,20 @@ SELECT * FROM HOADONBAN;
 SELECT * FROM CT_HDB;
 SELECT * FROM THANHTOAN;
 
-USE QUANLYBANLE;
-GO
-
-USE QUANLYBANLE;
-GO
----------------------------------------------------------
-
-CREATE OR ALTER PROCEDURE dbo.SP_KIEMTRAUSERNAME
-    @USERNAME CHAR(20)
-AS
-BEGIN
-    SET NOCOUNT ON;
-
-    SELECT MATAIKHOAN
-    FROM dbo.TAIKHOAN
-    WHERE USERNAME = @USERNAME;
-END
-GO
-
------------------
---Kiem tr user name của tk khac
-CREATE OR ALTER PROCEDURE dbo.SP_KIEMTRAUSERNAMEKHAC
-    @USERNAME CHAR(20),
-    @MATAIKHOAN CHAR(15)
-AS
-BEGIN
-    SET NOCOUNT ON;
-
-    SELECT MATAIKHOAN
-    FROM dbo.TAIKHOAN
-    WHERE USERNAME = @USERNAME
-      AND MATAIKHOAN <> @MATAIKHOAN;
-END
-GO
 
 
 
 
-USE QUANLYBANLE;
-GO
+
 
 CREATE OR ALTER PROCEDURE dbo.SP_GetByIDKM
     @MAKM CHAR(15)
 AS
 BEGIN
     SET NOCOUNT ON;
-
     SELECT
-        RTRIM(MAKM) AS MAKM,
-        TENKM,
-        RTRIM(MASP) AS MASP,
-        NGAYBATDAU,
-        NGAYKETTHUC
+        RTRIM(MAKM) AS MAKM, TENKM,
+        RTRIM(MASP) AS MASP,     NGAYBATDAU,   NGAYKETTHUC
     FROM dbo.KHUYENMAI
     WHERE MAKM = @MAKM;
 END
@@ -669,12 +651,7 @@ AS
 BEGIN
     SET NOCOUNT ON;
 
-    IF NOT EXISTS
-    (
-        SELECT 1
-        FROM dbo.KHUYENMAI
-        WHERE MAKM = @MAKM
-    )
+    IF NOT EXISTS (  SELECT 1 FROM dbo.KHUYENMAI WHERE MAKM = @MAKM )
     BEGIN
         RETURN -1;
     END;
@@ -686,10 +663,6 @@ BEGIN
 END
 GO
 
-
-
-USE QUANLYBANLE;
-GO
 
 
 -------------------------------------------------------------------------------------------------
@@ -821,9 +794,6 @@ BEGIN
 END;
 ------------------------------------------------------------------------------------
 
-USE QUANLYBANLE;
-GO
-
 IF OBJECT_ID('dbo.SP_SUAKM', 'P') IS NOT NULL
 BEGIN
     DROP PROCEDURE dbo.SP_SUAKM;
@@ -862,7 +832,6 @@ EXEC SP_LAY_HOADON_CHUA_THANHTOAN
 ----------------------------------------------------------
 
 
-
 CREATE PROCEDURE dbo.sp_GetThanhToan
 AS
 BEGIN
@@ -899,10 +868,7 @@ GO
 
 
 
-SELECT
-    H.MAHDBAN,
-    H.MANV,
-    H.MAKH,
+SELECT  H.MAHDBAN,  H.MANV,   H.MAKH,
     H.NGAYLAP,
     H.TONGTIENHANG,
     H.THUEVAT,
@@ -919,8 +885,6 @@ WHERE
     T.MAHDBAN IS NULL
     OR T.TRANGTHAI <> N'Đã thanh toán';
 --------------------------------------------------------
-USE QUANLYBANLE;
-GO
 
 CREATE OR ALTER PROCEDURE sp_GetByIDTT(@MATHANHTOAN CHAR(15))
 AS
@@ -959,27 +923,10 @@ AS
 BEGIN
     SET NOCOUNT ON;
 
-    INSERT INTO dbo.THANHTOAN
-    (
-        MATHANHTOAN,
-        MAHDBAN,
-        PHUONGTHUC,
-        SOTIENTHANHTOAN,
-        NGAYTHANHTOAN,
-        TRANGTHAI
-    )
-    VALUES
-    (
-        @MaThanhToan,
-        @MaHDBan,
-        @PhuongThuc,
-        @SoTienThanhToan,
-        @NgayThanhToan,
-        @TrangThai
-    );
+    INSERT INTO dbo.THANHTOAN  (  MATHANHTOAN,   MAHDBAN,  PHUONGTHUC,  SOTIENTHANHTOAN,   NGAYTHANHTOAN,  TRANGTHAI  )
+    VALUES(    @MaThanhToan, @MaHDBan,@PhuongThuc,  @SoTienThanhToan, @NgayThanhToan,  @TrangThai  );
 
-    SELECT *
-    FROM dbo.THANHTOAN
+    SELECT *  FROM dbo.THANHTOAN
     WHERE MATHANHTOAN = @MaThanhToan;
 END;
 GO

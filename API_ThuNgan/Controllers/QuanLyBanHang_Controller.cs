@@ -115,23 +115,37 @@ namespace _API_ThuNgan.Controllers
         }
 
         [Route("insert-hoadonban")]
+       // [Route("create-hoadonban")]
         [HttpPost]
         public IActionResult CreateHoaDon([FromBody] HoaDonBan? model)
         {
             if (model == null)
                 return BadRequest(new { success = false, message = "Dữ liệu hóa đơn không được để trống." });
 
+            if (string.IsNullOrWhiteSpace(model.MAKH) || model.MAKH == "KH_LE" || model.MAKH == "Khách lẻ" || model.MAKH.Contains("vãng lai", StringComparison.OrdinalIgnoreCase))
+            {
+                model.MAKH = null;
+            }
+
             if (ValidateMa(model.MAHDBAN, "Mã hóa đơn", 15, out string cleanMaHD) is IActionResult valErr)
                 return valErr;
 
             model.MAHDBAN = cleanMaHD;
+          
+            string cleanMaNV = (model.MANV ?? string.Empty).Trim();
+            if (string.IsNullOrWhiteSpace(cleanMaNV) || !_nvBll.LayTheoID(cleanMaNV).Any())
+            {
+                var firstNv = _nvBll.LayTatCa().FirstOrDefault();
+                if (firstNv != null)
+                {
+                    cleanMaNV = firstNv.MANV;
+                }
+            }
 
-            if (ValidateMa(model.MANV, "Mã nhân viên", 15, out string cleanMaNV) is IActionResult nvErr)
+            if (ValidateMa(cleanMaNV, "Mã nhân viên", 15, out string validMaNV) is IActionResult nvErr)
                 return nvErr;
 
-            model.MANV = cleanMaNV;
-            if (!_nvBll.LayTheoID(cleanMaNV).Any())
-                return BadRequest(new { success = false, message = $"Không tìm thấy nhân viên có mã '{cleanMaNV}'. Hãy chọn mã nhân viên trong danh sách." });
+            model.MANV = validMaNV;
 
             if (model.listjson_chitietban == null || model.listjson_chitietban.Count == 0)
                 return BadRequest(new { success = false, message = "Hóa đơn phải có ít nhất một sản phẩm." });

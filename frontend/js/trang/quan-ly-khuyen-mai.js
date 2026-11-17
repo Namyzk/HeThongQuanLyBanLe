@@ -18,11 +18,39 @@
       var BASE = ApiService.URL.admin + '/QuanLyKhuyenMai';
 
       vm.danhSach = [];
+      vm.danhSachSanPham = [];
       vm.tuKhoa = '';
       vm.dangTai = false;
       vm.loi = '';
       vm.trangHienTai = 1;
       vm.soDongMoiTrang = 20;
+
+      function chuyenSangDateObj(val) {
+        if (!val) return new Date();
+        if (val instanceof Date && !isNaN(val.getTime())) return val;
+        var str = String(val).trim().substring(0, 10);
+        var parts = str.split('-');
+        if (parts.length === 3) {
+          return new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
+        }
+        var d = new Date(val);
+        return isNaN(d.getTime()) ? new Date() : d;
+      }
+
+      function dinhDangNgayApi(val) {
+        if (!val) return '';
+        if (typeof val === 'string') {
+          var s = val.trim();
+          if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
+          if (/^\d{4}-\d{2}-\d{2}T/.test(s)) return s.substring(0, 10);
+        }
+        var d = (val instanceof Date) ? val : new Date(val);
+        if (isNaN(d.getTime())) return '';
+        var yyyy = d.getFullYear();
+        var mm = String(d.getMonth() + 1).padStart(2, '0');
+        var dd = String(d.getDate()).padStart(2, '0');
+        return yyyy + '-' + mm + '-' + dd;
+      }
 
       vm.modalForm = {
         hienThi: false,
@@ -32,8 +60,8 @@
           MaKM: '',
           TenKM: '',
           MaSP: '',
-          NgayBD: '',
-          NgayKT: ''
+          NgayBD: new Date(),
+          NgayKT: new Date()
         }
       };
 
@@ -41,6 +69,23 @@
         if (!AuthService.kiemTraQuyen(['Admin'])) return;
         SidebarHeaderService.khoiTao('quan-ly-khuyen-mai', 'Quản lý Khuyến mãi', 'Trang chủ / Quản lý Khuyến mãi');
         vm.taiDuLieu();
+        vm.taiDanhSachSanPham();
+      };
+
+      vm.taiDanhSachSanPham = function () {
+        ApiService.get(ApiService.URL.thukho + '/QuanLySanPham/get-all-sanpham')
+          .then(function (res) {
+            var list = ApiService.layMang(res);
+            vm.danhSachSanPham = list.map(function (sp) {
+              return {
+                MASP: String(ApiService.layThuocTinh(sp, 'MASP') || '').trim(),
+                TENSP: String(ApiService.layThuocTinh(sp, 'TENSP') || '').trim()
+              };
+            }).filter(function (sp) { return sp.MASP; });
+          })
+          .catch(function () {
+            vm.danhSachSanPham = [];
+          });
       };
 
       vm.taiDuLieu = function () {
@@ -73,6 +118,9 @@
                 ngayketthuc: kt
               };
             });
+            try {
+              localStorage.setItem('qlbl_cache_khuyenmai', JSON.stringify(vm.danhSach));
+            } catch (e) {}
           })
           .catch(function (err) {
             vm.loi = typeof err === 'string' ? err : 'Không thể tải danh sách khuyến mãi';
@@ -81,6 +129,16 @@
           .finally(function () {
             vm.dangTai = false;
           });
+      };
+
+      vm.layTrangThaiKM = function (row) {
+        if (!row) return { nhan: '—', kieu: 'het-han' };
+        var homNay = dinhDangNgayApi(new Date());
+        var bd = dinhDangNgayApi(row.NGAYBATDAU || row.NgayBD);
+        var kt = dinhDangNgayApi(row.NGAYKETTHUC || row.NgayKT);
+        if (bd && homNay < bd) return { nhan: 'Chưa bắt đầu', kieu: 'sap-toi' };
+        if (kt && homNay > kt) return { nhan: 'Đã hết hạn', kieu: 'het-han' };
+        return { nhan: 'Đang áp dụng', kieu: 'dang-ap-dung' };
       };
 
       vm.layDanhSachLoc = function () {
@@ -123,11 +181,11 @@
 
       vm.moModalThem = function () {
         vm.modalForm.laSua = false;
-        var today = new Date().toISOString().substring(0, 10);
+        var today = chuyenSangDateObj(new Date());
         vm.modalForm.data = {
           MaKM: 'KM' + Date.now().toString().slice(-4),
           TenKM: '',
-          MaSP: '',
+          MaSP: vm.danhSachSanPham.length > 0 ? vm.danhSachSanPham[0].MASP : 'SP001',
           NgayBD: today,
           NgayKT: today
         };
@@ -142,8 +200,8 @@
           MaKM: row.MAKM || row.MaKM || '',
           TenKM: row.TENKM || row.TenKM || '',
           MaSP: row.MASP || row.MaSP || '',
-          NgayBD: nbd ? String(nbd).substring(0, 10) : '',
-          NgayKT: nkt ? String(nkt).substring(0, 10) : ''
+          NgayBD: chuyenSangDateObj(nbd),
+          NgayKT: chuyenSangDateObj(nkt)
         };
         vm.modalForm.hienThi = true;
       };
@@ -155,9 +213,9 @@
       vm.luuKhuyenMai = function () {
         var makm = (vm.modalForm.data.MaKM || '').trim();
         var tenkm = (vm.modalForm.data.TenKM || '').trim();
-        var masp = (vm.modalForm.data.MaSP || '').trim();
-        var ngaybd = vm.modalForm.data.NgayBD;
-        var ngaykt = vm.modalForm.data.NgayKT;
+        var masp = (vm.modalForm.data.MaSP || '').trim().toUpperCase();
+        var ngaybd = dinhDangNgayApi(vm.modalForm.data.NgayBD);
+        var ngaykt = dinhDangNgayApi(vm.modalForm.data.NgayKT);
 
         if (!makm || !tenkm || !masp || !ngaybd || !ngaykt) {
           ToastService.warning('Cảnh báo', 'Vui lòng điền đầy đủ thông tin bắt buộc.');
@@ -167,6 +225,16 @@
         if (new Date(ngaybd) > new Date(ngaykt)) {
           ToastService.warning('Cảnh báo', 'Ngày bắt đầu không thể sau ngày kết thúc.');
           return;
+        }
+
+        if (vm.danhSachSanPham.length > 0) {
+          var spTonTai = vm.danhSachSanPham.some(function (sp) {
+            return sp.MASP.toUpperCase() === masp;
+          });
+          if (!spTonTai) {
+            ToastService.error('Lỗi dữ liệu', 'Mã sản phẩm "' + masp + '" không tồn tại trong hệ thống.');
+            return;
+          }
         }
 
         var payload = {

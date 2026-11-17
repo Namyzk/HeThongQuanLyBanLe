@@ -1,116 +1,379 @@
 {
+  // Cổng local cũ: Login 5141, Admin 5087, Kế toán 5063, Thủ kho 5057, Thu ngân 5163. Trong Docker, các service dùng cổng nội bộ 8080.
   "Routes": [
     {
       "Key": "login-anonymous",
       "DownstreamPathTemplate": "/api/Login/login",
       "DownstreamScheme": "http",
-      "DownstreamHostAndPorts": [ { "Host": "127.0.0.1", "Port": 5141 } ],
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "api-login",
+          "Port": 8080
+        }
+      ],
       "UpstreamPathTemplate": "/api/Login/login",
-      "UpstreamHttpMethod": [ "POST" ],
+      "UpstreamHttpMethod": [
+        "POST"
+      ],
       "Priority": 10,
-      "AuthenticationOptions": { "AllowAnonymous": true }
+      "AuthenticationOptions": {
+        "AllowAnonymous": true
+      }
     },
     {
       "Key": "login-refresh-anonymous",
       "DownstreamPathTemplate": "/api/Login/refresh",
       "DownstreamScheme": "http",
-      "DownstreamHostAndPorts": [ { "Host": "127.0.0.1", "Port": 5141 } ],
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "api-login",
+          "Port": 8080
+        }
+      ],
       "UpstreamPathTemplate": "/api/Login/refresh",
-      "UpstreamHttpMethod": [ "POST" ],
+      "UpstreamHttpMethod": [
+        "POST"
+      ],
       "Priority": 10,
-      "AuthenticationOptions": { "AllowAnonymous": true }
+      "AuthenticationOptions": {
+        "AllowAnonymous": true
+      }
     },
     {
       "Key": "login-logout-anonymous",
       "DownstreamPathTemplate": "/api/Login/logout",
       "DownstreamScheme": "http",
-      "DownstreamHostAndPorts": [ { "Host": "127.0.0.1", "Port": 5141 } ],
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "api-login",
+          "Port": 8080
+        }
+      ],
       "UpstreamPathTemplate": "/api/Login/logout",
-      "UpstreamHttpMethod": [ "POST" ],
+      "UpstreamHttpMethod": [
+        "POST"
+      ],
       "Priority": 10,
-      "AuthenticationOptions": { "AllowAnonymous": true }
+      "AuthenticationOptions": {
+        "AllowAnonymous": true
+      }
     },
     {
       "Key": "login-protected",
       "DownstreamPathTemplate": "/api/Login/{everything}",
       "DownstreamScheme": "http",
-      "DownstreamHostAndPorts": [ { "Host": "127.0.0.1", "Port": 5141 } ],
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "api-login",
+          "Port": 8080
+        }
+      ],
       "UpstreamPathTemplate": "/api/Login/{everything}",
-      "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE", "PATCH" ],
+      "UpstreamHttpMethod": [
+        "GET",
+        "POST",
+        "PUT",
+        "DELETE",
+        "PATCH"
+      ],
       "AuthenticationOptions": {
-        "AuthenticationProviderKeys": [ "Bearer" ],
-        "AllowedScopes": [ "authenticated" ]
+        "AuthenticationProviderKeys": [
+          "Bearer"
+        ],
+        "AllowedScopes": [
+          "authenticated"
+        ]
       }
     },
     {
       "Key": "admin-api",
       "DownstreamPathTemplate": "/api/{everything}",
       "DownstreamScheme": "http",
-      "DownstreamHostAndPorts": [ { "Host": "127.0.0.1", "Port": 5087 } ],
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "api-admin",
+          "Port": 8080
+        }
+      ],
       "UpstreamPathTemplate": "/api/admin/{everything}",
-      "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE", "PATCH" ],
+      "UpstreamHttpMethod": [
+        "GET",
+        "POST",
+        "PUT",
+        "DELETE",
+        "PATCH"
+      ],
       "AuthenticationOptions": {
-        "AuthenticationProviderKeys": [ "Bearer" ],
-        "AllowedScopes": [ "admin" ]
+        "AuthenticationProviderKeys": [
+          "Bearer"
+        ],
+        "AllowedScopes": [
+          "admin"
+        ]
       }
     },
     {
       "Key": "accounting-api",
       "DownstreamPathTemplate": "/api/{everything}",
       "DownstreamScheme": "http",
-      "DownstreamHostAndPorts": [ { "Host": "127.0.0.1", "Port": 5063 } ],
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "api-ketoan",
+          "Port": 8080
+        }
+      ],
       "UpstreamPathTemplate": "/api/ketoan/{everything}",
-      "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE", "PATCH" ],
+      "UpstreamHttpMethod": [
+        "GET",
+        "POST",
+        "PUT",
+        "DELETE",
+        "PATCH"
+      ],
       "AuthenticationOptions": {
-        "AuthenticationProviderKeys": [ "Bearer" ],
-        "AllowedScopes": [ "accountant" ]
+        "AuthenticationProviderKeys": [
+          "Bearer"
+        ],
+        "AllowedScopes": [
+          "accountant"
+        ]
       }
     },
     {
       "Key": "warehouse-inventory-read",
       "DownstreamPathTemplate": "/api/QuanLyTonKho/get-all-sanpham-tonkho",
       "DownstreamScheme": "http",
-      "DownstreamHostAndPorts": [ { "Host": "127.0.0.1", "Port": 5057 } ],
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "api-thukho",
+          "Port": 8080
+        }
+      ],
       "UpstreamPathTemplate": "/api/thukho/QuanLyTonKho/get-all-sanpham-tonkho",
-      "UpstreamHttpMethod": [ "GET" ],
+      "UpstreamHttpMethod": [
+        "GET"
+      ],
       "Priority": 10,
       "AuthenticationOptions": {
-        "AuthenticationProviderKeys": [ "Bearer" ],
-        "AllowedScopes": [ "warehouse.read" ]
+        "AuthenticationProviderKeys": [
+          "Bearer"
+        ],
+        "AllowedScopes": [
+          "warehouse.read"
+        ]
+      }
+    },
+    {
+      "Key": "warehouse-sp-image-anonymous",
+      "DownstreamPathTemplate": "/api/QuanLySanPham/xem-anh-sp/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "api-thukho",
+          "Port": 8080
+        }
+      ],
+      "UpstreamPathTemplate": "/api/thukho/QuanLySanPham/xem-anh-sp/{everything}",
+      "UpstreamHttpMethod": [
+        "GET"
+      ],
+      "Priority": 100,
+      "AuthenticationOptions": {
+        "AllowAnonymous": true
+      }
+    },
+    {
+      "Key": "warehouse-image-anonymous",
+      "DownstreamPathTemplate": "/api/QuanLySanPham/xem-anh/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "api-thukho",
+          "Port": 8080
+        }
+      ],
+      "UpstreamPathTemplate": "/api/thukho/QuanLySanPham/xem-anh/{everything}",
+      "UpstreamHttpMethod": [
+        "GET"
+      ],
+      "Priority": 100,
+      "AuthenticationOptions": {
+        "AllowAnonymous": true
+      }
+    },
+    {
+      "Key": "warehouse-image-info-anonymous",
+      "DownstreamPathTemplate": "/api/QuanLySanPham/get-anh-by-masp",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "api-thukho",
+          "Port": 8080
+        }
+      ],
+      "UpstreamPathTemplate": "/api/thukho/QuanLySanPham/get-anh-by-masp",
+      "UpstreamHttpMethod": [
+        "GET"
+      ],
+      "Priority": 100,
+      "AuthenticationOptions": {
+        "AllowAnonymous": true
+      }
+    },
+    {
+      "Key": "admin-nv-image-anonymous",
+      "DownstreamPathTemplate": "/api/QuanLyNhanVien/xem-anh-nv/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "api-admin",
+          "Port": 8080
+        }
+      ],
+      "UpstreamPathTemplate": "/api/admin/QuanLyNhanVien/xem-anh-nv/{everything}",
+      "UpstreamHttpMethod": [
+        "GET"
+      ],
+      "Priority": 100,
+      "AuthenticationOptions": {
+        "AllowAnonymous": true
+      }
+    },
+    {
+      "Key": "admin-image-anonymous",
+      "DownstreamPathTemplate": "/api/QuanLyNhanVien/xem-anh/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "api-admin",
+          "Port": 8080
+        }
+      ],
+      "UpstreamPathTemplate": "/api/admin/QuanLyNhanVien/xem-anh/{everything}",
+      "UpstreamHttpMethod": [
+        "GET"
+      ],
+      "Priority": 100,
+      "AuthenticationOptions": {
+        "AllowAnonymous": true
+      }
+    },
+    {
+      "Key": "admin-image-info-anonymous",
+      "DownstreamPathTemplate": "/api/QuanLyNhanVien/get-anh-by-manv",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "api-admin",
+          "Port": 8080
+        }
+      ],
+      "UpstreamPathTemplate": "/api/admin/QuanLyNhanVien/get-anh-by-manv",
+      "UpstreamHttpMethod": [
+        "GET"
+      ],
+      "Priority": 100,
+      "AuthenticationOptions": {
+        "AllowAnonymous": true
+      }
+    },
+    {
+      "Key": "warehouse-category-read-cashier",
+      "DownstreamPathTemplate": "/api/QuanLyDanhMuc/get-all-danhmuc",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [{ "Host": "api-thukho", "Port": 8080 }],
+      "UpstreamPathTemplate": "/api/thukho/QuanLyDanhMuc/get-all-danhmuc",
+      "UpstreamHttpMethod": ["GET"],
+      "Priority": 20,
+      "AuthenticationOptions": {
+        "AuthenticationProviderKeys": ["Bearer"],
+        "AllowedScopes": ["warehouse.read"]
+      }
+    },
+    {
+      "Key": "warehouse-product-read-cashier",
+      "DownstreamPathTemplate": "/api/QuanLySanPham/get-all-sanpham",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [{ "Host": "api-thukho", "Port": 8080 }],
+      "UpstreamPathTemplate": "/api/thukho/QuanLySanPham/get-all-sanpham",
+      "UpstreamHttpMethod": ["GET"],
+      "Priority": 20,
+      "AuthenticationOptions": {
+        "AuthenticationProviderKeys": ["Bearer"],
+        "AllowedScopes": ["warehouse.read"]
       }
     },
     {
       "Key": "warehouse-api",
       "DownstreamPathTemplate": "/api/{everything}",
       "DownstreamScheme": "http",
-      "DownstreamHostAndPorts": [ { "Host": "127.0.0.1", "Port": 5057 } ],
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "api-thukho",
+          "Port": 8080
+        }
+      ],
       "UpstreamPathTemplate": "/api/thukho/{everything}",
-      "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE", "PATCH" ],
+      "UpstreamHttpMethod": [
+        "GET",
+        "POST",
+        "PUT",
+        "DELETE",
+        "PATCH"
+      ],
       "AuthenticationOptions": {
-        "AuthenticationProviderKeys": [ "Bearer" ],
-        "AllowedScopes": [ "warehouse" ]
+        "AuthenticationProviderKeys": [
+          "Bearer"
+        ],
+        "AllowedScopes": [
+          "warehouse"
+        ]
       }
     },
     {
       "Key": "sales-payos-webhook-anonymous",
       "DownstreamPathTemplate": "/api/QuanLyBanHang/payos/webhook",
       "DownstreamScheme": "http",
-      "DownstreamHostAndPorts": [ { "Host": "127.0.0.1", "Port": 5163 } ],
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "api-thungan",
+          "Port": 8080
+        }
+      ],
       "UpstreamPathTemplate": "/api/thungan/QuanLyBanHang/payos/webhook",
-      "UpstreamHttpMethod": [ "POST" ],
+      "UpstreamHttpMethod": [
+        "POST"
+      ],
       "Priority": 100,
-      "AuthenticationOptions": { "AllowAnonymous": true }
+      "AuthenticationOptions": {
+        "AllowAnonymous": true
+      }
     },
     {
       "Key": "sales-api",
       "DownstreamPathTemplate": "/api/{everything}",
       "DownstreamScheme": "http",
-      "DownstreamHostAndPorts": [ { "Host": "127.0.0.1", "Port": 5163 } ],
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "api-thungan",
+          "Port": 8080
+        }
+      ],
       "UpstreamPathTemplate": "/api/thungan/{everything}",
-      "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE", "PATCH" ],
+      "UpstreamHttpMethod": [
+        "GET",
+        "POST",
+        "PUT",
+        "DELETE",
+        "PATCH"
+      ],
       "AuthenticationOptions": {
-        "AuthenticationProviderKeys": [ "Bearer" ],
-        "AllowedScopes": [ "sales" ]
+        "AuthenticationProviderKeys": [
+          "Bearer"
+        ],
+        "AllowedScopes": [
+          "sales"
+        ]
       }
     }
   ],

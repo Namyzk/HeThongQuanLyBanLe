@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="vi" ng-app="qlblApp">
 <head>
   <meta charset="UTF-8" />
@@ -13,12 +13,12 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
 
   <!-- Modular CSS -->
-  <link rel="stylesheet" href="../css/chung.css" />
-  <link rel="stylesheet" href="../css/bo-cuc.css" />
-  <link rel="stylesheet" href="../css/thanh-phan.css" />
-  <link rel="stylesheet" href="../css/bieu-mau.css" />
-  <link rel="stylesheet" href="../css/hien-thi-di-dong.css" />
-  <link rel="stylesheet" href="../css/trang/doi-tra.css" />
+  <link rel="stylesheet" href="../css/chung.css?v=20261115_blue" />
+  <link rel="stylesheet" href="../css/bo-cuc.css?v=20261115_blue" />
+  <link rel="stylesheet" href="../css/thanh-phan.css?v=20261115_blue" />
+  <link rel="stylesheet" href="../css/bieu-mau.css?v=20261115_blue" />
+  <link rel="stylesheet" href="../css/hien-thi-di-dong.css?v=20261115_blue" />
+  <link rel="stylesheet" href="../css/trang/doi-tra.css?v=20261115_blue" />
 </head>
 <body ng-controller="DoiTraController as vm">
 
@@ -148,7 +148,7 @@
                       <th scope="col" class="van-ban-phai">Số lượng</th>
                       <th scope="col" class="van-ban-phai">Đơn giá</th>
                       <th scope="col" class="van-ban-phai">Thành tiền</th>
-                      <th scope="col" class="van-ban-trung">Hành động đổi trả</th>
+                      <th scope="col" class="van-ban-trung cot-thao-tac">Hành động đổi trả</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -156,28 +156,30 @@
                       <td colspan="6" class="van-ban-trung pad-l van-ban-mo">Hóa đơn không còn sản phẩm nào</td>
                     </tr>
                     <tr ng-repeat="item in vm.chiTietHienTai">
-                      <td><span class="badge badge-lam">{{ item.MASP }}</span></td>
+                      <td><span class="ma-du-lieu">{{ item.MASP }}</span></td>
                       <td><strong>{{ item.TenSP || item.TENSP || '—' }}</strong></td>
                       <td class="van-ban-phai font-dam">{{ item.SOLUONG | so }}</td>
                       <td class="van-ban-phai">{{ item.DONGIA | vnd }}</td>
                       <td class="van-ban-phai font-dam chu-mau-chinh">{{ (item.TONGTIEN || (item.SOLUONG * item.DONGIA)) | vnd }}</td>
-                      <td class="van-ban-trung">
-                        <div class="cum-nut-hanh-dong">
+                      <td class="van-ban-trung cot-thao-tac">
+                        <div class="doi-tra-cum-nut cum-nut-hanh-dong">
                           <button
                             type="button"
-                            class="nut nut-vien nut-nho"
+                            class="nut nut-vien nut-nho nut-co-chu"
                             ng-click="vm.giamSoLuong($index)"
                             title="Trả bớt 1 món"
                             aria-label="Trả 1 món"
+                            style="width: auto !important; min-width: max-content !important; max-width: none !important; height: 36px !important; padding: 0 14px !important; white-space: nowrap !important; display: inline-flex !important; align-items: center !important; justify-content: center !important; gap: 6px !important;"
                           >
                             <i class="bi bi-dash" aria-hidden="true"></i> Trả 1
                           </button>
                           <button
                             type="button"
-                            class="nut nut-vien nut-nguy-hiem nut-nho"
+                            class="nut nut-vien nut-nguy-hiem nut-nho nut-co-chu"
                             ng-click="vm.xoaItem($index)"
                             title="Trả toàn bộ món này"
                             aria-label="Trả hết"
+                            style="width: auto !important; min-width: max-content !important; max-width: none !important; height: 36px !important; padding: 0 14px !important; white-space: nowrap !important; display: inline-flex !important; align-items: center !important; justify-content: center !important; gap: 6px !important;"
                           >
                             <i class="bi bi-arrow-return-left" aria-hidden="true"></i> Trả hết
                           </button>

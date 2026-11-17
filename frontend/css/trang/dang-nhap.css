@@ -6,12 +6,12 @@
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
 
 :root {
-  --mau-chinh: #4f46e5;
-  --mau-chinh-dam: #4338ca;
-  --mau-chinh-sang: #6366f1;
-  --mau-tim: #7c3aed;
-  --mau-nen-start: #e0e7ff;
-  --mau-nen-end: #f1f5f9;
+  --mau-chinh: #2563eb;
+  --mau-chinh-dam: #1d4ed8;
+  --mau-chinh-sang: #3b82f6;
+  --mau-tim: #1e40af;
+  --mau-nen-start: #dbeafe;
+  --mau-nen-end: #ffffff;
   --mau-chu-chinh: #1e293b;
   --mau-chu-phu: #64748b;
   --mau-vien: #e2e8f0;
@@ -31,7 +31,7 @@ body.trang-dang-nhap-body {
   align-items: center;
   justify-content: center;
   flex-direction: column;
-  background: linear-gradient(135deg, #eef2ff 0%, #e0e7ff 45%, #f8fafc 100%);
+  background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 45%, #ffffff 100%);
   position: relative;
   overflow-x: hidden;
   padding: 20px;
@@ -59,7 +59,7 @@ body.trang-dang-nhap-body {
 .qua-cau-1 {
   width: 350px;
   height: 350px;
-  background: rgba(99, 102, 241, 0.35);
+  background: rgba(37, 99, 235, 0.3);
   top: -60px;
   left: -80px;
 }
@@ -67,7 +67,7 @@ body.trang-dang-nhap-body {
 .qua-cau-2 {
   width: 400px;
   height: 400px;
-  background: rgba(124, 58, 237, 0.25);
+  background: rgba(59, 130, 246, 0.25);
   bottom: -100px;
   right: -80px;
 }
@@ -76,9 +76,9 @@ body.trang-dang-nhap-body {
 .container {
   background-color: #ffffff;
   border-radius: 28px;
-  box-shadow: 0 20px 40px -15px rgba(79, 70, 229, 0.2), 
+  box-shadow: 0 20px 40px -15px rgba(37, 99, 235, 0.2), 
               0 10px 25px -5px rgba(0, 0, 0, 0.08),
-              0 0 0 1px rgba(226, 232, 240, 0.8);
+              0 0 0 1px rgba(219, 234, 254, 0.8);
   position: relative;
   overflow: hidden;
   width: 860px;
@@ -258,6 +258,52 @@ body.trang-dang-nhap-body {
   color: var(--mau-chu-chinh);
   transition: all 0.2s ease;
   font-family: inherit;
+}
+
+.o-nhap-hop select {
+  background-color: var(--mau-input-nen);
+  border: 1.5px solid var(--mau-vien);
+  margin: 0;
+  padding: 12px 42px;
+  font-size: 0.925rem;
+  border-radius: 10px;
+  width: 100%;
+  outline: none;
+  color: var(--mau-chu-chinh);
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+
+.o-nhap-hop select:focus {
+  background-color: #ffffff;
+  border-color: var(--mau-chinh);
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
+}
+
+.sign-up .o-nhap-group {
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.thong-bao-admin {
+  width: 100%;
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  margin: 12px 0 18px;
+  padding: 12px 14px;
+  border: 1px solid #c7d2fe;
+  border-radius: 10px;
+  background: #eef2ff;
+  color: #3730a3;
+  font-size: 0.82rem;
+  line-height: 1.45;
+  text-align: left;
+}
+
+.thong-bao-admin i {
+  flex: 0 0 auto;
+  margin-top: 1px;
 }
 
 .o-nhap-hop input:focus {
@@ -473,7 +519,7 @@ body.trang-dang-nhap-body {
 }
 
 .toggle {
-  background: linear-gradient(135deg, #4f46e5 0%, #6366f1 45%, #7c3aed 100%);
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 45%, #1e40af 100%);
   color: #ffffff;
   position: relative;
   left: -100%;

@@ -3,8 +3,8 @@
  */
 
 /** Base URL của API Gateway tập trung (HTTPS cổng 7144) */
-export const BASE_URL = 'https://localhost:7144';
-
+//export const BASE_URL = 'https://localhost:7144';
+export const BASE_URL = '';
 /** Tiền tố theo vai trò */
 export const TIEN_TO_API = {
   login:   '/api/Login',
@@ -50,3 +50,4 @@ export const MAU_BADGE_VAI_TRO = {
   ThuKho:  'badge-vang',
   KeToan:  'badge-xanh',
 };
+

@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="vi" ng-app="qlblApp">
 <head>
   <meta charset="UTF-8" />
@@ -13,9 +13,9 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
 
   <!-- Modular CSS -->
-  <link rel="stylesheet" href="../css/chung.css" />
+  <link rel="stylesheet" href="../css/chung.css?v=20261115_blue" />
   <link rel="stylesheet" href="../css/bo-cuc.css" />
-  <link rel="stylesheet" href="../css/thanh-phan.css" />
+  <link rel="stylesheet" href="../css/thanh-phan.css?v=20261115_blue" />
   <link rel="stylesheet" href="../css/bieu-mau.css" />
   <link rel="stylesheet" href="../css/hien-thi-di-dong.css" />
   <link rel="stylesheet" href="../css/trang/quan-ly-phieu-nhap.css" />
@@ -119,7 +119,7 @@
                   </thead>
                   <tbody>
                     <tr ng-repeat="pn in vm.layDanhSachPhanTrang()">
-                      <td><span class="badge badge-lam pn-badge-maphieu">{{ pn.MAPHIEUNHAP }}</span></td>
+                      <td><span class="ma-du-lieu pn-badge-maphieu">{{ pn.MAPHIEUNHAP }}</span></td>
                       <td>
                         <strong>{{ pn.TENNCC }}</strong>
                         <span class="pn-sub-info" ng-if="pn.MANCC">Mã NCC: {{ pn.MANCC }}</span>
@@ -134,7 +134,7 @@
                         {{ pn.TONG_TIEN | vnd }}
                       </td>
                       <td class="van-ban-trung">
-                        <span class="badge pn-badge-mathang">
+                        <span class="pn-so-mat-hang">
                           {{ pn.SO_LUONG_SP }} mặt hàng
                         </span>
                       </td>

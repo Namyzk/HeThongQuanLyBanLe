@@ -1,8 +1,9 @@
-using DAL.Middleware;
-using DAL;
 using BLL;
+using DAL;
 using DAL.DataHelper;
+using DAL.Middleware;
 using Microsoft.OpenApi.Models;
+using static System.Net.WebRequestMethods;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddScoped<AuditLog_DAL>();
@@ -42,7 +43,9 @@ if (allowedOrigins == null || allowedOrigins.Length == 0)
         "http://localhost:3000", 
         "http://localhost:5173", 
         "https://localhost:3001", 
-        "https://localhost:5173" 
+        "https://localhost:5173",
+
+        "http://127.0.0.1:5503"
     };
 }
 builder.Services.AddCors(options =>
@@ -118,24 +121,24 @@ builder.Services.AddScoped<ThanhToan_BLL>();
 
 var app = builder.Build();
 
-app.Use(async (context, next) =>
-{
-    var remoteIp = context.Connection.RemoteIpAddress;
-    if (remoteIp != null)
-    {
-        if (remoteIp.IsIPv4MappedToIPv6)
-            remoteIp = remoteIp.MapToIPv4();
+//app.Use(async (context, next) =>
+//{
+//    var remoteIp = context.Connection.RemoteIpAddress;
+//    if (remoteIp != null)
+//    {
+//        if (remoteIp.IsIPv4MappedToIPv6)
+//            remoteIp = remoteIp.MapToIPv4();
 
-        if (!System.Net.IPAddress.IsLoopback(remoteIp))
-        {
-            context.Response.StatusCode = StatusCodes.Status403Forbidden;
-            await context.Response.WriteAsync("API này chỉ nhận request từ Gateway nội bộ.");
-            return;
-        }
-    }
+//        if (!System.Net.IPAddress.IsLoopback(remoteIp))
+//        {
+//            context.Response.StatusCode = StatusCodes.Status403Forbidden;
+//            await context.Response.WriteAsync("API này chỉ nhận request từ Gateway nội bộ.");
+//            return;
+//        }
+//    }
 
-    await next();
-});
+//    await next();
+//});
 
 if (app.Environment.IsDevelopment())
 {

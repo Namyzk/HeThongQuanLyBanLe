@@ -1,8 +1,6 @@
 namespace API_ThuNgan.Services;
 
 
-/// Chuyển chuỗi QR do PayOS trả về thành ảnh PNG bằng API goQR.
-
 public sealed class GoQrImageService(HttpClient httpClient)
 {
     private const int MaxPayloadLength = 900;
@@ -29,8 +27,6 @@ public sealed class GoQrImageService(HttpClient httpClient)
     }
 
     
-    /// Trả URL ảnh goQR để trình duyệt có thể tải trực tiếp nếu backend không
-    /// truy cập được dịch vụ goQR.
   
     public string TaoUrlAnhQr(string qrPayload)
     {

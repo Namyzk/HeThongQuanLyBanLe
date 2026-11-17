@@ -179,7 +179,26 @@ namespace API_KeToan1.Controllers
         {
             try
             {
-                var data = _pnkBll.LayTatCa();
+                // Trả tổng tiền nhập cùng phiếu để màn hình báo cáo không phụ
+                // thuộc vào endpoint chi tiết nhập riêng biệt.
+                var data = (_pnkBll.LayTatCa() ?? new())
+                    .Select(p =>
+                    {
+                        var chiTiet = p.listjson_chitietnhap ?? new();
+                        var tongTien = chiTiet.Sum(x => x.THANHTIEN > 0
+                            ? x.THANHTIEN
+                            : x.SOLUONG * x.DONGIANHAP);
+
+                        return new
+                        {
+                            p.MAPHIEUNHAP,
+                            p.MANCC,
+                            p.MANV,
+                            p.NGAYLAP,
+                            TONG_TIEN = tongTien,
+                            listjson_chitietnhap = chiTiet
+                        };
+                    }).ToList();
                 return Ok(new { success = true, count = data?.Count ?? 0, message = "Lấy danh sách phiếu nhập kho thành công.", data });
             }
             catch (Exception ex)

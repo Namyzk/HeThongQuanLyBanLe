@@ -107,7 +107,7 @@ namespace DAL.DataHelper
             catch
             {
                 try { transaction.Rollback(); }
-                catch { /* Keep the original database exception. */ }
+                catch {  }
                 throw;
             }
         }

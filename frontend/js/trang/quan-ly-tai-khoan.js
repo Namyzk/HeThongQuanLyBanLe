@@ -32,6 +32,7 @@
           MATAIKHOAN: '',
           USERNAME: '',
           PASS: '',
+          EMAIL: '',
           QUYEN: 1
         }
       };
@@ -53,6 +54,7 @@
               var user = String(ApiService.layThuocTinh(it, 'UserName') || ApiService.layThuocTinh(it, 'USERNAME') || '').trim();
               var q = Number(ApiService.layThuocTinh(it, 'Quyen') || ApiService.layThuocTinh(it, 'QUYEN')) || 1;
               var role = ApiService.layThuocTinh(it, 'RoleName') || vm.layTenVaiTro(q);
+              var email = String(ApiService.layThuocTinh(it, 'Email') || ApiService.layThuocTinh(it, 'EMAIL') || '').trim();
               return {
                 MaTaiKhoan: ma,
                 MATAIKHOAN: ma,
@@ -64,7 +66,9 @@
                 QUYEN: q,
                 quyen: q,
                 RoleName: role,
-                roleName: role
+                roleName: role,
+                Email: email,
+                EMAIL: email
               };
             });
           })
@@ -130,6 +134,7 @@
           MATAIKHOAN: 'TK' + Date.now().toString().slice(-4),
           USERNAME: '',
           PASS: '',
+          EMAIL: '',
           QUYEN: 1
         };
         vm.modalForm.hienThi = true;
@@ -141,6 +146,7 @@
           MATAIKHOAN: row.MaTaiKhoan || row.MATAIKHOAN || '',
           USERNAME: row.UserName || row.USERNAME || '',
           PASS: '',
+          EMAIL: row.Email || row.EMAIL || '',
           QUYEN: Number(row.Quyen || row.QUYEN) || 1
         };
         vm.modalForm.hienThi = true;
@@ -154,10 +160,15 @@
         var ma = (vm.modalForm.data.MATAIKHOAN || '').trim();
         var user = (vm.modalForm.data.USERNAME || '').trim();
         var pass = (vm.modalForm.data.PASS || '').trim();
+        var email = (vm.modalForm.data.EMAIL || '').trim();
         var quyen = parseInt(vm.modalForm.data.QUYEN, 10);
 
-        if (!ma || !user || (!vm.modalForm.laSua && !pass) || isNaN(quyen)) {
+        if (!ma || !user || (!vm.modalForm.laSua && !pass) || (!vm.modalForm.laSua && !email) || isNaN(quyen)) {
           ToastService.warning('Cảnh báo', 'Vui lòng điền đầy đủ các trường bắt buộc (*).');
+          return;
+        }
+        if (email && !/^\S+@\S+\.\S+$/.test(email)) {
+          ToastService.warning('Cảnh báo', 'Email không hợp lệ.');
           return;
         }
 
@@ -165,7 +176,8 @@
           MATAIKHOAN: ma,
           USERNAME: user,
           PASS: pass || '',
-          QUYEN: quyen
+          QUYEN: quyen,
+          EMAIL: email || null
         };
 
         vm.modalForm.dangLuu = true;

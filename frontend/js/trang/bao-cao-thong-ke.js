@@ -24,8 +24,9 @@
       vm.sanPham = [];
       vm.danhMuc = [];
 
-      vm.tuNgay = '';
-      vm.denNgay = '';
+      // input[type=date] của AngularJS cần Date/null, không dùng chuỗi rỗng.
+      vm.tuNgay = null;
+      vm.denNgay = null;
       vm.dangTai = false;
       vm.loi = '';
 
@@ -104,23 +105,45 @@
 
             vm.phieuNhap = rawPN.map(function (it) {
               var ngay = ApiService.layThuocTinh(it, 'NGAYLAP') || ApiService.layThuocTinh(it, 'NGAYNHAP');
+              var rawChiTietNhap = ApiService.layMang(
+                ApiService.layThuocTinh(it, 'listjson_chitietnhap') ||
+                ApiService.layThuocTinh(it, 'CHI_TIET') ||
+                ApiService.layThuocTinh(it, 'ChiTiet')
+              );
+              var chiTietNhap = rawChiTietNhap.map(function (ct) {
+                var soLuong = Number(ApiService.layThuocTinh(ct, 'SOLUONG') || ApiService.layThuocTinh(ct, 'SoLuong')) || 0;
+                var donGia = Number(ApiService.layThuocTinh(ct, 'DONGIANHAP') || ApiService.layThuocTinh(ct, 'DonGiaNhap') || ApiService.layThuocTinh(ct, 'DONGIA')) || 0;
+                var thanhTien = Number(ApiService.layThuocTinh(ct, 'THANHTIEN') || ApiService.layThuocTinh(ct, 'ThanhTien')) || 0;
+                return {
+                  MAPHIEUNHAP: String(ApiService.layThuocTinh(ct, 'MAPHIEUNHAP') || ApiService.layThuocTinh(ct, 'MaPhieuNhap') || '').trim(),
+                  MASP: String(ApiService.layThuocTinh(ct, 'MASP') || ApiService.layThuocTinh(ct, 'MaSP') || '').trim(),
+                  SOLUONG: soLuong,
+                  DONGIANHAP: donGia,
+                  THANHTIEN: thanhTien || (soLuong * donGia)
+                };
+              });
+              var tongTienNhap = Number(ApiService.layThuocTinh(it, 'TONG_TIEN') || ApiService.layThuocTinh(it, 'TONGTIEN')) || 0;
+              if (!tongTienNhap) {
+                tongTienNhap = chiTietNhap.reduce(function (sum, ct) { return sum + ct.THANHTIEN; }, 0);
+              }
               return {
                 MAPHIEUNHAP: String(ApiService.layThuocTinh(it, 'MAPHIEUNHAP') || '').trim(),
                 MANCC: String(ApiService.layThuocTinh(it, 'MANCC') || '').trim(),
                 MANV: String(ApiService.layThuocTinh(it, 'MANV') || '').trim(),
                 NGAYLAP: ngay,
                 NGAYNHAP: ngay,
-                listjson_chitietnhap: ApiService.layThuocTinh(it, 'listjson_chitietnhap') || []
+                TONG_TIEN: tongTienNhap,
+                listjson_chitietnhap: chiTietNhap
               };
             });
 
             vm.chiTietNhap = rawCTN.map(function (it) {
               var sl = Number(ApiService.layThuocTinh(it, 'SOLUONG')) || 0;
               var gia = Number(ApiService.layThuocTinh(it, 'DONGIANHAP')) || 0;
-              var tong = Number(ApiService.layThuocTinh(it, 'THANHTIEN')) || (sl * gia);
+              var tong = Number(ApiService.layThuocTinh(it, 'THANHTIEN') || ApiService.layThuocTinh(it, 'ThanhTien')) || (sl * gia);
               return {
-                MAPHIEUNHAP: String(ApiService.layThuocTinh(it, 'MAPHIEUNHAP') || '').trim(),
-                MASP: String(ApiService.layThuocTinh(it, 'MASP') || '').trim(),
+                MAPHIEUNHAP: String(ApiService.layThuocTinh(it, 'MAPHIEUNHAP') || ApiService.layThuocTinh(it, 'MaPhieuNhap') || '').trim(),
+                MASP: String(ApiService.layThuocTinh(it, 'MASP') || ApiService.layThuocTinh(it, 'MaSP') || '').trim(),
                 SOLUONG: sl,
                 DONGIANHAP: gia,
                 THANHTIEN: tong
@@ -148,14 +171,25 @@
           });
       };
 
+      function ngayDangChuan(value) {
+        if (!value) return '';
+        if (value instanceof Date && !isNaN(value.getTime())) return [value.getFullYear(), String(value.getMonth()+1).padStart(2,'0'), String(value.getDate()).padStart(2,'0')].join('-');
+        var text=String(value).trim(), m=text.match(/^(\d{4})-(\d{2})-(\d{2})/);
+        if (m) return m[1]+'-'+m[2]+'-'+m[3];
+        var date=new Date(text);
+        return isNaN(date.getTime()) ? '' : [date.getFullYear(), String(date.getMonth()+1).padStart(2,'0'), String(date.getDate()).padStart(2,'0')].join('-');
+      }
+
       vm.tinhToanBaoCao = function () {
         // Lọc hóa đơn bán
         var hdLoc = vm.hoaDon.filter(function (h) {
           var ngayStr = h.NGAYLAP;
           if (!ngayStr) return true;
-          var d = String(ngayStr).substring(0, 10);
-          if (vm.tuNgay && d < vm.tuNgay) return false;
-          if (vm.denNgay && d > vm.denNgay) return false;
+          var d = ngayDangChuan(ngayStr);
+          if (!d) return true;
+          var tu = ngayDangChuan(vm.tuNgay), den = ngayDangChuan(vm.denNgay);
+          if (tu && d < tu) return false;
+          if (den && d > den) return false;
           return true;
         });
 
@@ -163,9 +197,11 @@
         var pnLoc = vm.phieuNhap.filter(function (p) {
           var ngayStr = p.NGAYLAP || p.NGAYNHAP;
           if (!ngayStr) return true;
-          var d = String(ngayStr).substring(0, 10);
-          if (vm.tuNgay && d < vm.tuNgay) return false;
-          if (vm.denNgay && d > vm.denNgay) return false;
+          var d = ngayDangChuan(ngayStr);
+          if (!d) return true;
+          var tu = ngayDangChuan(vm.tuNgay), den = ngayDangChuan(vm.denNgay);
+          if (tu && d < tu) return false;
+          if (den && d > den) return false;
           return true;
         });
 
@@ -179,11 +215,18 @@
 
         // Tính tổng chi phí nhập
         var tongChiPhiNhap = pnLoc.reduce(function (acc, pn) {
-          var ct = pn.listjson_chitietnhap && pn.listjson_chitietnhap.length
-            ? pn.listjson_chitietnhap
-            : vm.chiTietNhap.filter(function (c) { return c.MAPHIEUNHAP === pn.MAPHIEUNHAP; });
+          if (pn.TONG_TIEN > 0) return acc + pn.TONG_TIEN;
+          // Danh sách chi tiết nhập độc lập là nguồn chuẩn; nếu API không có
+          // dữ liệu ở endpoint này thì dùng chi tiết lồng trong phiếu nhập.
+          var ct = vm.chiTietNhap.filter(function (c) {
+            return c.MAPHIEUNHAP === pn.MAPHIEUNHAP;
+          });
+          if (!ct.length) ct = pn.listjson_chitietnhap || [];
           var sum = ct.reduce(function (s, it) {
-            return s + (Number(it.THANHTIEN) || (Number(it.SOLUONG) * Number(it.DONGIANHAP)) || 0);
+            var thanhTien = Number(ApiService.layThuocTinh(it, 'THANHTIEN')) || 0;
+            var soLuong = Number(ApiService.layThuocTinh(it, 'SOLUONG')) || 0;
+            var donGia = Number(ApiService.layThuocTinh(it, 'DONGIANHAP')) || 0;
+            return s + (thanhTien || (soLuong * donGia));
           }, 0);
           return acc + sum;
         }, 0);
@@ -261,8 +304,8 @@
       };
 
       vm.xoaLoc = function () {
-        vm.tuNgay = '';
-        vm.denNgay = '';
+        vm.tuNgay = null;
+        vm.denNgay = null;
         vm.tinhToanBaoCao();
       };
 
@@ -272,13 +315,15 @@
           return;
         }
 
-        var thoiGianStr = (vm.tuNgay || vm.denNgay)
-          ? ('Tu_' + (vm.tuNgay || 'dau') + '_den_' + (vm.denNgay || 'nay'))
+        var ngayTu = ngayDangChuan(vm.tuNgay);
+        var ngayDen = ngayDangChuan(vm.denNgay);
+        var thoiGianStr = (ngayTu || ngayDen)
+          ? ('Tu_' + (ngayTu || 'dau') + '_den_' + (ngayDen || 'nay'))
           : 'Tat_ca_thoi_gian';
 
         var csvContent = '\uFEFF';
         csvContent += '"BÁO CÁO THỐNG KÊ KINH DOANH VÀ SẢN PHẨM"\n';
-        csvContent += '"Thời gian áp dụng:","' + (vm.tuNgay ? 'Từ ngày ' + vm.tuNgay : 'Từ trước tới nay') + (vm.denNgay ? ' đến ngày ' + vm.denNgay : '') + '"\n';
+        csvContent += '"Thời gian áp dụng:","' + (ngayTu ? 'Từ ngày ' + ngayTu : 'Từ trước tới nay') + (ngayDen ? ' đến ngày ' + ngayDen : '') + '"\n';
         csvContent += '"Thời điểm xuất:","' + new Date().toLocaleString('vi-VN') + '"\n\n';
 
         csvContent += '"CHỈ SỐ TỔNG QUAN"\n';

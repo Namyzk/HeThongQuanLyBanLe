@@ -34,7 +34,7 @@
           SDT: '',
           EMAIL: '',
           DIACHI: '',
-          HINHANH: ''
+          HINHANH: '', FILE_ANH: null, XEM_TRUOC_ANH: ''
         }
       };
 
@@ -140,7 +140,7 @@
           SDT: '',
           EMAIL: '',
           DIACHI: '',
-          HINHANH: ''
+          HINHANH: '', FILE_ANH: null, XEM_TRUOC_ANH: ''
         };
         vm.modalForm.hienThi = true;
       };
@@ -153,7 +153,8 @@
           SDT: row.SDT || '',
           EMAIL: row.EMAIL || '',
           DIACHI: row.DIACHI || '',
-          HINHANH: row.HINHANH || ''
+          HINHANH: row.HINHANH || '', FILE_ANH: null,
+          XEM_TRUOC_ANH: row.HINHANH || vm.layAnhNhanVien(row.MANV)
         };
         vm.modalForm.hienThi = true;
       };
@@ -171,6 +172,8 @@
         vm.modalChiTiet.hienThi = false;
       };
 
+      vm.layAnhNhanVien = function (maNV) { return BASE + '/xem-anh-nv/' + encodeURIComponent(maNV || ''); };
+
       vm.chonTepAnh = function (files) {
         if (!files || !files[0]) return;
         var file = files[0];
@@ -178,9 +181,10 @@
           ToastService.warning('Cảnh báo', 'Ảnh vượt quá 2MB, vui lòng chọn ảnh nhẹ hơn.');
           return;
         }
+        vm.modalForm.data.FILE_ANH = file;
         var reader = new FileReader();
         reader.onload = function (e) {
-          vm.modalForm.data.HINHANH = e.target.result;
+          vm.modalForm.data.XEM_TRUOC_ANH = e.target.result;
           var scope = angular.element(document.getElementById('modal-nhan-vien')).scope();
           if (scope) scope.$apply();
         };
@@ -189,6 +193,7 @@
 
       vm.xoaAnh = function () {
         vm.modalForm.data.HINHANH = '';
+        vm.modalForm.data.FILE_ANH = null; vm.modalForm.data.XEM_TRUOC_ANH = '';
       };
 
       vm.luuNhanVien = function () {
@@ -212,8 +217,7 @@
           TENNV: ten,
           SDT: sdt || null,
           EMAIL: email || null,
-          DIACHI: (vm.modalForm.data.DIACHI || '').trim() || null,
-          HINHANH: vm.modalForm.data.HINHANH || null
+          DIACHI: (vm.modalForm.data.DIACHI || '').trim() || null
         };
 
         vm.modalForm.dangLuu = true;
@@ -223,12 +227,21 @@
 
         req
           .then(function () {
+            if (!vm.modalForm.data.FILE_ANH) return null;
+            var fd = new FormData(); fd.append('file', vm.modalForm.data.FILE_ANH); fd.append('manv', ma);
+            return fetch(BASE + '/upload', { method: 'POST', body: fd, credentials: 'include' }).then(function (response) {
+              return response.json().catch(function () { return {}; }).then(function (body) {
+                if (!response.ok) throw new Error(body.message || 'Không tải được ảnh nhân viên lên máy chủ.');
+              });
+            });
+          })
+          .then(function () {
             ToastService.success('Thành công', (vm.modalForm.laSua ? 'Cập nhật' : 'Thêm') + ' nhân viên thành công.');
             vm.dongModalForm();
             vm.taiDuLieu();
           })
           .catch(function (err) {
-            ToastService.error('Lỗi', typeof err === 'string' ? err : 'Không thể lưu nhân viên');
+            ToastService.error('Lỗi', typeof err === 'string' ? err : (err.message || 'Không thể lưu nhân viên'));
           })
           .finally(function () {
             vm.modalForm.dangLuu = false;

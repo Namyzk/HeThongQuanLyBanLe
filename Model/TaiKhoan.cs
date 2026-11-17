@@ -13,6 +13,7 @@ namespace Models
         public string MATAIKHOAN { get; set; }
         public string USERNAME { get; set; }
         public string PASS { get; set; }
+        public string? EMAIL { get; set; }
         public int QUYEN { get; set; }
     }
 

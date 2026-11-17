@@ -29,14 +29,39 @@ namespace API_Login.Controllers
             _config = config;
             _logger = logger;
         }
+
+        [HttpGet("profile")]
+        public IActionResult GetProfile()
+        {
+            var accountId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrWhiteSpace(accountId))
+                return Unauthorized(new { success = false, message = "Phiên đăng nhập không hợp lệ." });
+
+            var user = _bll.LayTheoID(accountId).FirstOrDefault();
+            if (user == null)
+                return NotFound(new { success = false, message = "Không tìm thấy tài khoản." });
+
+            return Ok(new
+            {
+                success = true,
+                data = new
+                {
+                    MaTaiKhoan = user.MATAIKHOAN.Trim(),
+                    UserName = user.USERNAME.Trim(),
+                    Email = user.EMAIL?.Trim(),
+                    Quyen = user.QUYEN,
+                    RoleName = LayTenRole(user.QUYEN)
+                }
+            });
+        }
+
         public class LoginRequest
         {
             public string Username { get; set; } = string.Empty;
             public string Pass { get; set; } = string.Empty;
         }
-        [AllowAnonymous]
 
-        
+        [AllowAnonymous]
         [HttpPost("login")]
         public IActionResult Login([FromBody] LoginRequest request)
         {
@@ -50,8 +75,7 @@ namespace API_Login.Controllers
                 var list = _bll.DangNhap(request.Username.Trim(), request.Pass);
                 if (list == null || list.Count == 0)
                 {
-                    // Nếu trình duyệt còn cookie từ phiên cũ, không để cookie đó
-                    // tiếp tục làm người dùng tưởng rằng thông tin sai vẫn đăng nhập được.
+                   
                     XoaCookiePhien();
                     Response.Headers["Cache-Control"] = "no-store";
                     return Unauthorized(new { success = false, message = "Sai tên đăng nhập hoặc mật khẩu!" });
@@ -70,13 +94,11 @@ namespace API_Login.Controllers
 
                 return Ok(new
                 {
-                    success = true,
-                    message = "Đăng nhập thành công!",
+                    success = true,  message = "Đăng nhập thành công!",
+                    refreshTokenExpiresAtUtc = refreshExpiresAtUtc.ToString("o"),
                     refreshTokenExpiresAt = TimeZoneInfo.ConvertTimeFromUtc(
                         DateTime.SpecifyKind(refreshExpiresAtUtc, DateTimeKind.Utc),
-                        TimeZoneInfo.FindSystemTimeZoneById(
-                            OperatingSystem.IsWindows() ? "SE Asia Standard Time" : "Asia/Ho_Chi_Minh"))
-                        .ToString("dd/MM/yyyy HH:mm:ss"),
+                        TimeZoneInfo.FindSystemTimeZoneById(  OperatingSystem.IsWindows() ? "SE Asia Standard Time" : "Asia/Ho_Chi_Minh")).ToString("dd/MM/yyyy HH:mm:ss"),
                     data = new
                     {
                         MaTaiKhoan = user.MATAIKHOAN.Trim(),
@@ -123,8 +145,8 @@ namespace API_Login.Controllers
 
                 return Ok(new
                 {
-                    success = true,
-                    message = "Làm mới phiên đăng nhập thành công.",
+                    success = true,  message = "Làm mới phiên đăng nhập thành công.",
+                    refreshTokenExpiresAtUtc = refreshExpiresAtUtc.ToString("o"),
                     refreshTokenExpiresAt = TimeZoneInfo.ConvertTimeFromUtc(
                         DateTime.SpecifyKind(refreshExpiresAtUtc, DateTimeKind.Utc),
                         TimeZoneInfo.FindSystemTimeZoneById(
@@ -207,9 +229,7 @@ namespace API_Login.Controllers
 
         private int LaySoNgayRefreshToken()
         {
-            return int.TryParse(_config["Jwt:RefreshTokenExpiresInDays"], out int days) && days > 0 && days <= 90
-                ? days
-                : 7;
+            return int.TryParse(_config["Jwt:RefreshTokenExpiresInDays"], out int days) && days > 0 && days <= 90  ? days    : 7;
         }
 
         private static string TaoRefreshToken()
@@ -232,7 +252,7 @@ namespace API_Login.Controllers
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(keyString));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
-            // Gán Role dạng chuỗi để dùng được với [Authorize(Roles = "...")]
+       
             string roleName = LayTenRole(user.QUYEN);
 
             var claims = new[]
@@ -279,7 +299,7 @@ namespace API_Login.Controllers
             1 => new[] { "authenticated", "admin", "accountant", "sales", "warehouse", "warehouse.read" },
             2 => new[] { "authenticated", "sales", "warehouse.read" },
             3 => new[] { "authenticated", "warehouse", "warehouse.read" },
-            // Kế toán truy cập API nghiệp vụ/báo cáo kế toán, không có quyền quản trị Admin.
+           
             4 => new[] { "authenticated", "accountant" },
             _ => new[] { "authenticated" }
         };

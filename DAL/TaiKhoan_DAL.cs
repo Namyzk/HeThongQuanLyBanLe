@@ -75,7 +75,7 @@ namespace DAL
                 string sql = @"SELECT RTRIM(MATAIKHOAN) AS MATAIKHOAN,
                                       RTRIM(USERNAME) AS USERNAME,
                                       RTRIM(PASS) AS PASS,
-                                      QUYEN
+                                      QUYEN, EMAIL
                                FROM dbo.TAIKHOAN";
                 var dt = Connect.ExecuteQuery(sql);
 
@@ -86,7 +86,8 @@ namespace DAL
                         MATAIKHOAN = r["MATAIKHOAN"].ToString(),
                         USERNAME = r["USERNAME"].ToString(),
                         PASS = r["PASS"].ToString(),
-                        QUYEN = r["QUYEN"] == DBNull.Value ? 0 : Convert.ToInt32(r["QUYEN"])
+                        QUYEN = r["QUYEN"] == DBNull.Value ? 0 : Convert.ToInt32(r["QUYEN"]),
+                        EMAIL = r["EMAIL"] == DBNull.Value ? null : r["EMAIL"].ToString()?.Trim()
                     });
                 }
                 return list;
@@ -105,7 +106,7 @@ namespace DAL
                 string sql = @"SELECT RTRIM(MATAIKHOAN) AS MATAIKHOAN,
                                       RTRIM(USERNAME) AS USERNAME,
                                       RTRIM(PASS) AS PASS,
-                                      QUYEN
+                                      QUYEN, EMAIL
                                FROM dbo.TAIKHOAN
                                WHERE RTRIM(MATAIKHOAN) = @MATAIKHOAN";
                 SqlParameter[] p = { new SqlParameter("@MATAIKHOAN", maTK.Trim()) };
@@ -118,7 +119,8 @@ namespace DAL
                         MATAIKHOAN = r["MATAIKHOAN"].ToString(),
                         USERNAME = r["USERNAME"].ToString(),
                         PASS = r["PASS"].ToString(),
-                        QUYEN = r["QUYEN"] == DBNull.Value ? 0 : Convert.ToInt32(r["QUYEN"])
+                        QUYEN = r["QUYEN"] == DBNull.Value ? 0 : Convert.ToInt32(r["QUYEN"]),
+                        EMAIL = r["EMAIL"] == DBNull.Value ? null : r["EMAIL"].ToString()?.Trim()
                     });
                 }
                 return list;
@@ -136,7 +138,7 @@ namespace DAL
                 string sql = @"SELECT TOP (2) RTRIM(MATAIKHOAN) AS MATAIKHOAN,
                                             RTRIM(USERNAME) AS USERNAME,
                                             RTRIM(PASS) AS PASS,
-                                            QUYEN
+                                            QUYEN, EMAIL
                                FROM dbo.TAIKHOAN
                                WHERE RTRIM(USERNAME) COLLATE Latin1_General_100_BIN2 =
                                      @USERNAME COLLATE Latin1_General_100_BIN2";
@@ -152,7 +154,8 @@ namespace DAL
                     MATAIKHOAN = r["MATAIKHOAN"].ToString() ?? "",
                     USERNAME = r["USERNAME"].ToString() ?? "",
                     PASS = r["PASS"].ToString() ?? "",
-                    QUYEN = r["QUYEN"] == DBNull.Value ? 0 : Convert.ToInt32(r["QUYEN"])
+                    QUYEN = r["QUYEN"] == DBNull.Value ? 0 : Convert.ToInt32(r["QUYEN"]),
+                    EMAIL = r["EMAIL"] == DBNull.Value ? null : r["EMAIL"].ToString()?.Trim()
                 };
             }
             catch (Exception ex)
@@ -196,14 +199,15 @@ namespace DAL
         {
             try
             {
-                string sql = @"INSERT INTO dbo.TAIKHOAN (MATAIKHOAN, USERNAME, PASS, QUYEN)
-                               VALUES (@MATAIKHOAN, @USERNAME, @PASS, @QUYEN)";
+                string sql = @"INSERT INTO dbo.TAIKHOAN (MATAIKHOAN, USERNAME, PASS, QUYEN, EMAIL)
+                               VALUES (@MATAIKHOAN, @USERNAME, @PASS, @QUYEN, @EMAIL)";
                 SqlParameter[] p =
                 {
                     new SqlParameter("@MATAIKHOAN", tk.MATAIKHOAN.Trim()),
                     new SqlParameter("@USERNAME",   tk.USERNAME.Trim()),
                     new SqlParameter("@PASS",       tk.PASS.Trim()),
-                    new SqlParameter("@QUYEN",      tk.QUYEN)
+                    new SqlParameter("@QUYEN",      tk.QUYEN),
+                    new SqlParameter("@EMAIL", SqlDbType.NVarChar, 320) { Value = (object?)tk.EMAIL?.Trim() ?? DBNull.Value }
                 };
                 int rows = Connect.ExecuteNonQuery(sql, p);
                 return rows > 0;
@@ -225,13 +229,15 @@ namespace DAL
                                SET USERNAME = @USERNAME,
                                    PASS = @PASS,
                                    QUYEN = @QUYEN
+                                   , EMAIL = @EMAIL
                                WHERE RTRIM(MATAIKHOAN) = @MATAIKHOAN";
                 SqlParameter[] p =
                 {
                     new SqlParameter("@MATAIKHOAN", tk.MATAIKHOAN.Trim()),
                     new SqlParameter("@USERNAME", tk.USERNAME.Trim()),
                     new SqlParameter("@PASS", tk.PASS.Trim()),
-                    new SqlParameter("@QUYEN", tk.QUYEN)
+                    new SqlParameter("@QUYEN", tk.QUYEN),
+                    new SqlParameter("@EMAIL", SqlDbType.NVarChar, 320) { Value = (object?)tk.EMAIL?.Trim() ?? DBNull.Value }
                 };
                 int rows = Connect.ExecuteNonQuery(sql, p);
                 return rows > 0;

@@ -507,14 +507,14 @@
 }
 
 .nut-chinh {
-  background: linear-gradient(135deg, var(--mau-chinh), #4338ca);
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
   color: #fff;
-  border-color: var(--mau-chinh);
+  border-color: #2563eb;
   box-shadow: 0 2px 8px var(--mau-chinh-glow);
 }
 
 .nut-chinh:hover:not(:disabled) {
-  background: linear-gradient(135deg, #4338ca, #3730a3);
+  background: linear-gradient(135deg, #1d4ed8, #1e40af);
   box-shadow: 0 6px 16px var(--mau-chinh-glow);
   transform: translateY(-1px);
 }
@@ -563,6 +563,18 @@
   background: var(--xam-100);
   border-color: var(--xam-400);
   color: var(--mau-chinh);
+}
+
+.nut-vien.nut-nguy-hiem {
+  background: #ffffff;
+  color: var(--mau-nguy-hiem);
+  border-color: #fca5a5;
+}
+
+.nut-vien.nut-nguy-hiem:hover:not(:disabled) {
+  background: var(--mau-nguy-hiem-sang);
+  border-color: var(--mau-nguy-hiem);
+  color: var(--mau-nguy-hiem-hover);
 }
 
 .nut-phu {
@@ -615,6 +627,60 @@
   border-collapse: separate;
   border-spacing: 0;
   font-size: var(--font-binh);
+}
+
+/* ── Dữ liệu hiển thị trong bảng (Mã TK, Mã SP, Mã KM, Tồn kho, Quyền, Trạng thái...): Bỏ khung vuông/bo tròn, nền, viền và đổi màu chữ về màu đen ── */
+.badge,
+.badge-xanh,
+.badge-do,
+.badge-vang,
+.badge-lam,
+.badge-tim,
+.badge-xam,
+.ma-du-lieu,
+.badge-ma,
+.sp-badge-masp,
+.pn-badge-maphieu,
+.sp-ton-kho-so,
+.ton-kho-so-luong,
+.pn-so-mat-hang,
+.pn-badge-mathang,
+.so-luong-ban-text,
+.bang-stt,
+table td .ma-du-lieu,
+table td .badge,
+table td .badge-xanh,
+table td .badge-do,
+table td .badge-vang,
+table td .badge-lam,
+table td .badge-tim,
+table td .badge-xam,
+table td .sp-ton-kho-so,
+table td .ton-kho-so-luong,
+table td .pn-so-mat-hang,
+table td .so-luong-ban-text,
+table td .bang-stt,
+.bang-du-lieu tbody td .badge,
+.bang tbody td .badge,
+table tbody td .badge {
+  background: transparent !important;
+  background-color: transparent !important;
+  color: #000000 !important;
+  border: none !important;
+  border-radius: 0 !important;
+  padding: 0 !important;
+  font-weight: 600 !important;
+  font-size: 14px !important;
+  letter-spacing: normal !important;
+  box-shadow: none !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 5px;
+}
+
+.badge i,
+table td .badge i {
+  color: #000000 !important;
 }
 
 .bang-du-lieu thead, .bang thead {
@@ -692,29 +758,41 @@ th.cot-thao-tac {
 }
 
 /* Các nút CHỈ CÓ ICON trong cột hành động (hình vuông chuẩn 36x36px) */
-.cum-nut-hanh-dong .nut:not(.nut-co-chu):not(.nut-capnhat-tonkho),
-.bang-du-lieu tbody td.hanh-dong .nut:not(.nut-co-chu):not(.nut-capnhat-tonkho),
-.bang tbody td.hanh-dong .nut:not(.nut-co-chu):not(.nut-capnhat-tonkho) {
+.cum-nut-hanh-dong .nut:not(.nut-co-chu):not(.nut-capnhat-tonkho):not(.nut-thanh-cong),
+.bang-du-lieu tbody td.hanh-dong .nut:not(.nut-co-chu):not(.nut-capnhat-tonkho):not(.nut-thanh-cong),
+.bang tbody td.hanh-dong .nut:not(.nut-co-chu):not(.nut-capnhat-tonkho):not(.nut-thanh-cong) {
   width: 36px;
   min-width: 36px;
   max-width: 36px;
   padding: 0 !important;
 }
 
-/* Các nút CÓ CHỮ trong cột hành động (như nút Cập nhật tồn kho) */
-.cum-nut-hanh-dong .nut-capnhat-tonkho,
+/* Các nút CÓ CHỮ trong cột hành động (tự động mở rộng bao phủ đủ nội dung) */
 .cum-nut-hanh-dong .nut.nut-co-chu,
+.bang-du-lieu tbody td.hanh-dong .nut.nut-co-chu,
+.bang tbody td.hanh-dong .nut.nut-co-chu,
+.cum-nut-hanh-dong .nut.nut-thanh-cong,
+.bang-du-lieu tbody td.hanh-dong .nut.nut-thanh-cong,
+.bang tbody td.hanh-dong .nut.nut-thanh-cong,
+.cum-nut-hanh-dong .nut-capnhat-tonkho,
 .bang-du-lieu tbody td.hanh-dong .nut-capnhat-tonkho,
 .bang tbody td.hanh-dong .nut-capnhat-tonkho {
   width: auto !important;
-  min-width: auto !important;
+  min-width: max-content !important;
   max-width: none !important;
-  height: 34px !important;
-  padding: 0 14px !important;
+  height: 36px !important;
+  padding: 0 12px !important;
   gap: 6px !important;
   font-size: var(--font-nho) !important;
   font-weight: 600 !important;
   white-space: nowrap !important;
+  box-sizing: border-box !important;
+}
+
+/* Riêng nút Cập nhật tồn kho có phong cách màu xanh lá nhạt */
+.cum-nut-hanh-dong .nut-capnhat-tonkho,
+.bang-du-lieu tbody td.hanh-dong .nut-capnhat-tonkho,
+.bang tbody td.hanh-dong .nut-capnhat-tonkho {
   background: #ecfdf5 !important;
   border-color: #6ee7b7 !important;
   color: #059669 !important;

@@ -81,3 +81,47 @@
   gap: var(--kc-s);
   flex-wrap: wrap;
 }
+
+/* Nút Thu nợ trong bảng công nợ - hiển thị đầy đủ bao phủ nội dung */
+.cum-nut-hanh-dong .nut.nut-thanh-cong,
+.bang-du-lieu tbody td.hanh-dong .nut.nut-thanh-cong {
+  width: auto !important;
+  min-width: 96px !important;
+  max-width: none !important;
+  height: 36px !important;
+  padding: 0 14px !important;
+  white-space: nowrap !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 6px !important;
+  background: var(--mau-thanh-cong) !important;
+  border: 1.5px solid var(--mau-thanh-cong) !important;
+  color: #ffffff !important;
+  font-size: var(--font-nho) !important;
+  font-weight: 600 !important;
+  border-radius: var(--bo-goc-nho) !important;
+  box-sizing: border-box !important;
+  box-shadow: 0 1px 3px rgba(16, 185, 129, 0.2) !important;
+}
+
+.cum-nut-hanh-dong .nut.nut-thanh-cong:hover:not(:disabled),
+.bang-du-lieu tbody td.hanh-dong .nut.nut-thanh-cong:hover:not(:disabled) {
+  background: var(--mau-thanh-cong-hover) !important;
+  border-color: var(--mau-thanh-cong-hover) !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.35) !important;
+  transform: translateY(-1px);
+}
+
+.cum-nut-hanh-dong .nut.nut-thanh-cong i,
+.bang-du-lieu tbody td.hanh-dong .nut.nut-thanh-cong i {
+  color: #ffffff !important;
+  font-size: 15px !important;
+}
+
+.bang-du-lieu th.cot-thao-tac,
+.bang-du-lieu td.hanh-dong {
+  min-width: 120px;
+  text-align: center;
+}

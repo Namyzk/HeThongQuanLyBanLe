@@ -15,7 +15,6 @@ namespace DAL
             try
             {
                 DataTable dt = Connect.ExecuteStoredProcedure( "sp_GetKhuyenMai");
-
                 return dt;
             }
             catch (Exception ex)

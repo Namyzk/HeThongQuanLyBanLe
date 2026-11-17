@@ -80,8 +80,10 @@
             .then(function (res) {
               var data = ApiService.layMang(res);
               var tongDT = data.reduce(function (s, hd) {
-                var tien = ApiService.layThuocTinh(hd, 'TONGTIEN') || ApiService.layThuocTinh(hd, 'TONGTIENHANG') || 0;
-                return s + (Number(tien) || 0);
+                var tienHang = Number(ApiService.layThuocTinh(hd, 'TONGTIENHANG')) || 0;
+                var thue = Number(ApiService.layThuocTinh(hd, 'THUEVAT')) || 0;
+                var giamGia = Number(ApiService.layThuocTinh(hd, 'GIAMGIA')) || 0;
+                return s + Math.max(0, tienHang + thue - giamGia);
               }, 0);
               return [
                 { icon: 'bi-receipt', mau: '#f59e0b', nen: '#fffbeb', giaTri: data.length.toLocaleString('vi-VN'), nhan: 'Hóa đơn bán' },

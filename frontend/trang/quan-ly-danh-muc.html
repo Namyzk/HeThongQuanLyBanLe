@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="vi" ng-app="qlblApp">
 <head>
   <meta charset="UTF-8" />
@@ -13,9 +13,9 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
 
   <!-- Modular CSS -->
-  <link rel="stylesheet" href="../css/chung.css" />
+  <link rel="stylesheet" href="../css/chung.css?v=20261115_blue" />
   <link rel="stylesheet" href="../css/bo-cuc.css" />
-  <link rel="stylesheet" href="../css/thanh-phan.css" />
+  <link rel="stylesheet" href="../css/thanh-phan.css?v=20261115_blue" />
   <link rel="stylesheet" href="../css/bieu-mau.css" />
   <link rel="stylesheet" href="../css/hien-thi-di-dong.css" />
   <link rel="stylesheet" href="../css/trang/quan-ly-danh-muc.css" />
@@ -129,7 +129,7 @@
                   </thead>
                   <tbody>
                     <tr ng-repeat="row in vm.layDanhSachPhanTrang()">
-                      <td><span class="badge badge-lam">{{ row.MADANHMUC }}</span></td>
+                      <td><span class="ma-du-lieu">{{ row.MADANHMUC }}</span></td>
                       <td><strong>{{ row.TENDANHMUC }}</strong></td>
                       <td>{{ row.MOTA || '—' }}</td>
                       <td class="hanh-dong">

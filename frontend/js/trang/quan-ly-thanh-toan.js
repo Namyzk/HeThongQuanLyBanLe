@@ -164,7 +164,8 @@
           MaHDBan: row.MaHDBan || '',
           PhuongThuc: row.PhuongThuc || 'Tiền mặt',
           TrangThai: row.TrangThai || 'Đã thanh toán',
-          SoTienThanhToan: Number(row.SoTienThanhToan) || 0
+          SoTienThanhToan: Number(row.SoTienThanhToan) || 0,
+          NgayThanhToan: row.NgayThanhToan || row.NGAYTHANHTOAN || null
         };
         vm.modalForm.hienThi = true;
       };
@@ -197,7 +198,8 @@
           MaHDBan: mahd,
           PhuongThuc: vm.modalForm.data.PhuongThuc,
           SoTienThanhToan: sotien,
-          TrangThai: vm.modalForm.data.TrangThai
+          TrangThai: vm.modalForm.data.TrangThai,
+          NgayThanhToan: vm.modalForm.data.NgayThanhToan || new Date().toISOString()
         };
 
         vm.modalForm.dangLuu = true;

@@ -40,6 +40,7 @@ namespace BLL
             nv.TENNV = nv.TENNV.Trim();
             nv.SDT = nv.SDT.Trim();
             nv.DIACHI = nv.DIACHI.Trim();
+            nv.EMAIL = ValidateEmail(nv.EMAIL);
             if (nv_dal.KiemTraTonTai(nv.MANV))
                 throw new Exception("Mã nhân viên đã tồn tại.");
             if (nv_dal.KiemTraSDTTonTai(nv.SDT))
@@ -54,6 +55,7 @@ namespace BLL
             nv.TENNV = nv.TENNV.Trim();
             nv.SDT = nv.SDT.Trim();
             nv.DIACHI = nv.DIACHI.Trim();
+            nv.EMAIL = ValidateEmail(nv.EMAIL);
             if (!nv_dal.KiemTraTonTai(nv.MANV))
                 throw new Exception("Không tìm thấy nhân viên.");
             if (nv_dal.KiemTraSDTKhacNhanVien(nv.SDT, nv.MANV))
@@ -100,6 +102,15 @@ namespace BLL
             nv.DIACHI = nv.DIACHI.Trim();
             if (nv.DIACHI.Length > 100)
                 throw new Exception( "Địa chỉ không được vượt quá 100 ký tự.");
+        }
+
+        private static string? ValidateEmail(string? email)
+        {
+            if (string.IsNullOrWhiteSpace(email)) return null;
+            email = email.Trim();
+            if (email.Length > 320 || !Regex.IsMatch(email, @"^[^\s@]+@[^\s@]+\.[^\s@]+$"))
+                throw new Exception("Email không hợp lệ.");
+            return email.ToLowerInvariant();
         }
     }
 }

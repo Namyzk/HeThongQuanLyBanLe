@@ -149,6 +149,41 @@
   margin-bottom: var(--kc-m);
 }
 
+/* Các nút có nhãn trong bảng đổi trả - hiển thị đầy đủ bao phủ nội dung */
+.doi-tra-cum-nut {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  flex-wrap: nowrap !important;
+  gap: 8px !important;
+  min-width: 190px !important;
+}
+
+.doi-tra-cum-nut .nut {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  flex: 0 0 auto !important;
+  width: auto !important;
+  min-width: max-content !important;
+  max-width: none !important;
+  height: 36px !important;
+  padding: 0 14px !important;
+  white-space: nowrap !important;
+  line-height: 1 !important;
+  gap: 6px !important;
+  font-size: var(--font-nho) !important;
+  font-weight: 600 !important;
+  box-sizing: border-box !important;
+  border-radius: var(--bo-goc-nho) !important;
+}
+
+.doi-tra-ket-qua-hop .bang-du-lieu th.cot-thao-tac,
+.doi-tra-ket-qua-hop .bang-du-lieu td.cot-thao-tac {
+  min-width: 200px;
+  text-align: center;
+}
+
 .doi-tra-nut-nhom {
   display: inline-flex;
   gap: 4px;
@@ -177,5 +212,10 @@
   }
   .doi-tra-hd-tong-tien {
     text-align: left;
+  }
+
+  .doi-tra-cum-nut {
+    min-width: 175px;
+    gap: 6px;
   }
 }

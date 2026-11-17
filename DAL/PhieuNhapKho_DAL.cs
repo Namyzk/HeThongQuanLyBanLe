@@ -1,4 +1,4 @@
-﻿using Microsoft.Data.SqlClient;
+using Microsoft.Data.SqlClient;
 using DAL.DataHelper;
 using Models;
 using System;
@@ -142,8 +142,10 @@ namespace DAL
                         MAPHIEUNHAP =   row["MAPHIEUNHAP"]?  .ToString()?  .Trim(),
                         MASP =  row["MASP"]? .ToString()?  .Trim(),
                         SOLUONG =  row["SOLUONG"] == DBNull.Value   ? 0  : Convert.ToInt32(  row["SOLUONG"]),
-                        DONGIANHAP =  row["DONGIANHAP"] == DBNull.Value   ? 0   : Convert.ToDecimal(  row["DONGIANHAP"]),
-                        THANHTIEN =   row["THANHTIEN"] == DBNull.Value      ? 0    : Convert.ToDecimal(   row["THANHTIEN"])
+                        DONGIANHAP = row["DONGIANHAP"] == DBNull.Value ? 0 : Convert.ToDecimal(row["DONGIANHAP"]),
+                        THANHTIEN = row["THANHTIEN"] == DBNull.Value || Convert.ToDecimal(row["THANHTIEN"]) == 0
+                            ? ((row["SOLUONG"] == DBNull.Value ? 0 : Convert.ToInt32(row["SOLUONG"])) * (row["DONGIANHAP"] == DBNull.Value ? 0 : Convert.ToDecimal(row["DONGIANHAP"])))
+                            : Convert.ToDecimal(row["THANHTIEN"])
                     });
                 }
 

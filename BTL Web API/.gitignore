@@ -30,6 +30,10 @@ PublishOutput/
 !.vscode/extensions.json
 
 ## --- 4. Sensitive Data & Secrets (Bảo mật) ---
+appsettings.json
+appsettings.*.json
+**/appsettings.json
+**/appsettings.*.json
 appsettings*.local.json
 appsettings.Production.json
 secrets.json
@@ -37,6 +41,8 @@ secrets.json
 *.publishsettings
 .env
 .env.*
+**/.env
+**/.env.*
 !.env.example
 
 ## --- 5. NuGet Packages ---
@@ -58,8 +64,3 @@ coverage/
 .DS_Store
 Thumbs.db
 desktop.ini
-
-
-## --- 8. Custom Exclude ---
-API_GateWay/
-API_GateWay/*

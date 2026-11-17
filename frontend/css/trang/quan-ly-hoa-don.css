@@ -7,6 +7,31 @@
 }
 
 /* Khối xem chi tiết và in hóa đơn */
+#modal-in-hoa-don .modal-hop,
+.modal-hop.modal-hop-vua {
+  max-width: 960px !important;
+  width: 96% !important;
+}
+
+.hoa-don-bang-sp-hop .bang {
+  width: 100%;
+  table-layout: auto;
+}
+
+.hoa-don-bang-sp-hop .bang th,
+.hoa-don-bang-sp-hop .bang td {
+  padding: 10px 14px;
+}
+
+.hoa-don-bang-sp-hop .bang td:nth-child(2) {
+  min-width: 260px;
+}
+
+.hoa-don-bang-sp-hop .bang td.van-ban-phai,
+.hoa-don-bang-sp-hop .bang th.van-ban-phai {
+  white-space: nowrap;
+}
+
 .hoa-don-chi-tiet-hop {
   display: flex;
   flex-direction: column;
@@ -25,8 +50,9 @@
 }
 
 .hoa-don-bang-sp-hop {
-  max-height: 260px;
+  max-height: 270px;
   overflow-y: auto;
+  overflow-x: hidden;
   border: 1px solid var(--duong-vien);
   border-radius: var(--bo-goc-vua);
 }

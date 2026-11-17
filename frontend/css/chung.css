@@ -7,13 +7,13 @@
 
 /* ── Biến CSS Design System ── */
 :root {
-  /* Màu chủ đạo (Indigo & Electric Blue) */
-  --mau-chinh: #4f46e5;
-  --mau-chinh-hover: #4338ca;
-  --mau-chinh-dam: #3730a3;
-  --mau-chinh-nhat: #e0e7ff;
-  --mau-chinh-sang: #eef2ff;
-  --mau-chinh-glow: rgba(79, 70, 229, 0.25);
+  /* Màu chủ đạo (Trắng & Xanh Dương - White & Royal Blue) */
+  --mau-chinh: #2563eb;
+  --mau-chinh-hover: #1d4ed8;
+  --mau-chinh-dam: #1e40af;
+  --mau-chinh-nhat: #dbeafe;
+  --mau-chinh-sang: #eff6ff;
+  --mau-chinh-glow: rgba(37, 99, 235, 0.25);
 
   /* Màu bổ trợ & trạng thái hiện đại */
   --mau-thanh-cong: #10b981;
@@ -63,20 +63,20 @@
   --duong-vien: #e2e8f0;
   --duong-vien-nhe: #f1f5f9;
 
-  /* Sidebar Dark Theme */
-  --sidebar-nen: #0b1120;
-  --sidebar-nen-phu: #0f172a;
-  --sidebar-nen-hover: rgba(255, 255, 255, 0.06);
-  --sidebar-van-ban: #94a3b8;
+  /* Sidebar White & Blue Theme */
+  --sidebar-nen: #ffffff;
+  --sidebar-nen-phu: #f8fafc;
+  --sidebar-nen-hover: #eff6ff;
+  --sidebar-van-ban: #475569;
   --sidebar-van-ban-active: #ffffff;
-  --sidebar-accent: #6366f1;
+  --sidebar-accent: #2563eb;
   --sidebar-rong: 260px;
   --sidebar-rong-thu: 72px;
 
   /* Header Glassmorphism */
   --header-cao: 68px;
-  --header-nen: rgba(255, 255, 255, 0.88);
-  --header-vien: #e2e8f0;
+  --header-nen: #ffffff;
+  --header-vien: #dbeafe;
 
   /* Bo góc chuẩn */
   --bo-goc-xs: 4px;
@@ -254,26 +254,79 @@ h1, h2, h3, h4, h5, h6 {
   100% { background-position: -200% 0; }
 }
 
-/* ── Badge / Thẻ trạng thái sang trọng ── */
-.badge {
-  display: inline-flex;
-  align-items: center;
+/* ── Badge / Thẻ trạng thái (Bỏ hoàn toàn khung vuông/bo tròn màu nền và viền, chữ màu đen) ── */
+.badge,
+.badge-xanh,
+.badge-do,
+.badge-vang,
+.badge-lam,
+.badge-tim,
+.badge-xam {
+  display: inline-flex !important;
+  align-items: center !important;
   gap: 5px;
-  padding: 3px 10px;
-  border-radius: var(--bo-goc-tron);
-  font-size: var(--font-xs);
-  font-weight: 600;
+  padding: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  background-color: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  color: #000000 !important;
+  font-size: 14px !important;
+  font-weight: 600 !important;
   line-height: 1.4;
   white-space: nowrap;
-  letter-spacing: 0.02em;
+  letter-spacing: normal !important;
 }
 
-.badge-xanh   { background: var(--mau-thanh-cong-sang); color: var(--mau-thanh-cong-hover); border: 1px solid var(--mau-thanh-cong-nhat); }
-.badge-do     { background: var(--mau-nguy-hiem-sang);  color: var(--mau-nguy-hiem-hover);  border: 1px solid var(--mau-nguy-hiem-nhat); }
-.badge-vang   { background: var(--mau-canh-bao-sang);   color: var(--mau-canh-bao-hover);   border: 1px solid var(--mau-canh-bao-nhat); }
-.badge-lam    { background: var(--mau-chinh-sang);      color: var(--mau-chinh-dam);        border: 1px solid var(--mau-chinh-nhat); }
-.badge-tim    { background: var(--mau-tim-sang);        color: var(--mau-tim);              border: 1px solid var(--mau-tim-nhat); }
-.badge-xam    { background: var(--xam-100);             color: var(--xam-700);              border: 1px solid var(--xam-200); }
+.badge i,
+.badge-xanh i,
+.badge-do i,
+.badge-vang i,
+.badge-lam i,
+.badge-tim i,
+.badge-xam i {
+  color: #000000 !important;
+}
+
+/* ── Dữ liệu hiển thị (Mã SP, Mã TK, Mã KM, Mã NV, Mã KH, Mã HĐ, Tồn kho, Số lượng...): Bỏ toàn bộ bo tròn, nền, viền và đổi màu chữ về màu đen ── */
+.ma-du-lieu,
+.badge-ma,
+.sp-badge-masp,
+.pn-badge-maphieu,
+.sp-ton-kho-so,
+.ton-kho-so-luong,
+.pn-so-mat-hang,
+.pn-badge-mathang,
+.so-luong-ban-text,
+.bang-stt,
+table td .ma-du-lieu,
+table td .badge,
+table td .badge-xanh,
+table td .badge-do,
+table td .badge-vang,
+table td .badge-lam,
+table td .badge-tim,
+table td .badge-xam,
+table td .sp-ton-kho-so,
+table td .ton-kho-so-luong,
+table td .pn-so-mat-hang,
+table td .so-luong-ban-text,
+table td .bang-stt,
+.bang-du-lieu tbody td .badge,
+.bang tbody td .badge,
+table tbody td .badge {
+  background: transparent !important;
+  background-color: transparent !important;
+  color: #000000 !important;
+  border: none !important;
+  border-radius: 0 !important;
+  padding: 0 !important;
+  font-weight: 600 !important;
+  font-size: 14px !important;
+  letter-spacing: normal !important;
+  box-shadow: none !important;
+}
 
 /* ── Keyframe Animations ── */
 @keyframes fadeIn {
