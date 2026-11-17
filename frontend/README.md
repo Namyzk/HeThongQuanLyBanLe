@@ -1,6 +1,6 @@
-# HỆ THỐNG QUẢN LÝ BÁN LẺ (RETAIL MANAGEMENT SYSTEM — BACKEND & FRONTEND)
+# HỆ THỐNG QUẢN LÝ BÁN LẺ & KHO
 
-Hệ thống Quản lý Bán lẻ toàn diện được xây dựng theo kiến trúc **Microservices (.NET 8 Web API + Ocelot API Gateway + SQL Server)** kết hợp với giao diện **Frontend (HTML5, Modular CSS3 & AngularJS 1.x)**, đóng gói và vận hành đồng bộ qua **Docker Compose** (Apache Reverse Proxy + 6 контейнеров dịch vụ .NET).
+**HỆ THỐNG QUẢN LÝ BÁN LẺ & KHO** được xây dựng theo kiến trúc **Microservices (.NET 8 Web API + Ocelot API Gateway + SQL Server)** kết hợp với giao diện **Frontend (HTML5, Modular CSS3 & AngularJS 1.x)**, đóng gói và vận hành đồng bộ qua **Docker Compose** (Apache Reverse Proxy + 6 container dịch vụ .NET).
 
 ---
 
